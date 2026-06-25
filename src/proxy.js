@@ -232,6 +232,7 @@ export function extractResponsesArtifacts(payload) {
   const calls = new Map();
   for (const item of inputs) {
     if (item?.type === "function_call" && item.call_id) calls.set(item.call_id, item);
+    if (item?.type === "custom_tool_call" && item.call_id) calls.set(item.call_id, item);
   }
 
   for (const [index, item] of inputs.entries()) {
@@ -259,7 +260,8 @@ export function extractResponsesArtifacts(payload) {
       const toolMetadata = describeToolOutput({
         toolName,
         callId: item.call_id,
-        output: item.output
+        output: item.output,
+        callMetadata: call ? describeCallMetadata(call) : undefined
       });
       addTextValue(artifacts, item.output, {
         artifactType: classifyToolOutput(toolName),
@@ -287,10 +289,13 @@ export function extractResponsesArtifacts(payload) {
     }
 
     if (item.type === "custom_tool_call_output") {
+      const call = calls.get(item.call_id);
+      const toolName = call?.name ?? "custom_tool";
       const toolMetadata = describeToolOutput({
-        toolName: "custom_tool",
+        toolName,
         callId: item.call_id,
-        output: item.output
+        output: item.output,
+        callMetadata: call ? describeCallMetadata(call) : undefined
       });
       addTextValue(artifacts, item.output, {
         artifactType: "SUMMARY",
@@ -410,11 +415,14 @@ function describeCustomToolCall({ toolName, callId, input }) {
   };
 }
 
-function describeToolOutput({ toolName, callId, output }) {
+function describeToolOutput({ toolName, callId, output, callMetadata }) {
   const text = normalizeToolOutput(output);
-  const exitCode = text.match(/(?:Exit code|Process exited with code):\s*(-?\d+)/i)?.[1];
+  const exitCode = text.match(/(?:Exit code|Process exited with code):?\s*(-?\d+)/i)?.[1];
   const tokenCount = text.match(/Original token count:\s*([0-9,]+)/i)?.[1];
-  const label = `tool:${toolName}:${callId ?? "unknown"}`;
+  const command = callMetadata?.command;
+  const label = command
+    ? `${toolName} output: ${truncateMiddle(command, 72)}`
+    : `tool:${toolName}:${callId ?? "unknown"}`;
   return {
     artifactName: label,
     metadata: compactObject({
@@ -422,11 +430,23 @@ function describeToolOutput({ toolName, callId, output }) {
       call_id: callId,
       display_name: label,
       content_kind: "tool_output",
+      command,
+      workdir: callMetadata?.workdir,
+      source_display_name: callMetadata?.display_name,
+      source_content_kind: callMetadata?.content_kind,
+      touched_files: callMetadata?.touched_files,
       exit_code: exitCode === undefined ? undefined : Number(exitCode),
       original_token_count: tokenCount === undefined ? undefined : Number(tokenCount.replaceAll(",", "")),
       output_preview: firstContentLine(text)
     })
   };
+}
+
+function describeCallMetadata(call) {
+  const toolName = call.name ?? "unknown";
+  return call.type === "custom_tool_call"
+    ? describeCustomToolCall({ toolName, callId: call.call_id, input: call.input }).metadata
+    : describeFunctionCall({ toolName, callId: call.call_id, input: call.arguments }).metadata;
 }
 
 function summarizePatch(text) {

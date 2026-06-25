@@ -33,6 +33,56 @@ test("extracts instructions, tool definitions, messages, and tool output", () =>
   assert.equal(artifacts[4].metadata.tool_name, "search_docs");
 });
 
+test("tool output inherits command metadata from its paired function call", () => {
+  const artifacts = extractResponsesArtifacts({
+    input: [
+      {
+        type: "function_call",
+        name: "exec_command",
+        call_id: "call_exec_output",
+        arguments: JSON.stringify({
+          cmd: "npm test",
+          workdir: "/repo"
+        })
+      },
+      {
+        type: "function_call_output",
+        call_id: "call_exec_output",
+        output: "Chunk ID: test\nProcess exited with code 0\nOutput:\nall good"
+      }
+    ]
+  });
+
+  assert.equal(artifacts[1].artifactName, "exec_command output: npm test");
+  assert.equal(artifacts[1].metadata.command, "npm test");
+  assert.equal(artifacts[1].metadata.workdir, "/repo");
+  assert.equal(artifacts[1].metadata.exit_code, 0);
+  assert.equal(artifacts[1].metadata.output_preview, "all good");
+});
+
+test("custom tool output inherits metadata from its paired custom call", () => {
+  const artifacts = extractResponsesArtifacts({
+    input: [
+      {
+        type: "custom_tool_call",
+        name: "exec",
+        call_id: "call_custom_exec_output",
+        input: "const r = await tools.exec_command({cmd: \"rg RuntimeAction\", workdir: \"/repo\"});"
+      },
+      {
+        type: "custom_tool_call_output",
+        call_id: "call_custom_exec_output",
+        output: "Exit code: 0\nOutput:\nai_conversation_engine/runtime/actions.py"
+      }
+    ]
+  });
+
+  assert.equal(artifacts[1].artifactName, "exec output: rg RuntimeAction");
+  assert.equal(artifacts[1].metadata.command, "rg RuntimeAction");
+  assert.equal(artifacts[1].metadata.workdir, "/repo");
+  assert.equal(artifacts[1].metadata.output_preview, "ai_conversation_engine/runtime/actions.py");
+});
+
 test("extracts readable metadata for custom apply_patch calls", () => {
   const artifacts = extractResponsesArtifacts({
     input: [

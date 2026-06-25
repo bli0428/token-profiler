@@ -252,7 +252,35 @@ function mergeMetadata(current = {}, next = {}) {
       merged[key] = [...new Set([...existing, ...value])];
       continue;
     }
+    if (key === "display_name" && shouldReplaceDisplayName(merged[key], value, merged, next)) {
+      merged[key] = value;
+      continue;
+    }
     if (merged[key] === undefined) merged[key] = value;
   }
   return merged;
+}
+
+function shouldReplaceDisplayName(current, next, currentMetadata, nextMetadata) {
+  if (current === undefined) return true;
+  return metadataSpecificity(nextMetadata) > metadataSpecificity(currentMetadata)
+    || (isGenericDisplayName(current) && !isGenericDisplayName(next));
+}
+
+function metadataSpecificity(metadata = {}) {
+  let score = 0;
+  if (metadata.command) score += 4;
+  if (metadata.touched_files?.length > 0) score += 3;
+  if (metadata.output_preview) score += 2;
+  if (metadata.source_display_name) score += 2;
+  if (metadata.content_kind) score += 1;
+  if (metadata.tool_name) score += 1;
+  return score;
+}
+
+function isGenericDisplayName(value) {
+  const text = String(value ?? "");
+  return /^tool:[^:]+:call_/.test(text)
+    || /^tool-call:[^:]+:call_/.test(text)
+    || /^input:[^:]+:\d+$/.test(text);
 }

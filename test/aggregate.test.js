@@ -64,6 +64,33 @@ test("carries readable artifact metadata into aggregate rows", () => {
   ]);
 });
 
+test("prefers more specific display metadata for mixed-version captures", () => {
+  const summary = aggregateEvents([
+    {
+      ...event("req_1", "TOOL_OUTPUT:call_1", "TOOL_OUTPUT", "tool:exec_command:call_1", "hash_output", 20),
+      metadata: {
+        display_name: "tool:exec_command:call_1",
+        tool_name: "exec_command",
+        content_kind: "tool_output"
+      }
+    },
+    {
+      ...event("req_2", "TOOL_OUTPUT:call_1", "TOOL_OUTPUT", "exec_command output: npm test", "hash_output", 20),
+      metadata: {
+        display_name: "exec_command output: npm test",
+        tool_name: "exec_command",
+        content_kind: "tool_output",
+        command: "npm test",
+        output_preview: "all good"
+      }
+    }
+  ]);
+
+  const artifact = summary.artifacts[0];
+  assert.equal(artifact.display_name, "exec_command output: npm test");
+  assert.equal(artifact.metadata.command, "npm test");
+});
+
 test("aggregates prompt cache usage without adding it to exposure", () => {
   const summary = aggregateEvents([
     event("req_1", "FILE:auth", "FILE", "auth.js", "hash_auth", 10),
