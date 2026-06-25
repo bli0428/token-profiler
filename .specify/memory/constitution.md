@@ -20,7 +20,7 @@ Specs describe what and why. Plans describe how. Specs MUST stay technology-agno
 
 ## Development Workflow
 
-Specs are independently valuable vertical slices with testable user stories. Stored-data changes require compatibility and privacy review. Capture changes require tests for the selected privacy mode. User-facing reports must preserve explainability.
+Specs are independently valuable vertical slices with testable user stories. Stored-data changes require migration-boundary and privacy review. Capture changes require tests for the selected privacy mode. User-facing reports must preserve explainability.
 
 ## Code Organization
 
