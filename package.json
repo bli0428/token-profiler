@@ -1,0 +1,21 @@
+{
+  "name": "token-efficiency-tracker",
+  "version": "0.1.0",
+  "description": "Context exposure profiler for agent prompts.",
+  "type": "module",
+  "bin": {
+    "token-efficiency": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "demo": "node src/cli.js demo",
+    "summarize": "node src/cli.js summarize"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "tiktoken": "^1.0.22"
+  }
+}

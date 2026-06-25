@@ -1,0 +1,213 @@
+# Token Efficiency Tracker
+
+A small MVP for measuring what an agent sends to a model.
+
+Instead of trying to infer what the model used, this tracks **context exposure**:
+
+- which artifacts were included in each model request
+- how many prompt tokens they contributed
+- how often identical content was replayed
+- which artifacts dominate the prompt budget
+
+Artifact text is counted locally with the `o200k_base` tokenizer.
+
+## Quick Start
+
+```bash
+npm test
+npm run demo
+node src/cli.js summarize .token-profiler/runs/demo
+node src/cli.js html .token-profiler/runs/demo --out .token-profiler/runs/demo/report.html
+```
+
+## Agent Integration
+
+```js
+import { TokenProfiler } from "./src/index.js";
+
+const profiler = new TokenProfiler({ runId: "run_123" });
+
+const prompt = [
+  profiler.track({
+    requestId: "req_001",
+    artifactType: "SYSTEM_PROMPT",
+    artifactName: "system",
+    content: systemPrompt
+  }),
+  profiler.track({
+    requestId: "req_001",
+    artifactType: "FILE",
+    artifactName: "src/auth.js",
+    content: authFile
+  })
+];
+
+// Send `prompt` to the model normally.
+await profiler.flush();
+```
+
+`track()` returns the original content unchanged, so instrumentation does not change agent behavior.
+
+## Codex Harness Usage
+
+Codex's own hidden prompt assembly is not exposed directly to workspace code. Without the local proxy, there are still three useful harness patterns:
+
+1. Use `watch` to record file snapshots as the workspace changes.
+2. Use `run` to capture command output, test logs, and build logs without manual copy/paste.
+3. Use `codex-import` to import exact token usage events from Codex rollout JSONL files.
+
+From another project:
+
+```bash
+cd /path/to/personal-secretary-web
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js watch \
+  --run secretary-session-001 \
+  src app package.json
+```
+
+In a second terminal, wrap commands you want captured:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js run \
+  --run secretary-session-001 \
+  --name npm-test \
+  -- npm test
+```
+
+Then summarize:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js summarize \
+  .token-profiler/runs/secretary-session-001
+```
+
+For exact prompt exposure, attach the `TokenProfiler` API to code that assembles prompts or calls the OpenAI API.
+
+## Local Codex Proxy
+
+The local proxy observes the JSON request body Codex sends to the Responses API, records prompt artifacts, and streams the upstream response back unchanged. It listens on loopback only and does not store raw prompt content by default.
+
+Each `codex run` invocation receives a unique session ID automatically. A reused background proxy routes events into separate session directories using the wrapper header, Codex conversation/cache identifiers, or a short-lived prompt fingerprint fallback. List recent sessions with:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js sessions
+```
+
+When available, `sessions` also reads Codex's local `~/.codex/session_index.jsonl`
+and rollout logs to show the Codex thread title or first user prompt next to the
+profiler run ID:
+
+```text
+2026-06-23T23:03:20.318Z  secretary-proxy-test  Inspect package.json and briefly describe this project.  [codex:019e...]
+```
+
+Use `--no-codex` to list only profiler IDs, or `--codex-home <path>` if your
+Codex home directory is not `~/.codex`.
+
+For a one-off profiled Codex task, use the wrapper. It starts or reuses the correct proxy and supplies the provider configuration automatically:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js codex run \
+  --cwd /path/to/project \
+  -- "Inspect package.json and briefly describe this project."
+```
+
+Completed Responses API streams are inspected for `input_tokens_details.cached_tokens`. Reports show exact input, cached, and uncached token totals plus the cache hit ratio; usage events are kept separate from local artifact exposure so they are not double-counted.
+
+Newly captured proxy events also store each artifact's order plus reconstructed
+`token_start` and `token_end` offsets for the request. The report overlays the
+request-level cached-token prefix onto those offsets to produce estimated cost
+drivers. When the reconstructed artifact text is longer than the provider's
+reported `input_tokens`, the cache attribution is scaled down to the actual
+input-token total before uncached tokens are assigned:
+
+```text
+Estimated Cost Drivers
+Artifact       Type        Est. Uncached   Exposure   Est. Cache Hit
+build.log      ERROR_LOG   140,000         240,000    41.7%
+
+Context Bloat
+Artifact       Type        Exposure        Replay     Replay Ratio
+repo_map       REPO_MAP    300,000         280,000    93.3%
+```
+
+These per-artifact cache numbers are estimates based on the reconstructed prompt
+order and reconciled to exact request-level usage. Older events that were
+captured before offset tracking show `0%` attribution coverage.
+
+Start it in the background:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js proxy start \
+  --auth chatgpt
+```
+
+Check or stop it later:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js proxy status
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js proxy stop
+```
+
+Generate a report from the proxy run:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js summarize \
+  ~/.token-efficiency/runs/codex-live
+```
+
+Enable routing in the user-level Codex configuration:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js codex enable
+```
+
+Restart Codex and begin a new session. Provider routing must be configured at user level, so this command adds a `token-profiler` model provider to `~/.codex/config.toml`. It remembers the previous provider in a neighboring state file and can restore it with:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js codex disable
+```
+
+The proxy sees authorization headers only long enough to forward the request. It never records them. Add `--store-content` only when you intentionally want raw prompt text included in the local event log.
+
+ChatGPT authentication is the default mode and forwards to the Codex account endpoint. Use `--auth api` on both `proxy start` and `codex enable` when Codex is logged in with an API key. The managed provider uses HTTP streaming so every request passes through the profiler without WebSocket retry delays.
+
+## Codex Token Import
+
+Codex stores local rollout JSONL files under `~/.codex/sessions/...` and tracks per-request token usage in `token_count` events. Import one of those files:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js codex-import \
+  ~/.codex/sessions/2026/06/23/rollout-example.jsonl \
+  --run codex-session-001
+```
+
+This imports exact input-token usage for each Codex model request, with cached input, output, reasoning output, and total tokens stored as event metadata.
+
+This is useful for thread-level and request-level usage, but it still does not attribute prompt tokens back to individual files. For that, use a model proxy or an agent integration that can see the assembled request body.
+
+## Metrics
+
+- **Total Exposure**: all prompt tokens sent across the run
+- **Unique Exposure**: first-seen token cost for each exact content hash
+- **Repeated Exposure**: tokens spent resending already-seen content
+- **Replay Ratio**: repeated exposure divided by total exposure
+- **Context Efficiency**: unique exposure divided by total exposure
+
+## Event Shape
+
+Events are stored as JSONL in `.token-profiler/runs/<run_id>/events.jsonl`.
+
+```json
+{
+  "schema_version": 1,
+  "run_id": "run_123",
+  "request_id": "req_001",
+  "artifact_id": "FILE:src/auth.js",
+  "artifact_type": "FILE",
+  "artifact_name": "src/auth.js",
+  "content_hash": "sha256...",
+  "token_count": 9134,
+  "timestamp": "2026-06-23T14:10:00.000Z"
+}
+```

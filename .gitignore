@@ -1,0 +1,4 @@
+.token-profiler/
+node_modules/
+npm-debug.log*
+
