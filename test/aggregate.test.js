@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { aggregateEvents } from "../src/aggregate.js";
 
@@ -19,6 +20,18 @@ test("aggregates exposure and replay by exact content hash", () => {
   assert.equal(summary.totals.context_efficiency, 0.5);
   assert.equal(summary.replay_hotspots[0].artifact_name, "repo_map");
   assert.equal(summary.replay_hotspots[0].repeated_exposure, 20);
+});
+
+test("summarizes new contract fixture runs", async () => {
+  const events = (await readFile("test/fixtures/events/new-contract.jsonl", "utf8"))
+    .trim()
+    .split("\n")
+    .map(JSON.parse);
+  const summary = aggregateEvents(events);
+
+  assert.equal(summary.totals.total_exposure, 42);
+  assert.equal(summary.totals.input_tokens, 50);
+  assert.equal(summary.artifacts[0].metadata.extra_field, "preserved");
 });
 
 test("treats changed content hashes as new unique exposure", () => {
@@ -91,6 +104,57 @@ test("prefers more specific display metadata for mixed-version captures", () => 
   assert.equal(artifact.metadata.command, "npm test");
 });
 
+test("preserves command, patch, and unknown metadata variants", () => {
+  const summary = aggregateEvents([
+    {
+      ...event("req_1", "TOOL_OUTPUT:call_1", "TOOL_OUTPUT", "exec_command output: npm test", "hash_cmd", 20),
+      metadata: {
+        display_name: "exec_command output: npm test",
+        tool_name: "exec_command",
+        content_kind: "tool_output",
+        command: "npm test",
+        workdir: "/repo",
+        unknown_detail: "kept"
+      }
+    },
+    {
+      ...event("req_2", "SUMMARY:patch", "SUMMARY", "apply_patch: update src/app.js", "hash_patch", 10),
+      metadata: {
+        display_name: "apply_patch: update src/app.js",
+        tool_name: "apply_patch",
+        content_kind: "patch",
+        touched_files: ["src/app.js"],
+        patch_updates: 1
+      }
+    }
+  ]);
+
+  const command = summary.artifacts.find((artifact) => artifact.artifact_id === "TOOL_OUTPUT:call_1");
+  const patch = summary.artifacts.find((artifact) => artifact.artifact_id === "SUMMARY:patch");
+  assert.equal(command.metadata.command, "npm test");
+  assert.equal(command.metadata.unknown_detail, "kept");
+  assert.deepEqual(patch.metadata.touched_files, ["src/app.js"]);
+});
+
+test("new contract aggregate rejects unsupported legacy artifact records", () => {
+  assert.throws(
+    () => aggregateEvents([
+      {
+        schema_version: 1,
+        run_id: "run_test",
+        request_id: "req_1",
+        artifact_id: "FILE:auth",
+        artifact_type: "FILE",
+        artifact_name: "auth.js",
+        content_hash: "hash_auth",
+        token_count: 10,
+        timestamp: "2026-06-23T12:00:01.000Z"
+      }
+    ]),
+    /event_kind/
+  );
+});
+
 test("aggregates prompt cache usage without adding it to exposure", () => {
   const summary = aggregateEvents([
     event("req_1", "FILE:auth", "FILE", "auth.js", "hash_auth", 10),
@@ -158,7 +222,11 @@ function event(requestId, artifactId, artifactType, artifactName, contentHash, t
     artifact_type: artifactType,
     artifact_name: artifactName,
     content_hash: contentHash,
-    token_count: tokenCount,
+    local_token_count: tokenCount,
+    tokenizer: "o200k_base",
+    storage_mode: "metadata",
+    event_kind: "artifact",
+    metadata: {},
     token_start: tokenStart,
     token_end: tokenEnd,
     timestamp: `2026-06-23T12:00:0${requestId.at(-1)}.000Z`
@@ -175,6 +243,7 @@ function usage(requestId, inputTokens, cachedTokens, outputTokens) {
     cached_input_tokens: cachedTokens,
     uncached_input_tokens: inputTokens - cachedTokens,
     output_tokens: outputTokens,
+    total_tokens: inputTokens + outputTokens,
     timestamp: "2026-06-23T12:01:00.000Z"
   };
 }

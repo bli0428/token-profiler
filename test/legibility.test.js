@@ -13,7 +13,10 @@ test("formats readable artifacts and artifact detail", () => {
       artifact_type: "SUMMARY",
       artifact_name: "input:custom_tool_call:1",
       content_hash: "hash_patch",
-      token_count: 100,
+      event_kind: "artifact",
+      local_token_count: 100,
+      tokenizer: "o200k_base",
+      storage_mode: "metadata",
       timestamp: "2026-06-24T12:00:00.000Z",
       metadata: {
         display_name: "apply_patch: add runtime tests",

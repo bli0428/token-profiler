@@ -11,7 +11,10 @@ Metadata-only is the default. Preview and raw-content modes MUST be explicit, vi
 ### III. Provider-Agnostic Insight
 Users should understand context behavior across supported agent environments without needing provider-specific internals. Provider limitations MUST be disclosed when they affect completeness.
 
-### IV. Explainability Over Raw Numbers
+### IV. Architecture Boundaries
+The architecture is Ingestors -> Canonical Store -> Analyzers -> Surfaces. Provider-specific payloads MUST terminate at ingestors. Analyzers MUST consume canonical records only. Substantial new adapter, analyzer, or dashboard work MUST preserve these boundaries.
+
+### V. Explainability Over Raw Numbers
 Reports MUST explain what was in context: commands, patches, files, tool calls, task phases, and persistence. Token tables are evidence, not the outcome.
 
 ## Documentation Separation
@@ -28,6 +31,6 @@ Files and modules MUST have clear responsibility boundaries. Files approaching 6
 
 ## Governance
 
-This constitution governs specs and plans. Amendments require a rationale. Privacy modes, documentation separation, and provider-agnostic insight cannot be bypassed without explicit user approval.
+This constitution governs specs and plans. Amendments require a rationale. Privacy modes, architecture boundaries, documentation separation, and provider-agnostic insight cannot be bypassed without explicit user approval.
 
-**Version**: 1.0.0 | **Ratified**: 2026-06-25 | **Last Amended**: 2026-06-25
+**Version**: 1.1.0 | **Ratified**: 2026-06-25 | **Last Amended**: 2026-06-25

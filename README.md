@@ -10,6 +10,7 @@ Instead of trying to infer what the model used, this tracks **context exposure**
 - which artifacts dominate the prompt budget
 
 Artifact text is counted locally with the `o200k_base` tokenizer.
+Local artifact attribution is estimated based on local tokenizer counts.
 
 ## Quick Start
 
@@ -168,7 +169,7 @@ Restart Codex and begin a new session. Provider routing must be configured at us
 node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js codex disable
 ```
 
-The proxy sees authorization headers only long enough to forward the request. It never records them. Add `--store-content` only when you intentionally want raw prompt text included in the local event log.
+The proxy sees authorization headers only long enough to forward the request. It never records them. The default storage mode is `metadata`, which records operational facts without raw prompt text. Use `--storage-mode preview` for bounded excerpts or `--storage-mode raw` when you intentionally want full prompt text included in the local event log. `--store-content` remains as a legacy alias for raw storage.
 
 ChatGPT authentication is the default mode and forwards to the Codex account endpoint. Use `--auth api` on both `proxy start` and `codex enable` when Codex is logged in with an API key. The managed provider uses HTTP streaming so every request passes through the profiler without WebSocket retry delays.
 
@@ -201,13 +202,27 @@ Events are stored as JSONL in `.token-profiler/runs/<run_id>/events.jsonl`.
 ```json
 {
   "schema_version": 1,
+  "event_kind": "artifact",
   "run_id": "run_123",
   "request_id": "req_001",
   "artifact_id": "FILE:src/auth.js",
   "artifact_type": "FILE",
   "artifact_name": "src/auth.js",
   "content_hash": "sha256...",
-  "token_count": 9134,
-  "timestamp": "2026-06-23T14:10:00.000Z"
+  "local_token_count": 9134,
+  "tokenizer": "o200k_base",
+  "timestamp": "2026-06-23T14:10:00.000Z",
+  "storage_mode": "metadata",
+  "metadata": {}
 }
 ```
+
+New captures use the strict event shape above. Older MVP runs are converted
+through a legacy importer before analysis so compatibility code stays separate
+from the new event contract.
+
+Artifact metadata is intentionally structured and extensible. Known fields such
+as `display_name`, `tool_name`, `content_kind`, `command`, `workdir`,
+`touched_files`, and patch counters make reports readable; unknown metadata
+fields are preserved for future analyzers and ignored by reports that do not
+understand them.

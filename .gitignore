@@ -1,4 +1,9 @@
 .token-profiler/
 node_modules/
 npm-debug.log*
-
+dist/
+build/
+coverage/
+*.log
+.env*
+.DS_Store

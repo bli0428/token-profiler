@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { sha256 } from "./hash.js";
 import { TokenProfiler } from "./profiler.js";
+import { normalizeStorageMode } from "./core/privacy/index.js";
 
 const SESSION_HEADER = "x-token-profiler-session";
 
@@ -8,12 +9,13 @@ export class SessionRouter {
   constructor({
     rootDir,
     storeContent = false,
+    storageMode,
     fallbackSessionId,
     idleMs = 30 * 60 * 1000,
     clock = () => new Date()
   }) {
     this.rootDir = rootDir;
-    this.storeContent = storeContent;
+    this.storageMode = normalizeStorageMode({ storageMode, storeContent });
     this.fallbackSessionId = fallbackSessionId ? sanitizeSessionId(fallbackSessionId) : null;
     this.idleMs = idleMs;
     this.clock = clock;
@@ -71,7 +73,7 @@ export class SessionRouter {
       profiler = new TokenProfiler({
         runId: safeId,
         rootDir: this.rootDir,
-        storeContent: this.storeContent
+        storageMode: this.storageMode
       });
       this.profilers.set(safeId, profiler);
     }
