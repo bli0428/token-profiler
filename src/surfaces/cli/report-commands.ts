@@ -1,10 +1,12 @@
 import { statSync } from "node:fs";
-import { mkdir, readdir } from "node:fs/promises";
+import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { enrichProfilerSessions, readCodexSessionMetadata } from "../../adapters/codex/log-import/index.ts";
 import { createHtmlReport } from "../html-report.ts";
+import { createDashboardSessionIndex } from "../dashboard/sessions.ts";
+import { renderDashboardSessionIndexHtml } from "../dashboard/render.ts";
 import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
 import { formatSummary } from "./report-renderer.ts";
 
@@ -117,5 +119,18 @@ export async function runHtml(args: string[]): Promise<void> {
 
   await mkdir(dirname(out), { recursive: true });
   await createHtmlReport(summary, out);
+  console.log(`Wrote ${out}`);
+}
+
+export async function runDashboard(args: string[]): Promise<void> {
+  const options = parseOptions(args);
+  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
+  const out = optionString(options.out, join(rootDir, "dashboard.html"));
+  const index = await createDashboardSessionIndex(rootDir, {
+    limit: Number(options.limit ?? 20)
+  });
+
+  await mkdir(dirname(out), { recursive: true });
+  await writeFile(out, renderDashboardSessionIndexHtml(index), "utf8");
   console.log(`Wrote ${out}`);
 }

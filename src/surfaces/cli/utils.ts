@@ -156,7 +156,10 @@ Commands:
     Show details and first inclusions for one artifact.
 
   html [run_dir] [--out <path>]
-    Write a static HTML report.
+    Write a static local dashboard for one run.
+
+  dashboard [--limit <count>] [--data-dir <path>] [--out <path>]
+    Write a static local dashboard session index.
 
   sessions [--limit <count>] [--data-dir <path>] [--codex-home <path>] [--no-codex]
     List recently captured sessions, enriched with Codex thread titles when available.

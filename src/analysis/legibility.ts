@@ -1,4 +1,3 @@
-import { formatNumber } from "../report.js";
 import { LEGIBILITY_CAVEATS, legibilityCaveat, localAttributionCaveat } from "./caveats.ts";
 import { compareReadableArtifacts, stableShortId } from "./sort.ts";
 import type {
@@ -325,6 +324,9 @@ function getLegibility(summary: SummaryLike): LegibilityAnalysisResult {
 }
 
 function displayCategory(artifact: ArtifactAggregate, metadata: JsonObject): DisplayCategory {
+  // Transitional bridge: adapters should eventually emit typed canonical
+  // metadata variants so this analyzer can switch on kind instead of inferring
+  // from loose fields such as command, tool_name, touched_files, or names.
   const kind = stringValue(metadata.content_kind);
   if (kind === "command") return "command";
   if (kind === "command_output") return "command_output";
@@ -536,4 +538,8 @@ function pad(value: unknown, width: number): string {
 function truncate(value: unknown, width: number): string {
   const text = String(value);
   return text.length <= width ? text : `${text.slice(0, width - 3)}...`;
+}
+
+function formatNumber(value: unknown): string {
+  return new Intl.NumberFormat("en-US").format(Math.round(Number(value) || 0));
 }

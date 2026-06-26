@@ -21,6 +21,22 @@ node src/cli.js summarize ~/.token-profiler/runs/demo
 node src/cli.js html ~/.token-profiler/runs/demo --out ~/.token-profiler/runs/demo/report.html
 ```
 
+The `html` command writes a local, read-only dashboard for one run. It uses the
+same analyzer results as `summarize`, including cache attribution, readable
+artifact labels, task groups, privacy state, and caveats:
+
+```bash
+node src/cli.js html ~/.token-profiler/runs/codex-live \
+  --out ~/.token-profiler/runs/codex-live/dashboard.html
+```
+
+To browse recent local runs without reading the run directory by hand, generate
+a static session index:
+
+```bash
+node src/cli.js dashboard --out ~/.token-profiler/dashboard.html
+```
+
 ## Agent Integration
 
 ```js
@@ -157,6 +173,12 @@ The normal summary report now includes task groups when request/user-intent
 boundaries are available. Task groups roll up exposure, replay, usage, top
 artifacts, and grouping confidence. Metadata-only runs use safe fallback labels
 and never require raw prompt or tool-output content.
+
+The local dashboard consumes those same analyzer outputs. It provides overview
+metric cards, artifact filtering, task-group navigation, artifact details, and
+privacy indicators without parsing provider payloads or recalculating analyzer
+metrics in the browser. Hidden raw content is not embedded in the dashboard
+payload.
 
 Start it in the background:
 

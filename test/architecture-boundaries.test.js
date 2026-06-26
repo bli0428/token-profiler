@@ -17,6 +17,18 @@ test("analysis modules do not import provider-specific adapter, ingest, or surfa
   }
 });
 
+test("dashboard surface modules do not import provider-specific adapter code", async () => {
+  const files = await listJavaScriptFiles(join(SRC_ROOT, "surfaces", "dashboard"));
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+    assert.doesNotMatch(
+      source,
+      /from\s+["'][^"']*(?:adapters|ingest|proxy|codex|claude)[^"']*["']/,
+      `${file} must consume analyzer/store contracts, not provider-specific modules`
+    );
+  }
+});
+
 async function listJavaScriptFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];
