@@ -7,7 +7,7 @@ import { enrichProfilerSessions, readCodexSessionMetadata } from "../../adapters
 import { createHtmlReport } from "../html-report.ts";
 import { createDashboardSessionIndex } from "../dashboard/sessions.ts";
 import { renderDashboardSessionIndexHtml } from "../dashboard/render.ts";
-import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
+import { formatArtifactDetail, formatLegibilityReport } from "./legibility-renderer.ts";
 import { formatSummary } from "./report-renderer.ts";
 
 import { optionString, parseOptions, positionalArgs, readCanonicalEventsFromRunDir } from "./utils.ts";

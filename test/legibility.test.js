@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { aggregateEvents } from "../src/analysis/aggregate.ts";
 import { analyzeEvents } from "../src/analysis/pipeline.ts";
-import { formatArtifactDetail, formatLegibilityReport } from "../src/analysis/legibility.ts";
+import { formatArtifactDetail, formatLegibilityReport } from "../src/surfaces/cli/legibility-renderer.ts";
 
 async function fixture(name) {
   const text = await readFile(new URL(`./fixtures/events/${name}`, import.meta.url), "utf8");
