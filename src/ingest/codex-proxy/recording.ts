@@ -70,7 +70,7 @@ export async function recordUsageEvent({ profiler, requestId, usage, responseId 
   }));
 }
 
-function decodeBody(body, contentEncoding) {
+function decodeBody(body: Buffer, contentEncoding: unknown): Buffer {
   const encoding = String(contentEncoding ?? "identity").toLowerCase().trim();
   if (!encoding || encoding === "identity") return body;
   if (encoding === "gzip") return gunzipSync(body);

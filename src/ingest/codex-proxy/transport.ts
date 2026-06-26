@@ -12,7 +12,7 @@ const HOP_BY_HOP_HEADERS = new Set([
   "upgrade"
 ]);
 
-export function buildUpstreamUrl(upstream, incomingPath) {
+export function buildUpstreamUrl(upstream: string | URL, incomingPath: string): URL {
   const target = new URL(upstream);
   const incoming = new URL(incomingPath, "http://localhost");
   const basePath = target.pathname.replace(/\/$/, "");
@@ -26,10 +26,10 @@ export function buildUpstreamUrl(upstream, incomingPath) {
 
 export function readRequestBody(request: any, maxBodyBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const chunks = [];
+    const chunks: Buffer[] = [];
     let size = 0;
 
-    request.on("data", (chunk) => {
+    request.on("data", (chunk: Buffer) => {
       size += chunk.length;
       if (size > maxBodyBytes) {
         const error = new Error(`Request body exceeds ${maxBodyBytes} bytes.`);
@@ -88,9 +88,9 @@ function createResponseObserver(headers: any, onCompleted: any) {
   const decoder = new TextDecoder();
   let buffer = "";
   let raw = "";
-  const completions = [];
+  const completions: Promise<unknown>[] = [];
   const seenResponses = new Set();
-  const inspectEvent = (event) => {
+  const inspectEvent = (event: any) => {
     const completed = event?.type === "response.completed"
       ? event.response
       : event?.status === "completed" && event?.usage
@@ -124,7 +124,7 @@ function createResponseObserver(headers: any, onCompleted: any) {
   };
 
   return {
-    push(chunk) {
+    push(chunk: Buffer) {
       const text = decoder.decode(chunk, { stream: true });
       buffer += text;
       if (raw.length < 10 * 1024 * 1024) raw += text;

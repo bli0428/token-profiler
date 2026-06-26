@@ -12,8 +12,20 @@ compile-time types are not enough.
 **Scope**:
 
 - Introduce runtime schemas for persisted event records.
+- Add adapter-local runtime schemas for Codex/OpenAI provider payloads currently
+  parsed in `src/ingest/codex-proxy/*`.
+- Model provider request and response shapes enough to safely extract artifacts,
+  usage, tool calls, tool outputs, and readable metadata.
+- Convert validated provider payloads into canonical events before they reach
+  storage or analyzers.
+- Replace generic artifact metadata objects with typed metadata variants, such
+  as command output, patch summary, tool call, message, file, and unknown
+  metadata.
+- Add a discriminator for canonical metadata kind so analyzers and UI can read
+  structured metadata without provider-specific assumptions.
 - Derive or align TypeScript types with runtime schemas.
 - Keep legacy import quarantined from canonical readers.
+- Keep provider-specific payload types quarantined inside ingest adapters.
 - Validate canonical records at write/read boundaries.
 - Keep local artifact attribution documentation unchanged.
 

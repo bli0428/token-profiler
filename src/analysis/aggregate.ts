@@ -1,6 +1,14 @@
 import { validateEvent } from "../core/events/index.ts";
+import type {
+  AggregateSummary,
+  ArtifactAggregate,
+  ArtifactEvent,
+  JsonObject,
+  RequestArtifactSummary,
+  RequestSummary
+} from "../core/events/types.ts";
 
-export function aggregateEvents(events) {
+export function aggregateEvents(events: unknown[]): AggregateSummary {
   const canonicalEvents = events.map((event) => validateEvent(event));
   const usageEvents = canonicalEvents.filter((event) => event.event_kind === "request_usage");
   const artifactEvents = canonicalEvents.filter((event) => event.event_kind === "artifact");
@@ -9,9 +17,9 @@ export function aggregateEvents(events) {
     return timeComparison || String(a.request_id).localeCompare(String(b.request_id));
   });
 
-  const seenHashes = new Set();
-  const artifactMap = new Map();
-  const requestMap = new Map();
+  const seenHashes = new Set<string>();
+  const artifactMap = new Map<string, ArtifactAggregate>();
+  const requestMap = new Map<string, RequestSummary>();
   let totalExposure = 0;
   let uniqueExposure = 0;
 
@@ -35,7 +43,7 @@ export function aggregateEvents(events) {
       unique_exposure: 0,
       repeated_exposure: 0,
       inclusions: 0,
-      distinct_hashes: new Set(),
+      distinct_hashes: new Set<string>(),
       estimated_cached_input_tokens: 0,
       estimated_uncached_input_tokens: 0,
       estimated_cache_attributed_tokens: 0,
@@ -66,23 +74,27 @@ export function aggregateEvents(events) {
     };
 
     request.total_exposure += tokenCount;
-    request.artifacts.push({
+    const requestArtifact: RequestArtifactSummary = {
       artifact_id: event.artifact_id,
       artifact_type: event.artifact_type,
       artifact_name: event.artifact_name,
       token_count: tokenCount,
       content_hash: event.content_hash,
-      metadata: event.metadata,
-      token_start: finiteNumber(event.token_start),
-      token_end: finiteNumber(event.token_end),
-      artifact_index: Number.isInteger(event.artifact_index) ? event.artifact_index : undefined
-    });
+      metadata: event.metadata
+    };
+    const tokenStart = finiteNumber(event.token_start);
+    const tokenEnd = finiteNumber(event.token_end);
+    const artifactIndex = event.artifact_index;
+    if (tokenStart !== undefined) requestArtifact.token_start = tokenStart;
+    if (tokenEnd !== undefined) requestArtifact.token_end = tokenEnd;
+    if (Number.isInteger(artifactIndex)) requestArtifact.artifact_index = artifactIndex as number;
+    request.artifacts.push(requestArtifact);
 
     requestMap.set(event.request_id, request);
   }
 
   const repeatedExposure = totalExposure - uniqueExposure;
-  const requestUsage = new Map();
+  const requestUsage = new Map<string, (typeof usageEvents)[number]>();
   for (const event of usageEvents) requestUsage.set(event.request_id, event);
   let inputTokens = 0;
   let cachedInputTokens = 0;
@@ -131,7 +143,9 @@ export function aggregateEvents(events) {
     .map((artifact) => ({
       ...artifact,
       display_name: artifact.metadata?.display_name ?? artifact.artifact_name,
-      distinct_hashes: artifact.distinct_hashes.size,
+      distinct_hashes: artifact.distinct_hashes instanceof Set
+        ? artifact.distinct_hashes.size
+        : artifact.distinct_hashes,
       replay_ratio: ratio(artifact.repeated_exposure, artifact.total_exposure),
       exposure_share: ratio(artifact.total_exposure, totalExposure),
       estimated_cache_hit_ratio: ratio(
@@ -179,18 +193,20 @@ export function aggregateEvents(events) {
   };
 }
 
-function ratio(numerator, denominator) {
-  return denominator === 0 ? 0 : numerator / denominator;
+function ratio(numerator: unknown, denominator: unknown): number {
+  const numericNumerator = Number(numerator) || 0;
+  const numericDenominator = Number(denominator) || 0;
+  return numericDenominator === 0 ? 0 : numericNumerator / numericDenominator;
 }
 
-function attributeRequestCache(request, usage) {
-  const artifacts = [];
+function attributeRequestCache(request: RequestSummary, usage: NonNullable<RequestSummary["usage"]>) {
+  const artifacts: Array<{ artifact_id: string; cached: number; uncached: number; total: number }> = [];
   let cached = 0;
   let uncached = 0;
   let total = 0;
   const inputTokens = Math.max(0, Number(usage?.input_tokens) || 0);
   const cachedInputTokens = Math.min(inputTokens, Math.max(0, Number(usage?.cached_input_tokens) || 0));
-  const coordinateTokens = request.artifacts.reduce((maxEnd, artifact) => {
+  const coordinateTokens = request.artifacts.reduce((maxEnd: number, artifact: RequestArtifactSummary) => {
     const tokenStart = finiteNumber(artifact.token_start);
     const tokenEnd = finiteNumber(artifact.token_end);
     return tokenStart === undefined || tokenEnd === undefined || tokenEnd < tokenStart
@@ -240,14 +256,14 @@ function attributeRequestCache(request, usage) {
   };
 }
 
-function finiteNumber(value) {
+function finiteNumber(value: unknown): number | undefined {
   const number = Number(value);
   return Number.isFinite(number) ? number : undefined;
 }
 
-function mergeMetadata(current = {}, next = {}) {
+function mergeMetadata(current: JsonObject = {}, next: JsonObject = {}): JsonObject {
   if (!next || typeof next !== "object") return current;
-  const merged = { ...current };
+  const merged: JsonObject = { ...current };
   for (const [key, value] of Object.entries(next)) {
     if (value === undefined || value === null) continue;
     if (Array.isArray(value)) {
@@ -264,7 +280,12 @@ function mergeMetadata(current = {}, next = {}) {
   return merged;
 }
 
-function shouldReplaceDisplayName(current, next, currentMetadata, nextMetadata) {
+function shouldReplaceDisplayName(
+  current: unknown,
+  next: unknown,
+  currentMetadata: JsonObject,
+  nextMetadata: JsonObject
+): boolean {
   if (current === undefined) return true;
   return metadataSpecificity(nextMetadata) > metadataSpecificity(currentMetadata)
     || (isGenericDisplayName(current) && !isGenericDisplayName(next));
@@ -281,7 +302,7 @@ function metadataSpecificity(metadata: Record<string, any> = {}) {
   return score;
 }
 
-function isGenericDisplayName(value) {
+function isGenericDisplayName(value: unknown): boolean {
   const text = String(value ?? "");
   return /^tool:[^:]+:call_/.test(text)
     || /^tool-call:[^:]+:call_/.test(text)

@@ -1,24 +1,28 @@
 import { validateEvent } from "../../core/events/index.ts";
 
-export function importLegacyEvents(events) {
-  return events.map((event, index) => importLegacyEvent(event, index + 1));
+export function importLegacyEvents(events: unknown[]) {
+  return events.map((event: unknown, index: number) => importLegacyEvent(event, index + 1));
 }
 
-export function importLegacyEvent(event, lineNumber = 1) {
+export function importLegacyEvent(event: unknown, lineNumber = 1) {
   try {
-    if (event?.event_kind === "request_usage") return validateEvent(event);
-    if (event?.event_kind === "artifact" && isNewArtifactEvent(event)) return validateEvent(event);
+    if (isObjectRecord(event) && event.event_kind === "request_usage") return validateEvent(event);
+    if (isObjectRecord(event) && event.event_kind === "artifact" && isNewArtifactEvent(event)) return validateEvent(event);
     return validateEvent(convertLegacyArtifactEvent(event));
   } catch (error) {
-    throw new Error(`Invalid event at line ${lineNumber}: ${error.message}`);
+    throw new Error(`Invalid event at line ${lineNumber}: ${(error as Error).message}`);
   }
 }
 
-function isNewArtifactEvent(event) {
+function isObjectRecord(value: unknown): value is Record<string, any> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function isNewArtifactEvent(event: any): boolean {
   return event.local_token_count !== undefined && event.storage_mode !== undefined;
 }
 
-function convertLegacyArtifactEvent(event) {
+function convertLegacyArtifactEvent(event: any) {
   if (!event || typeof event !== "object" || Array.isArray(event)) {
     throw new Error("Legacy event must be an object.");
   }

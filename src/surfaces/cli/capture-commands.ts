@@ -17,9 +17,9 @@ import { formatSummary } from "../../report.js";
 import { createSessionId, SessionRouter, sanitizeSessionId } from "../../session-router.js";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
 
-import { listFiles, parseOptions, positionalArgs, required } from "./utils.ts";
+import { listFiles, optionString, parseOptions, positionalArgs, required } from "./utils.ts";
 
-export async function runDemo() {
+export async function runDemo(): Promise<void> {
   const profiler = new (TokenProfiler as any)({ runId: "demo" });
   await mkdir(".token-profiler/runs/demo", { recursive: true });
   await writeFile(".token-profiler/runs/demo/events.jsonl", "");
@@ -76,14 +76,14 @@ export async function runDemo() {
 }
 
 
-export async function runRecord(args) {
+export async function runRecord(args: string[]): Promise<void> {
   const options = parseOptions(args);
   const runId = required(options, "run");
   const requestId = required(options, "request");
   const artifactType = required(options, "type");
   const artifactName = required(options, "name");
   const content = options.content
-    ? await readFile(resolve(options.content), "utf8")
+    ? await readFile(resolve(String(options.content)), "utf8")
     : required(options, "text");
 
   const profiler = new (TokenProfiler as any)({ runId });
@@ -99,20 +99,20 @@ export async function runRecord(args) {
 }
 
 
-export async function runWatch(args) {
+export async function runWatch(args: string[]): Promise<void> {
   const options = parseOptions(args);
   const runId = required(options, "run");
   const intervalMs = Number(options.interval ?? 2000);
-  const root = resolve(options.cwd ?? process.cwd());
+  const root = resolve(optionString(options.cwd, process.cwd()));
   const paths = positionalArgs(args).map((path) => resolve(root, path));
   const targets = paths.length > 0 ? paths : [root];
   const profiler = new (TokenProfiler as any)({ runId });
-  const known = new Map();
+  const known = new Map<string, string>();
 
   console.log(`Watching ${targets.map((target) => relative(root, target) || ".").join(", ")}`);
   console.log(`Writing events to .token-profiler/runs/${runId}/events.jsonl`);
 
-  const scan = async () => {
+  const scan = async (): Promise<void> => {
     const files = await listFiles(targets, root);
 
     for (const file of files) {
@@ -154,10 +154,10 @@ export async function runWatch(args) {
 
   await scan();
   const timer = setInterval(() => {
-    scan().catch((error) => console.error(error.message));
+    scan().catch((error) => console.error(error instanceof Error ? error.message : String(error)));
   }, intervalMs);
 
-  const stop = async () => {
+  const stop = async (): Promise<void> => {
     clearInterval(timer);
     await profiler.flush();
     process.exit(0);
@@ -168,7 +168,7 @@ export async function runWatch(args) {
 }
 
 
-export async function runCommand(args) {
+export async function runCommand(args: string[]): Promise<void> {
   const separatorIndex = args.indexOf("--");
 
   if (separatorIndex === -1) {
@@ -179,35 +179,39 @@ export async function runCommand(args) {
   const commandArgs = args.slice(separatorIndex + 1);
   const options = parseOptions(optionArgs);
   const runId = required(options, "run");
-  const artifactName = options.name ?? commandArgs.join(" ");
-  const artifactType = options.type ?? "TOOL_OUTPUT";
-  const requestId = options.request ?? `cmd_${new Date().toISOString()}`;
+  const artifactName = optionString(options.name, commandArgs.join(" "));
+  const artifactType = optionString(options.type, "TOOL_OUTPUT");
+  const requestId = optionString(options.request, `cmd_${new Date().toISOString()}`);
 
   if (commandArgs.length === 0) {
     throw new Error("Missing command after --");
   }
+  const command = commandArgs[0];
+  if (!command) {
+    throw new Error("Missing command after --");
+  }
 
-  const child = spawn(commandArgs[0], commandArgs.slice(1), {
-    cwd: options.cwd ?? process.cwd(),
-    stdio: ["inherit", "pipe", "pipe"]
+  const child = spawn(command, commandArgs.slice(1), {
+    cwd: optionString(options.cwd, process.cwd()),
+    stdio: ["inherit", "pipe", "pipe"] as const
   });
 
   let stdout = "";
   let stderr = "";
 
-  child.stdout.on("data", (chunk) => {
+  child.stdout.on("data", (chunk: Buffer) => {
     const text = chunk.toString();
     stdout += text;
     process.stdout.write(text);
   });
 
-  child.stderr.on("data", (chunk) => {
+  child.stderr.on("data", (chunk: Buffer) => {
     const text = chunk.toString();
     stderr += text;
     process.stderr.write(text);
   });
 
-  const exitCode: any = await new Promise((resolveExit) => {
+  const exitCode = await new Promise<number | null>((resolveExit) => {
     child.on("close", resolveExit);
   });
 
@@ -227,7 +231,7 @@ export async function runCommand(args) {
 }
 
 
-export async function runCodexImport(args) {
+export async function runCodexImport(args: string[]): Promise<void> {
   const options = parseOptions(args);
   const rolloutPath = positionalArgs(args)[0];
 
@@ -242,7 +246,7 @@ export async function runCodexImport(args) {
   let imported = 0;
 
   for (const line of lines) {
-    const entry = JSON.parse(line);
+    const entry: any = JSON.parse(line);
 
     if (entry.type !== "event_msg" || entry.payload?.type !== "token_count") {
       continue;

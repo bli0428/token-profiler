@@ -8,25 +8,34 @@ import { createHtmlReport } from "../../html-report.js";
 import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
 import { formatSummary } from "../../report.js";
 
-import { parseOptions, positionalArgs, readCanonicalEventsFromRunDir } from "./utils.ts";
+import { optionString, parseOptions, positionalArgs, readCanonicalEventsFromRunDir } from "./utils.ts";
 
-export async function runSessions(args) {
+type SessionRow = {
+  id: string;
+  updatedAt: Date;
+  codex?: {
+    threadName?: string;
+    sessionId?: string;
+  };
+};
+
+export async function runSessions(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const rootDir = resolve(options["data-dir"] ?? join(homedir(), ".token-efficiency"));
-  const codexHome = resolve(options["codex-home"] ?? join(homedir(), ".codex"));
+  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-efficiency")));
+  const codexHome = resolve(optionString(options["codex-home"], join(homedir(), ".codex")));
   const runsDir = join(rootDir, "runs");
   const entries = await readdir(runsDir, { withFileTypes: true }).catch((error) => {
-    if (error.code === "ENOENT") return [];
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;
   });
-  let sessions: any[] = entries
+  let sessions: SessionRow[] = entries
     .filter((entry) => entry.isDirectory())
     .map((entry) => {
       const eventsPath = join(runsDir, entry.name, "events.jsonl");
       const stat = statSync(eventsPath, { throwIfNoEntry: false });
       return stat ? { id: entry.name, updatedAt: stat.mtime } : null;
     })
-    .filter(Boolean)
+    .filter((session): session is SessionRow => session !== null)
     .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
     .slice(0, Number(options.limit ?? 20));
 
@@ -35,7 +44,7 @@ export async function runSessions(args) {
       const codexMetadata = await readCodexSessionMetadata({ codexHome });
       sessions = enrichProfilerSessions(sessions, codexMetadata);
     } catch (error) {
-      console.warn(`Warning: could not read Codex session metadata: ${error.message}`);
+      console.warn(`Warning: could not read Codex session metadata: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -50,7 +59,7 @@ export async function runSessions(args) {
 }
 
 
-function formatCodexSessionLabel(codex) {
+function formatCodexSessionLabel(codex: SessionRow["codex"]): string {
   if (!codex) return "";
   const title = codex.threadName ? `  ${codex.threadName}` : "";
   const detail = codex.sessionId ? `  [codex:${codex.sessionId}]` : "";
@@ -58,9 +67,9 @@ function formatCodexSessionLabel(codex) {
 }
 
 
-export async function runSummarize(args) {
+export async function runSummarize(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
   const events = await readCanonicalEventsFromRunDir(runDir);
   const summary = aggregateEvents(events);
 
@@ -73,9 +82,9 @@ export async function runSummarize(args) {
 }
 
 
-export async function runLegibility(args) {
+export async function runLegibility(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
   const events = await readCanonicalEventsFromRunDir(runDir);
   const summary = aggregateEvents(events);
 
@@ -85,10 +94,10 @@ export async function runLegibility(args) {
 }
 
 
-export async function runExplain(args) {
+export async function runExplain(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
-  const artifact = options.artifact ?? positionalArgs(args).find((arg) => arg !== runDir);
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const artifact = optionString(options.artifact, "") || positionalArgs(args).find((arg: string) => arg !== runDir);
   if (!artifact) {
     throw new Error("Use: explain [run_dir] --artifact <artifact-name-or-id>");
   }
@@ -99,10 +108,10 @@ export async function runExplain(args) {
 }
 
 
-export async function runHtml(args) {
+export async function runHtml(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
-  const out = options.out ?? `${runDir}/report.html`;
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const out = optionString(options.out, `${runDir}/report.html`);
   const events = await readCanonicalEventsFromRunDir(runDir);
   const summary = aggregateEvents(events);
 

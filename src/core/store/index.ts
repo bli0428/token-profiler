@@ -7,7 +7,7 @@ export class JsonlEventStore {
   runDir: string;
   eventsPath: string;
 
-  constructor({ rootDir = ".token-profiler", runId }) {
+  constructor({ rootDir = ".token-profiler", runId }: { rootDir?: string; runId: string }) {
     if (!runId) {
       throw new Error("JsonlEventStore requires a runId.");
     }
@@ -29,7 +29,7 @@ export class JsonlEventStore {
     try {
       raw = await readFile(this.eventsPath, "utf8");
     } catch (error) {
-      if (error.code === "ENOENT") {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
         return [];
       }
 
@@ -43,20 +43,20 @@ export class JsonlEventStore {
         try {
           return JSON.parse(line);
         } catch (error) {
-          throw new Error(`Invalid JSONL at ${this.eventsPath}:${index + 1}: ${error.message}`);
+          throw new Error(`Invalid JSONL at ${this.eventsPath}:${index + 1}: ${(error as Error).message}`);
         }
       });
   }
 }
 
-export async function readEventsFromRunDir(runDir) {
+export async function readEventsFromRunDir(runDir: string): Promise<unknown[]> {
   const eventsPath = join(runDir, "events.jsonl");
   let raw;
 
   try {
     raw = await readFile(eventsPath, "utf8");
   } catch (error) {
-    if (error.code === "ENOENT") {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       throw new Error(`No events found at ${eventsPath}`);
     }
 
@@ -70,7 +70,7 @@ export async function readEventsFromRunDir(runDir) {
       try {
         return JSON.parse(line);
       } catch (error) {
-        throw new Error(`Invalid JSONL at ${eventsPath}:${index + 1}: ${error.message}`);
+        throw new Error(`Invalid JSONL at ${eventsPath}:${index + 1}: ${(error as Error).message}`);
       }
     });
 }

@@ -1,5 +1,14 @@
-export function extractResponsesArtifacts(payload) {
-  const artifacts = [];
+type ProviderItem = Record<string, any>;
+type ArtifactDescriptor = {
+  artifactType: string;
+  artifactName: string;
+  artifactId: string;
+  metadata?: Record<string, any>;
+};
+type ExtractedArtifact = ArtifactDescriptor & { content: string };
+
+export function extractResponsesArtifacts(payload: ProviderItem): ExtractedArtifact[] {
+  const artifacts: ExtractedArtifact[] = [];
 
   addTextValue(artifacts, payload.instructions, {
     artifactType: "SYSTEM_PROMPT",
@@ -18,7 +27,7 @@ export function extractResponsesArtifacts(payload) {
   }
 
   const inputs = asArray(payload.input);
-  const calls = new Map();
+  const calls = new Map<string, ProviderItem>();
   for (const item of inputs) {
     if (item?.type === "function_call" && item.call_id) calls.set(item.call_id, item);
     if (item?.type === "custom_tool_call" && item.call_id) calls.set(item.call_id, item);
@@ -46,11 +55,12 @@ export function extractResponsesArtifacts(payload) {
     if (item.type === "function_call_output") {
       const call = calls.get(item.call_id);
       const toolName = call?.name ?? "unknown";
+      const callMetadata = call ? describeCallMetadata(call) : undefined;
       const toolMetadata = describeToolOutput({
         toolName,
         callId: item.call_id,
         output: item.output,
-        callMetadata: call ? describeCallMetadata(call) : undefined
+        ...(callMetadata ? { callMetadata } : {})
       });
       addTextValue(artifacts, item.output, {
         artifactType: classifyToolOutput(toolName),
@@ -80,11 +90,12 @@ export function extractResponsesArtifacts(payload) {
     if (item.type === "custom_tool_call_output") {
       const call = calls.get(item.call_id);
       const toolName = call?.name ?? "custom_tool";
+      const callMetadata = call ? describeCallMetadata(call) : undefined;
       const toolMetadata = describeToolOutput({
         toolName,
         callId: item.call_id,
         output: item.output,
-        callMetadata: call ? describeCallMetadata(call) : undefined
+        ...(callMetadata ? { callMetadata } : {})
       });
       addTextValue(artifacts, item.output, {
         artifactType: "SUMMARY",
@@ -115,18 +126,7 @@ export function extractResponsesArtifacts(payload) {
   return artifacts;
 }
 
-function buildUpstreamUrl(upstream, incomingPath) {
-  const target = new URL(upstream);
-  const incoming = new URL(incomingPath, "http://localhost");
-  const basePath = target.pathname.replace(/\/$/, "");
-  target.pathname = basePath && incoming.pathname.startsWith(`${basePath}/`)
-    ? incoming.pathname
-    : `${basePath}${incoming.pathname.startsWith("/") ? "" : "/"}${incoming.pathname}`;
-  target.search = incoming.search;
-  return target;
-}
-
-function messageDescriptor(role, index, partIndex) {
+function messageDescriptor(role: string, index: number, partIndex: number): ArtifactDescriptor {
   const artifactType = role === "system" || role === "developer"
     ? "SYSTEM_PROMPT"
     : role === "user"
@@ -140,7 +140,7 @@ function messageDescriptor(role, index, partIndex) {
   };
 }
 
-function classifyToolOutput(toolName) {
+function classifyToolOutput(toolName: unknown): string {
   const name = String(toolName).toLowerCase();
   if (name.includes("search")) return "SEARCH_RESULT";
   if (name.includes("exec")) return "TOOL_OUTPUT";
@@ -148,13 +148,17 @@ function classifyToolOutput(toolName) {
   return "TOOL_OUTPUT";
 }
 
-function addTextValue(artifacts, value, descriptor) {
+function addTextValue(artifacts: ExtractedArtifact[], value: unknown, descriptor: ArtifactDescriptor): void {
   if (value === undefined || value === null) return;
   const content = typeof value === "string" ? value : JSON.stringify(value);
   if (content.length > 0) artifacts.push({ ...descriptor, content });
 }
 
-function describeFunctionCall({ toolName, callId, input }) {
+function describeFunctionCall({
+  toolName,
+  callId,
+  input
+}: { toolName: string; callId?: string; input?: unknown }) {
   const parsed = parseJsonValue(input);
   const command = typeof parsed?.cmd === "string" ? parsed.cmd : undefined;
   const label = command
@@ -173,7 +177,11 @@ function describeFunctionCall({ toolName, callId, input }) {
   };
 }
 
-function describeCustomToolCall({ toolName, callId, input }) {
+function describeCustomToolCall({
+  toolName,
+  callId,
+  input
+}: { toolName: string; callId?: string; input?: unknown }) {
   const text = String(input ?? "");
   const patch = toolName === "apply_patch" || text.startsWith("*** Begin Patch")
     ? summarizePatch(text)
@@ -204,7 +212,12 @@ function describeCustomToolCall({ toolName, callId, input }) {
   };
 }
 
-function describeToolOutput({ toolName, callId, output, callMetadata }) {
+function describeToolOutput({
+  toolName,
+  callId,
+  output,
+  callMetadata
+}: { toolName: string; callId?: string; output?: unknown; callMetadata?: Record<string, any> }) {
   const text = normalizeToolOutput(output);
   const exitCode = text.match(/(?:Exit code|Process exited with code):?\s*(-?\d+)/i)?.[1];
   const tokenCount = text.match(/Original token count:\s*([0-9,]+)/i)?.[1];
@@ -231,34 +244,34 @@ function describeToolOutput({ toolName, callId, output, callMetadata }) {
   };
 }
 
-function describeCallMetadata(call) {
+function describeCallMetadata(call: ProviderItem) {
   const toolName = call.name ?? "unknown";
   return call.type === "custom_tool_call"
     ? describeCustomToolCall({ toolName, callId: call.call_id, input: call.input }).metadata
     : describeFunctionCall({ toolName, callId: call.call_id, input: call.arguments }).metadata;
 }
 
-function summarizePatch(text) {
-  const files = [];
+function summarizePatch(text: string) {
+  const files: string[] = [];
   let adds = 0;
   let updates = 0;
   let deletes = 0;
 
   for (const line of text.split("\n")) {
     let match = line.match(/^\*\*\* Add File: (.+)$/);
-    if (match) {
+    if (match?.[1]) {
       adds += 1;
       files.push(match[1]);
       continue;
     }
     match = line.match(/^\*\*\* Update File: (.+)$/);
-    if (match) {
+    if (match?.[1]) {
       updates += 1;
       files.push(match[1]);
       continue;
     }
     match = line.match(/^\*\*\* Delete File: (.+)$/);
-    if (match) {
+    if (match?.[1]) {
       deletes += 1;
       files.push(match[1]);
     }
@@ -282,29 +295,31 @@ function summarizePatch(text) {
   };
 }
 
-function extractExecCommand(text) {
+function extractExecCommand(text: string): { command: string; workdir?: string } | null {
   const command = extractQuotedField(text, "cmd");
   if (!command) return null;
   const workdir = extractQuotedField(text, "workdir");
-  return {
-    command,
-    workdir
-  };
+  return workdir ? { command, workdir } : { command };
 }
 
-function extractQuotedField(text, key) {
+function extractQuotedField(text: string, key: string): string | undefined {
   const candidates = [
     findQuotedField(text, `${key}:`),
     findQuotedField(text, `"${key}":`)
-  ].filter(Boolean).sort((a, b) => a.index - b.index);
+  ].filter((candidate): candidate is { index: number; value: string } => Boolean(candidate))
+    .sort((a, b) => a.index - b.index);
   return candidates[0]?.value;
 }
 
-function findQuotedField(text, marker) {
+function findQuotedField(text: string, marker: string): { index: number; value: string } | null {
   const markerIndex = text.indexOf(marker);
   if (markerIndex === -1) return null;
   let index = markerIndex + marker.length;
-  while (/\s/.test(text[index])) index += 1;
+  while (true) {
+    const char = text[index];
+    if (char === undefined || !/\s/.test(char)) break;
+    index += 1;
+  }
   const quote = text[index];
   if (quote !== "\"" && quote !== "'") return null;
   index += 1;
@@ -330,7 +345,7 @@ function findQuotedField(text, marker) {
   return null;
 }
 
-function normalizeToolOutput(output) {
+function normalizeToolOutput(output: unknown): string {
   if (typeof output === "string") return output;
   if (Array.isArray(output)) {
     return output.map((part) => part?.text ?? JSON.stringify(part)).join("");
@@ -338,14 +353,14 @@ function normalizeToolOutput(output) {
   return JSON.stringify(output ?? "");
 }
 
-function firstContentLine(text) {
+function firstContentLine(text: string): string | undefined {
   const lines = String(text).split("\n").map((line) => line.trim()).filter(Boolean);
   const outputIndex = lines.findIndex((line) => line === "Output:");
   const candidate = outputIndex >= 0 ? lines.slice(outputIndex + 1).find(Boolean) : lines.at(-1);
   return candidate ? truncateMiddle(candidate, 120) : undefined;
 }
 
-function parseJsonValue(value) {
+function parseJsonValue(value: unknown): any {
   if (typeof value !== "string") return value;
   try {
     return JSON.parse(value);
@@ -354,18 +369,18 @@ function parseJsonValue(value) {
   }
 }
 
-function compactObject(value) {
+function compactObject(value: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
     Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null)
   );
 }
 
-function unescapeQuoted(value, quote) {
+function unescapeQuoted(value: string, quote: string): string {
   if (quote === "\"") return parseJsonValue(`"${value}"`) ?? value;
   return value.replaceAll("\\'", "'").replaceAll("\\\\", "\\");
 }
 
-function truncateMiddle(value, width) {
+function truncateMiddle(value: unknown, width: number): string {
   const text = String(value);
   if (text.length <= width) return text;
   const head = Math.max(1, Math.floor((width - 3) * 0.65));
@@ -373,12 +388,12 @@ function truncateMiddle(value, width) {
   return `${text.slice(0, head)}...${text.slice(-tail)}`;
 }
 
-function truncatePath(value, width) {
+function truncatePath(value: unknown, width: number): string {
   const text = String(value);
   if (text.length <= width) return text;
   const parts = text.split(/[\\/]/);
   if (parts.length <= 1) return truncateMiddle(text, width);
-  const basename = parts.at(-1);
+  const basename = parts.at(-1) ?? "";
   const dirname = parts.slice(0, -1).join("/");
   const remaining = width - basename.length - 4;
   return remaining > 4
@@ -386,8 +401,7 @@ function truncatePath(value, width) {
     : truncateMiddle(text, width);
 }
 
-function asArray(value) {
+function asArray(value: unknown): any[] {
   if (Array.isArray(value)) return value;
   return value === undefined || value === null ? [] : [value];
 }
-

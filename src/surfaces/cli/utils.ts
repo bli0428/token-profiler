@@ -4,11 +4,14 @@ import { join, relative } from "node:path";
 import { importLegacyEvents } from "../../ingest/legacy-import/index.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
 
-export function parseOptions(args: string[]): any {
-  const options = {};
+export type CliOptions = Record<string, string | boolean>;
+
+export function parseOptions(args: string[]): CliOptions {
+  const options: CliOptions = {};
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
+    if (arg === undefined) continue;
 
     if (!arg.startsWith("--")) {
       continue;
@@ -29,10 +32,11 @@ export function parseOptions(args: string[]): any {
 }
 
 export function positionalArgs(args: string[]): string[] {
-  const positional = [];
+  const positional: string[] = [];
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
+    if (arg === undefined) continue;
 
     if (!arg.startsWith("--")) {
       positional.push(arg);
@@ -49,12 +53,12 @@ export function positionalArgs(args: string[]): string[] {
   return positional;
 }
 
-export async function readCanonicalEventsFromRunDir(runDir: string) {
+export async function readCanonicalEventsFromRunDir(runDir: string): Promise<unknown[]> {
   return importLegacyEvents(await readEventsFromRunDir(runDir));
 }
 
-export async function listFiles(targets: string[], root: string) {
-  const files = [];
+export async function listFiles(targets: string[], root: string): Promise<string[]> {
+  const files: string[] = [];
 
   for (const target of targets) {
     await collectFiles(target, root, files);
@@ -63,7 +67,7 @@ export async function listFiles(targets: string[], root: string) {
   return files;
 }
 
-async function collectFiles(target: string, root: string, files: string[]) {
+async function collectFiles(target: string, root: string, files: string[]): Promise<void> {
   if (shouldIgnore(target, root) || !existsSync(target)) {
     return;
   }
@@ -86,7 +90,7 @@ async function collectFiles(target: string, root: string, files: string[]) {
   }
 }
 
-function shouldIgnore(target: string, root: string) {
+function shouldIgnore(target: string, root: string): boolean {
   const path = relative(root, target);
   const parts = path.split(/[\\/]/);
   return parts.some((part) =>
@@ -102,15 +106,19 @@ function shouldIgnore(target: string, root: string) {
   );
 }
 
-export function required(options: any, key: string): string {
+export function required(options: CliOptions, key: string): string {
   if (!options[key]) {
     throw new Error(`Missing --${key}`);
   }
 
-  return options[key];
+  return String(options[key]);
 }
 
-export function printHelp() {
+export function optionString(value: string | boolean | undefined, fallback: string): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+export function printHelp(): void {
   console.log(`Token Efficiency Tracker
 
 Commands:

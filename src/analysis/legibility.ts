@@ -1,12 +1,13 @@
 import { formatNumber, formatPercent } from "../report.js";
+import type { AggregateSummary, ArtifactAggregate, JsonObject, RequestSummary } from "../core/events/types.ts";
 
-export function formatLegibilityReport(summary, { limit = 20 } = {}) {
+export function formatLegibilityReport(summary: AggregateSummary, { limit = 20 }: { limit?: number } = {}): string {
   const rows = summary.artifacts
     .filter((artifact) => hasLegibilityMetadata(artifact))
     .sort((a, b) => legibilitySortValue(b) - legibilitySortValue(a))
     .slice(0, limit);
 
-  const lines = [];
+  const lines: string[] = [];
   lines.push("Artifact Legibility Report");
   lines.push("");
   lines.push("Readable Artifacts");
@@ -26,14 +27,14 @@ export function formatLegibilityReport(summary, { limit = 20 } = {}) {
   return lines.join("\n");
 }
 
-export function formatArtifactDetail(summary, artifactQuery) {
+export function formatArtifactDetail(summary: AggregateSummary, artifactQuery: string): string {
   const artifact = findArtifact(summary, artifactQuery);
   if (!artifact) {
     return `No artifact matched "${artifactQuery}".`;
   }
 
   const metadata = artifact.metadata ?? {};
-  const lines = [];
+  const lines: string[] = [];
   lines.push(displayName(artifact));
   lines.push("");
   lines.push(`ID:              ${artifact.artifact_id}`);
@@ -57,7 +58,7 @@ export function formatArtifactDetail(summary, artifactQuery) {
   }
 
   const requests = summary.requests
-    .filter((request) => request.artifacts.some((entry) => entry.artifact_id === artifact.artifact_id))
+    .filter((request: RequestSummary) => request.artifacts.some((entry) => entry.artifact_id === artifact.artifact_id))
     .slice(0, 12);
   if (requests.length > 0) {
     lines.push("");
@@ -70,7 +71,7 @@ export function formatArtifactDetail(summary, artifactQuery) {
   return lines.join("\n");
 }
 
-function formatReadableArtifacts(rows) {
+function formatReadableArtifacts(rows: ArtifactAggregate[]): string {
   if (rows.length === 0) {
     return "No legibility metadata recorded. Capture a new run with the updated proxy to populate this section.";
   }
@@ -85,10 +86,10 @@ function formatReadableArtifacts(rows) {
     "Detail"
   ].join("  ");
 
-  const body = rows.map((row) => [
+  const body = rows.map((row: ArtifactAggregate) => [
     pad(truncate(displayName(row), 44), 44),
-    pad(row.metadata?.content_kind ?? "-", 16),
-    pad(row.metadata?.tool_name ?? "-", 14),
+    pad(stringMetadata(row.metadata, "content_kind") ?? "-", 16),
+    pad(stringMetadata(row.metadata, "tool_name") ?? "-", 14),
     pad(formatMaybeNumber(row.estimated_uncached_input_tokens), 15),
     pad(formatNumber(row.total_exposure), 12),
     pad(formatNumber(row.inclusions), 6),
@@ -98,7 +99,7 @@ function formatReadableArtifacts(rows) {
   return [header, ...body].join("\n");
 }
 
-function formatOpaqueArtifacts(rows) {
+function formatOpaqueArtifacts(rows: ArtifactAggregate[]): string {
   const header = [
     pad("Artifact", 44),
     pad("Type", 14),
@@ -107,7 +108,7 @@ function formatOpaqueArtifacts(rows) {
     "Replay"
   ].join("  ");
 
-  const body = rows.map((row) => [
+  const body = rows.map((row: ArtifactAggregate) => [
     pad(truncate(row.artifact_name, 44), 44),
     pad(row.artifact_type, 14),
     pad(formatNumber(row.total_exposure), 12),
@@ -118,84 +119,106 @@ function formatOpaqueArtifacts(rows) {
   return [header, ...body].join("\n");
 }
 
-function detailSummary(row) {
+function detailSummary(row: ArtifactAggregate): string {
   const metadata = row.metadata ?? {};
-  if (metadata.command) return metadata.command;
-  if (metadata.touched_files?.length > 0) {
-    const first = metadata.touched_files[0];
-    const suffix = metadata.touched_files.length > 1 ? ` (+${metadata.touched_files.length - 1} files)` : "";
+  const command = stringMetadata(metadata, "command");
+  if (command) return command;
+  const touchedFiles = stringArrayMetadata(metadata, "touched_files");
+  if (touchedFiles.length > 0) {
+    const first = touchedFiles[0];
+    const suffix = touchedFiles.length > 1 ? ` (+${touchedFiles.length - 1} files)` : "";
     return `${first}${suffix}`;
   }
-  if (metadata.output_preview) return metadata.output_preview;
-  if (metadata.call_id) return metadata.call_id;
+  const outputPreview = stringMetadata(metadata, "output_preview");
+  if (outputPreview) return outputPreview;
+  const callId = stringMetadata(metadata, "call_id");
+  if (callId) return callId;
   return row.artifact_id;
 }
 
-function metadataDetails(metadata) {
-  const details = [];
-  if (metadata.tool_name) details.push(`Tool:            ${metadata.tool_name}`);
-  if (metadata.call_id) details.push(`Call ID:         ${metadata.call_id}`);
-  if (metadata.content_kind) details.push(`Kind:            ${metadata.content_kind}`);
-  if (metadata.command) details.push(`Command:         ${metadata.command}`);
-  if (metadata.workdir) details.push(`Workdir:         ${metadata.workdir}`);
+function metadataDetails(metadata: JsonObject): string[] {
+  const details: string[] = [];
+  const toolName = stringMetadata(metadata, "tool_name");
+  const callId = stringMetadata(metadata, "call_id");
+  const contentKind = stringMetadata(metadata, "content_kind");
+  const command = stringMetadata(metadata, "command");
+  const workdir = stringMetadata(metadata, "workdir");
+  const outputPreview = stringMetadata(metadata, "output_preview");
+  const touchedFiles = stringArrayMetadata(metadata, "touched_files");
+  if (toolName) details.push(`Tool:            ${toolName}`);
+  if (callId) details.push(`Call ID:         ${callId}`);
+  if (contentKind) details.push(`Kind:            ${contentKind}`);
+  if (command) details.push(`Command:         ${command}`);
+  if (workdir) details.push(`Workdir:         ${workdir}`);
   if (metadata.exit_code !== undefined) details.push(`Exit Code:       ${metadata.exit_code}`);
-  if (metadata.output_preview) details.push(`Output Preview:  ${metadata.output_preview}`);
+  if (outputPreview) details.push(`Output Preview:  ${outputPreview}`);
   if (metadata.patch_file_count !== undefined) {
     details.push(`Patch Files:     ${formatNumber(metadata.patch_file_count)}`);
     details.push(`Patch Shape:     +${formatNumber(metadata.patch_adds ?? 0)} / ~${formatNumber(metadata.patch_updates ?? 0)} / -${formatNumber(metadata.patch_deletes ?? 0)}`);
   }
-  if (metadata.touched_files?.length > 0) {
+  if (touchedFiles.length > 0) {
     details.push("Touched Files:");
-    for (const file of metadata.touched_files.slice(0, 20)) details.push(`  ${file}`);
-    if (metadata.touched_files.length > 20) {
-      details.push(`  ...and ${formatNumber(metadata.touched_files.length - 20)} more`);
+    for (const file of touchedFiles.slice(0, 20)) details.push(`  ${file}`);
+    if (touchedFiles.length > 20) {
+      details.push(`  ...and ${formatNumber(touchedFiles.length - 20)} more`);
     }
   }
   return details;
 }
 
-function findArtifact(summary, query) {
+function findArtifact(summary: AggregateSummary, query: string): ArtifactAggregate | undefined {
   const normalized = String(query ?? "").toLowerCase();
-  return summary.artifacts.find((artifact) =>
+  return summary.artifacts.find((artifact: ArtifactAggregate) =>
     artifact.artifact_id === query
     || artifact.artifact_name === query
     || displayName(artifact) === query
-  ) ?? summary.artifacts.find((artifact) =>
+  ) ?? summary.artifacts.find((artifact: ArtifactAggregate) =>
     artifact.artifact_id.toLowerCase().includes(normalized)
     || artifact.artifact_name.toLowerCase().includes(normalized)
     || displayName(artifact).toLowerCase().includes(normalized)
   );
 }
 
-function hasLegibilityMetadata(artifact) {
+function hasLegibilityMetadata(artifact: ArtifactAggregate): boolean {
   const metadata = artifact.metadata ?? {};
+  const touchedFiles = stringArrayMetadata(metadata, "touched_files");
   return Boolean(
-    metadata.display_name
-    || metadata.tool_name
-    || metadata.content_kind
-    || metadata.command
-    || metadata.touched_files?.length
-    || metadata.output_preview
+    stringMetadata(metadata, "display_name")
+    || stringMetadata(metadata, "tool_name")
+    || stringMetadata(metadata, "content_kind")
+    || stringMetadata(metadata, "command")
+    || touchedFiles.length
+    || stringMetadata(metadata, "output_preview")
   );
 }
 
-function legibilitySortValue(artifact) {
+function legibilitySortValue(artifact: ArtifactAggregate): number {
   return artifact.estimated_uncached_input_tokens || artifact.total_exposure;
 }
 
-function displayName(artifact) {
-  return artifact.display_name ?? artifact.metadata?.display_name ?? artifact.artifact_name;
+function displayName(artifact: ArtifactAggregate): string {
+  return String(artifact.display_name ?? stringMetadata(artifact.metadata, "display_name") ?? artifact.artifact_name);
 }
 
-function formatMaybeNumber(value) {
-  return value > 0 ? formatNumber(value) : "-";
+function formatMaybeNumber(value: unknown): string {
+  return Number(value) > 0 ? formatNumber(value) : "-";
 }
 
-function pad(value, width) {
+function pad(value: unknown, width: number): string {
   return String(value).padEnd(width, " ");
 }
 
-function truncate(value, width) {
+function truncate(value: unknown, width: number): string {
   const text = String(value);
   return text.length <= width ? text : `${text.slice(0, width - 3)}...`;
+}
+
+function stringMetadata(metadata: JsonObject | undefined, key: string): string | undefined {
+  const value = metadata?.[key];
+  return typeof value === "string" ? value : undefined;
+}
+
+function stringArrayMetadata(metadata: JsonObject | undefined, key: string): string[] {
+  const value = metadata?.[key];
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
 }

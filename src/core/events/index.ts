@@ -1,5 +1,6 @@
 import { sha256 } from "../../hash.js";
 import { applyStorageMode, STORAGE_MODES } from "../privacy/index.ts";
+import type { ArtifactEvent, CanonicalEvent, RequestUsageEvent } from "./types.ts";
 
 export const ARTIFACT_TYPES = Object.freeze([
   "SYSTEM_PROMPT",
@@ -97,13 +98,14 @@ export function createRequestUsageEvent({
   });
 }
 
-export function validateEvent(event: any) {
-  if (event?.event_kind === "artifact") return validateArtifactEvent(event);
-  if (event?.event_kind === "request_usage") return validateRequestUsageEvent(event);
-  throw new Error(`Unsupported event_kind "${event?.event_kind}".`);
+export function validateEvent(event: unknown): CanonicalEvent {
+  const candidate = event as any;
+  if (candidate?.event_kind === "artifact") return validateArtifactEvent(candidate);
+  if (candidate?.event_kind === "request_usage") return validateRequestUsageEvent(candidate);
+  throw new Error(`Unsupported event_kind "${candidate?.event_kind}".`);
 }
 
-export function validateArtifactEvent(event: any) {
+export function validateArtifactEvent(event: any): ArtifactEvent {
   requireField(event, "schema_version");
   requireExact(event, "event_kind", "artifact");
   requireString(event, "run_id");
@@ -133,7 +135,7 @@ export function validateArtifactEvent(event: any) {
   return event;
 }
 
-export function validateRequestUsageEvent(event: any) {
+export function validateRequestUsageEvent(event: any): RequestUsageEvent {
   requireField(event, "schema_version");
   requireExact(event, "event_kind", "request_usage");
   requireString(event, "run_id");

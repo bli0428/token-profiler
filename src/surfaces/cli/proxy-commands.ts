@@ -1,43 +1,60 @@
 import { spawn } from "node:child_process";
-import { closeSync, existsSync, openSync, statSync } from "node:fs";
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { closeSync, openSync } from "node:fs";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
-import { aggregateEvents } from "../../analysis/aggregate.ts";
+import { dirname, join, resolve } from "node:path";
 import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../codex-config.js";
-import { enrichProfilerSessions, readCodexSessionMetadata } from "../../codex-sessions.js";
-import { createHtmlReport } from "../../html-report.js";
-import { createRequestUsageEvent } from "../../core/events/index.ts";
-import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
-import { importLegacyEvents } from "../../ingest/legacy-import/index.ts";
 import { normalizeStorageMode } from "../../core/privacy/index.ts";
-import { TokenProfiler } from "../../profiler.js";
 import { createProfilerProxy } from "../../ingest/codex-proxy/index.ts";
-import { formatSummary } from "../../report.js";
 import { createSessionId, SessionRouter, sanitizeSessionId } from "../../session-router.js";
-import { readEventsFromRunDir } from "../../core/store/index.ts";
 
-import { parseOptions, positionalArgs, required } from "./utils.ts";
+import { optionString, parseOptions } from "./utils.ts";
 
-export async function runProxy(args) {
+type ProxyState = {
+  schema_version?: number;
+  pid: number;
+  host: string;
+  port: number;
+  upstream: string;
+  run_id?: string | null;
+  storage_mode?: string;
+  log_path?: string;
+  started_at?: string;
+};
+
+type StartProxyDaemonOptions = {
+  optionArgs: string[];
+  rootDir: string;
+  statePath: string;
+  runId: string | null;
+  upstream: string;
+  host: string;
+  port: number;
+  storageMode: string;
+};
+
+export async function runProxy(args: string[]): Promise<void> {
   const [action = "start", ...optionArgs] = args;
   const options = parseOptions(optionArgs);
-  const authMode = options.auth ?? "chatgpt";
+  const authMode = optionString(options.auth, "chatgpt");
   if (!["chatgpt", "api"].includes(authMode)) {
     throw new Error("--auth must be chatgpt or api.");
   }
-  const runId = options.run ? sanitizeSessionId(options.run) : null;
-  const rootDir = resolve(options["data-dir"] ?? join(homedir(), ".token-efficiency"));
-  const upstream = options.upstream ?? (authMode === "chatgpt"
+  const runId = typeof options.run === "string" ? sanitizeSessionId(options.run) : null;
+  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-efficiency")));
+  const upstream = optionString(options.upstream, authMode === "chatgpt"
     ? "https://chatgpt.com/backend-api/codex"
     : "https://api.openai.com");
-  const host = options.host ?? "127.0.0.1";
+  const host = optionString(options.host, "127.0.0.1");
   const port = Number(options.port ?? 8787);
   const statePath = join(rootDir, "proxy-state.json");
 
   if (action === "start") {
+    const storageModeOption = typeof options["storage-mode"] === "string"
+      ? { storageMode: options["storage-mode"] }
+      : {};
     const storageMode = normalizeStorageMode({
-      storageMode: options["storage-mode"],
+      ...storageModeOption,
       storeContent: Boolean(options["store-content"])
     });
     await startProxyDaemon({ optionArgs, rootDir, statePath, runId, upstream, host, port, storageMode });
@@ -46,6 +63,7 @@ export async function runProxy(args) {
 
   if (action === "stop") {
     const state = await readProxyState(statePath);
+    if (!state) throw new Error("Token profiler proxy is not running.");
     if (!isProcessRunning(state.pid)) {
       await rm(statePath, { force: true });
       console.log("Token profiler proxy is not running.");
@@ -76,8 +94,11 @@ export async function runProxy(args) {
     throw new Error("Use: proxy start|stop|status [--auth chatgpt|api] [--run <id>] [--upstream <url>] [--port <port>]");
   }
 
+  const storageModeOption = typeof options["storage-mode"] === "string"
+    ? { storageMode: options["storage-mode"] }
+    : {};
   const storageMode = normalizeStorageMode({
-    storageMode: options["storage-mode"],
+    ...storageModeOption,
     storeContent: Boolean(options["store-content"])
   });
   const sessionRouter = new SessionRouter({
@@ -105,7 +126,16 @@ export async function runProxy(args) {
 }
 
 
-async function startProxyDaemon({ optionArgs, rootDir, statePath, runId, upstream, host, port, storageMode }) {
+async function startProxyDaemon({
+  optionArgs,
+  rootDir,
+  statePath,
+  runId,
+  upstream,
+  host,
+  port,
+  storageMode
+}: StartProxyDaemonOptions): Promise<void> {
   const existing = await readProxyState(statePath, false);
   if (existing && isProcessRunning(existing.pid)) {
     throw new Error(`Token profiler proxy is already running (pid ${existing.pid}).`);
@@ -114,13 +144,20 @@ async function startProxyDaemon({ optionArgs, rootDir, statePath, runId, upstrea
   await mkdir(rootDir, { recursive: true });
   const logPath = join(rootDir, "proxy.log");
   const logFd = openSync(logPath, "a");
-  const child = spawn(process.execPath, [process.argv[1], "proxy", "serve", ...optionArgs], {
+  const cliPath = process.argv[1];
+  if (!cliPath) {
+    throw new Error("Cannot start proxy daemon without a CLI entrypoint path.");
+  }
+  const child = spawn(process.execPath, [cliPath, "proxy", "serve", ...optionArgs], {
     detached: true,
-    stdio: ["ignore", logFd, logFd],
+    stdio: ["ignore", logFd, logFd] as const,
     cwd: process.cwd()
   });
   closeSync(logFd);
   child.unref();
+  if (!child.pid) {
+    throw new Error("Proxy process did not report a pid.");
+  }
 
   const state = {
     schema_version: 2,
@@ -156,27 +193,29 @@ async function startProxyDaemon({ optionArgs, rootDir, statePath, runId, upstrea
 }
 
 
-async function readProxyState(statePath, required = true) {
+async function readProxyState(statePath: string, required = true): Promise<ProxyState | null> {
   try {
-    return JSON.parse(await readFile(statePath, "utf8"));
+    return JSON.parse(await readFile(statePath, "utf8")) as ProxyState;
   } catch (error) {
-    if (error.code === "ENOENT" && !required) return null;
-    if (error.code === "ENOENT") throw new Error("Token profiler proxy is not running.");
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "ENOENT" && !required) return null;
+    if (code === "ENOENT") throw new Error("Token profiler proxy is not running.");
     throw error;
   }
 }
 
-function isProcessRunning(pid) {
+function isProcessRunning(pid: unknown): boolean {
   if (!Number.isInteger(pid)) return false;
+  const processId = pid as number;
   try {
-    process.kill(pid, 0);
+    process.kill(processId, 0);
     return true;
   } catch {
     return false;
   }
 }
 
-async function waitFor(predicate, timeoutMs) {
+async function waitFor(predicate: () => boolean | Promise<boolean>, timeoutMs: number): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   do {
     if (await predicate()) return true;
@@ -186,7 +225,7 @@ async function waitFor(predicate, timeoutMs) {
 }
 
 
-export async function runCodexConfig(args) {
+export async function runCodexConfig(args: string[]): Promise<void> {
   const [action, ...optionArgs] = args;
 
   if (action === "run") {
@@ -195,25 +234,25 @@ export async function runCodexConfig(args) {
   }
 
   const options = parseOptions(optionArgs);
-  const configPath = resolve(options.config ?? join(homedir(), ".codex", "config.toml"));
+  const configPath = resolve(optionString(options.config, join(homedir(), ".codex", "config.toml")));
   const statePath = `${configPath}.token-efficiency-state.json`;
 
   if (action === "enable") {
-    const authMode = options.auth ?? "chatgpt";
+    const authMode = optionString(options.auth, "chatgpt");
     if (!["chatgpt", "api"].includes(authMode)) {
       throw new Error("--auth must be chatgpt or api.");
     }
-    const proxyUrl = options.url ?? (authMode === "chatgpt"
+    const proxyUrl = optionString(options.url, authMode === "chatgpt"
       ? "http://127.0.0.1:8787"
       : "http://127.0.0.1:8787/v1");
     const current = await readFile(configPath, "utf8").catch((error) => {
-      if (error.code === "ENOENT") return "";
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") return "";
       throw error;
     });
     const previousState = await readFile(statePath, "utf8")
       .then(JSON.parse)
       .catch((error) => {
-        if (error.code === "ENOENT") return null;
+        if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
         throw error;
       });
 
@@ -247,7 +286,7 @@ export async function runCodexConfig(args) {
 }
 
 
-async function runCodexThroughProxy(args) {
+async function runCodexThroughProxy(args: string[]): Promise<void> {
   const separatorIndex = args.indexOf("--");
   if (separatorIndex === -1 || separatorIndex === args.length - 1) {
     throw new Error("Use: codex run [--cwd <path>] [--run <id>] -- <prompt>");
@@ -255,13 +294,13 @@ async function runCodexThroughProxy(args) {
 
   const options = parseOptions(args.slice(0, separatorIndex));
   const promptArgs = args.slice(separatorIndex + 1);
-  const authMode = options.auth ?? "chatgpt";
+  const authMode = optionString(options.auth, "chatgpt");
   if (!["chatgpt", "api"].includes(authMode)) {
     throw new Error("--auth must be chatgpt or api.");
   }
 
-  const runId = sanitizeSessionId(options.run ?? createSessionId());
-  const rootDir = resolve(options["data-dir"] ?? join(homedir(), ".token-efficiency"));
+  const runId = sanitizeSessionId(optionString(options.run, createSessionId()));
+  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-efficiency")));
   const statePath = join(rootDir, "proxy-state.json");
   const upstream = authMode === "chatgpt"
     ? "https://chatgpt.com/backend-api/codex"
@@ -269,8 +308,11 @@ async function runCodexThroughProxy(args) {
   const port = Number(options.port ?? 8787);
   const host = "127.0.0.1";
   const existing = await readProxyState(statePath, false);
+  const storageModeOption = typeof options["storage-mode"] === "string"
+    ? { storageMode: options["storage-mode"] }
+    : {};
   const storageMode = normalizeStorageMode({
-    storageMode: options["storage-mode"],
+    ...storageModeOption,
     storeContent: Boolean(options["store-content"])
   });
 
@@ -280,8 +322,8 @@ async function runCodexThroughProxy(args) {
     }
   } else {
     const proxyArgs = ["--auth", authMode, "--port", String(port)];
-    if (options["data-dir"]) proxyArgs.push("--data-dir", options["data-dir"]);
-    if (options["storage-mode"]) proxyArgs.push("--storage-mode", options["storage-mode"]);
+    if (typeof options["data-dir"] === "string") proxyArgs.push("--data-dir", options["data-dir"]);
+    if (typeof options["storage-mode"] === "string") proxyArgs.push("--storage-mode", options["storage-mode"]);
     if (options["store-content"]) proxyArgs.push("--store-content");
     await startProxyDaemon({
       optionArgs: proxyArgs,
@@ -298,7 +340,7 @@ async function runCodexThroughProxy(args) {
   const proxyUrl = authMode === "chatgpt"
     ? `http://${host}:${port}`
     : `http://${host}:${port}/v1`;
-  const codexPath = options.codex ?? "/Applications/Codex.app/Contents/Resources/codex";
+  const codexPath = optionString(options.codex, "/Applications/Codex.app/Contents/Resources/codex");
   const codexArgs = [
     "-c", 'model_provider="token-profiler"',
     "-c", 'model_providers.token-profiler.name="Token Profiler"',
@@ -311,10 +353,10 @@ async function runCodexThroughProxy(args) {
     ...promptArgs
   ];
   const child = spawn(codexPath, codexArgs, {
-    cwd: resolve(options.cwd ?? process.cwd()),
+    cwd: resolve(optionString(options.cwd, process.cwd())),
     stdio: "inherit"
   });
-  const exitCode: any = await new Promise((resolveExit, reject) => {
+  const exitCode = await new Promise<number | null>((resolveExit, reject) => {
     child.once("error", reject);
     child.once("close", resolveExit);
   });

@@ -76,3 +76,5 @@
 - [X] T031 [US3] Run `npm run typecheck`
 - [X] T032 [US3] Run full test suite after TypeScript migration
 - [X] T033 [US3] Rerun demo and summarize after TypeScript migration
+- [X] T034 [US2] Enable strict TypeScript checks for function boundaries and implicit any usage
+- [X] T035 [US3] Add `npm run lint` as the strict TypeScript validation gate

@@ -60,7 +60,7 @@ export function createProfilerProxy({
         body,
         upstreamUrl,
         logger,
-        onCompleted: (completed) => queueObservation(pendingObservations, async () => {
+        onCompleted: (completed: any) => queueObservation(pendingObservations, async () => {
           sessionRouter?.registerResponse(completed.responseId, sessionId);
           if (activeProfiler && completed.usage) {
             await recordUsageEvent({
@@ -73,12 +73,13 @@ export function createProfilerProxy({
         })
       });
     } catch (error) {
-      const status = error.code === "BODY_TOO_LARGE" ? 413 : 502;
-      logger.error(`Proxy request failed: ${error.message}`);
+      const caught = error as Error & { code?: string };
+      const status = caught.code === "BODY_TOO_LARGE" ? 413 : 502;
+      logger.error(`Proxy request failed: ${caught.message}`);
       if (!response.headersSent) {
         response.writeHead(status, { "content-type": "application/json" });
       }
-      response.end(JSON.stringify({ error: "token_profiler_proxy_error", message: error.message }));
+      response.end(JSON.stringify({ error: "token_profiler_proxy_error", message: caught.message }));
     }
   });
 
