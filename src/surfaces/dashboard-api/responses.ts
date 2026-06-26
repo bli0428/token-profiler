@@ -4,10 +4,10 @@ import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
 import { createDashboardViewModel } from "../dashboard/model.ts";
 import { createDashboardSessionIndex } from "../dashboard/sessions.ts";
-import type { DashboardArtifactDetail, DashboardSession } from "../dashboard/types.ts";
 import { DashboardApiRouteError } from "./errors.ts";
 import {
   DASHBOARD_API_SCHEMA_VERSION,
+  type DashboardApiArtifactDetail,
   type DashboardApiRun,
   type DashboardApiSession,
   type DashboardApiStatus
@@ -84,7 +84,7 @@ export async function createArtifactDetailResponse(
   rootDir: string,
   runId: string,
   artifactId: string
-): Promise<DashboardArtifactDetail> {
+): Promise<DashboardApiArtifactDetail> {
   const run = await createRunResponse(rootDir, runId);
   const detail = findArtifactDetail(run.artifact_details, artifactId);
   if (!detail) {
@@ -93,7 +93,9 @@ export async function createArtifactDetailResponse(
   return detail;
 }
 
-function toApiSession(session: DashboardSession): DashboardApiSession {
+type DashboardSessionSource = Awaited<ReturnType<typeof createDashboardSessionIndex>>["sessions"][number];
+
+function toApiSession(session: DashboardSessionSource): DashboardApiSession {
   const routableRunId = basename(session.run_dir);
   return {
     run_id: routableRunId,
@@ -114,9 +116,9 @@ function toApiSession(session: DashboardSession): DashboardApiSession {
 }
 
 function findArtifactDetail(
-  details: Record<string, DashboardArtifactDetail>,
+  details: Record<string, DashboardApiArtifactDetail>,
   artifactId: string
-): DashboardArtifactDetail | undefined {
+): DashboardApiArtifactDetail | undefined {
   if (details[artifactId]) return details[artifactId];
 
   const shortMatches = Object.values(details).filter((detail) => detail.identity.stable_short_id === artifactId);

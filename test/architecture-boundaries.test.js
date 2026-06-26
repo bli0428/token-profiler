@@ -41,6 +41,15 @@ test("dashboard API modules only consume canonical store, analyzers, and dashboa
   }
 });
 
+test("dashboard API contract types do not depend on sibling surface DTOs", async () => {
+  const source = await readFile(join(SRC_ROOT, "surfaces", "dashboard-api", "types.ts"), "utf8");
+  assert.doesNotMatch(
+    source,
+    /from\s+["'](?:\.\.\/(?!\.\.\/)|[^"']*src\/surfaces\/(?!dashboard-api\/))[^"']*["']/,
+    "dashboard API DTOs must be owned by the API contract, not sibling surface modules"
+  );
+});
+
 async function listJavaScriptFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];
