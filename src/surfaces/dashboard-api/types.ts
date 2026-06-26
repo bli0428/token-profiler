@@ -1,10 +1,12 @@
+import type { AnalyzerAvailability } from "../../analysis/types.ts";
 import type {
   DashboardArtifactDetail,
+  DashboardArtifactRow,
   DashboardCaveat,
+  DashboardFilterOptions,
+  DashboardPrivacyState,
   DashboardRunOverview,
-  DashboardSession,
   DashboardTaskGroup,
-  DashboardViewModel
 } from "../dashboard/types.ts";
 
 export const DASHBOARD_API_SCHEMA_VERSION = 1 as const;
@@ -47,13 +49,31 @@ export type DashboardApiStatus = {
   };
 };
 
-export type DashboardApiSession = Omit<DashboardSession, "run_dir">;
-
-export type DashboardApiRun = Omit<DashboardViewModel, "schema_version" | "generated_at" | "session"> & {
+export type DashboardApiSession = {
   run_id: string;
+  canonical_run_id?: string | undefined;
+  label?: string | undefined;
+  updated_at?: string | undefined;
+  request_count?: number | undefined;
+  artifact_count?: number | undefined;
+  input_tokens?: number | undefined;
+  cached_input_tokens?: number | undefined;
+  uncached_input_tokens?: number | undefined;
+  output_tokens?: number | undefined;
+  availability: AnalyzerAvailability;
+  caveats: DashboardCaveat[];
+};
+
+export type DashboardApiRun = {
+  run_id: string;
+  canonical_run_id?: string | undefined;
   overview: DashboardRunOverview;
+  artifacts: DashboardArtifactRow[];
   artifact_details: Record<string, DashboardArtifactDetail>;
   task_groups: DashboardTaskGroup[];
+  filters: DashboardFilterOptions;
+  privacy: DashboardPrivacyState;
+  caveats: DashboardCaveat[];
 };
 
 export type DashboardApiResponse =

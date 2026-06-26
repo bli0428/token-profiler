@@ -56,7 +56,8 @@ export async function createRunResponse(rootDir: string, runId: string): Promise
     const summary = analyzeEvents(await readEventsFromRunDir(runDir));
     const view = createDashboardViewModel(summary);
     return {
-      run_id: view.run_id ?? runId,
+      run_id: runId,
+      ...(view.run_id && view.run_id !== runId ? { canonical_run_id: view.run_id } : {}),
       overview: view.overview,
       artifacts: view.artifacts,
       artifact_details: view.artifact_details,
@@ -93,8 +94,10 @@ export async function createArtifactDetailResponse(
 }
 
 function toApiSession(session: DashboardSession): DashboardApiSession {
+  const routableRunId = basename(session.run_dir);
   return {
-    run_id: session.run_id,
+    run_id: routableRunId,
+    ...(session.run_id !== routableRunId ? { canonical_run_id: session.run_id } : {}),
     ...(session.label !== undefined ? { label: session.label } : {}),
     ...(session.updated_at !== undefined ? { updated_at: session.updated_at } : {}),
     ...(session.request_count !== undefined ? { request_count: session.request_count } : {}),

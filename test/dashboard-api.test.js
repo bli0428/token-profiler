@@ -26,9 +26,28 @@ test("dashboard API sessions return safe recent summaries", async () => {
 
   assert.equal(response.status, 200);
   assert.equal(response.body.data.sessions.length, 1);
-  assert.equal(response.body.data.sessions[0].run_id, "run_test");
+  assert.equal(response.body.data.sessions[0].run_id, "newer");
+  assert.equal(response.body.data.sessions[0].canonical_run_id, "run_test");
   assert.equal(response.body.data.sessions[0].artifact_count, 1);
   assert.equal("run_dir" in response.body.data.sessions[0], false);
+});
+
+test("dashboard API session run_id is routable to the run endpoint", async () => {
+  const root = tempRoot("session-route");
+  await writeRun(root, "directory-id", [
+    artifact("req_1", "FILE:routable", "FILE", "routable.ts", "h-route", 3, 0, 3),
+    usage("req_1", 3, 0)
+  ]);
+
+  const sessionsResponse = await handleDashboardApiRequest("GET", "/api/sessions", { rootDir: root });
+  const session = sessionsResponse.body.data.sessions[0];
+  const runResponse = await handleDashboardApiRequest("GET", `/api/runs/${encodeURIComponent(session.run_id)}`, { rootDir: root });
+
+  assert.equal(session.run_id, "directory-id");
+  assert.equal(session.canonical_run_id, "run_test");
+  assert.equal(runResponse.status, 200);
+  assert.equal(runResponse.body.data.run_id, session.run_id);
+  assert.equal(runResponse.body.data.canonical_run_id, session.canonical_run_id);
 });
 
 test("dashboard API returns run views and artifact details", async () => {
@@ -47,7 +66,8 @@ test("dashboard API returns run views and artifact details", async () => {
 
   assert.equal(runResponse.status, 200);
   assert.equal(runResponse.body.schema_version, 1);
-  assert.equal(runResponse.body.data.run_id, "run_test");
+  assert.equal(runResponse.body.data.run_id, "selected");
+  assert.equal(runResponse.body.data.canonical_run_id, "run_test");
   assert.equal(runResponse.body.data.overview.request_count, 1);
   assert.equal(runResponse.body.data.artifacts.length, 1);
   assert.equal(runResponse.body.data.task_groups.length >= 0, true);
