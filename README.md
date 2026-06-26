@@ -136,6 +136,28 @@ These per-artifact cache numbers are estimates based on the reconstructed prompt
 order and reconciled to exact request-level usage. Older events that were
 captured before offset tracking show `0%` attribution coverage.
 
+## Legibility And Task Explorer
+
+Analyzer results also include a legibility layer that turns opaque work-unit
+IDs into readable artifact rows for supported commands, command outputs,
+patches, messages, file/context items, and unknown records. Use:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js legibility \
+  ~/.token-profiler/runs/codex-live
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js explain \
+  ~/.token-profiler/runs/codex-live --artifact <artifact-id-or-label>
+```
+
+`legibility` shows readable artifact rows, stable IDs, preview state, and tool
+link caveats. `explain` drills into one artifact with command or patch facts,
+first/last inclusion evidence, privacy state, and attribution caveats.
+
+The normal summary report now includes task groups when request/user-intent
+boundaries are available. Task groups roll up exposure, replay, usage, top
+artifacts, and grouping confidence. Metadata-only runs use safe fallback labels
+and never require raw prompt or tool-output content.
+
 Start it in the background:
 
 ```bash

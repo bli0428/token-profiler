@@ -40,6 +40,12 @@ export function formatSummary(summary: RunAnalysisSummary): string {
   lines.push("Context Bloat");
   lines.push(formatContextBloat(summary.context_bloat));
 
+  if (summary.task_groups && summary.task_groups.length > 0) {
+    lines.push("");
+    lines.push("Task Groups");
+    lines.push(formatTaskGroups(summary.task_groups));
+  }
+
   lines.push("");
   lines.push("Top Contributors");
   lines.push(formatTable(summary.top_contributors, "total_exposure"));
@@ -48,6 +54,19 @@ export function formatSummary(summary: RunAnalysisSummary): string {
   lines.push(formatTable(summary.replay_hotspots, "repeated_exposure"));
 
   return lines.join("\n");
+}
+
+function formatTaskGroups(rows: NonNullable<RunAnalysisSummary["task_groups"]>) {
+  const header = [pad("Task", 30), pad("Confidence", 12), pad("Requests", 10), pad("Exposure", 12), pad("Replay", 12), "Top Artifacts"].join("  ");
+  const body = rows.map((row) => [
+    pad(truncate(row.display_name, 30), 30),
+    pad(row.confidence, 12),
+    pad(formatNumber(row.request_ids.length), 10),
+    pad(formatNumber(row.metrics.total_exposure), 12),
+    pad(formatNumber(row.metrics.repeated_exposure), 12),
+    row.top_artifact_ids.slice(0, 3).join(", ")
+  ].join("  "));
+  return [header, ...body].join("\n");
 }
 
 function formatCostDrivers(rows: any[]) {

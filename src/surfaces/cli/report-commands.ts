@@ -2,7 +2,7 @@ import { statSync } from "node:fs";
 import { mkdir, readdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { analyzeEvents, toLegacyAggregateSummary } from "../../analysis/pipeline.ts";
+import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { enrichProfilerSessions, readCodexSessionMetadata } from "../../adapters/codex/log-import/index.ts";
 import { createHtmlReport } from "../html-report.ts";
 import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
@@ -86,7 +86,7 @@ export async function runLegibility(args: string[]): Promise<void> {
   const options = parseOptions(args);
   const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const events = await readCanonicalEventsFromRunDir(runDir);
-  const summary = toLegacyAggregateSummary(analyzeEvents(events));
+  const summary = analyzeEvents(events);
 
   console.log(formatLegibilityReport(summary, {
     limit: Number(options.limit ?? 20)
@@ -103,7 +103,7 @@ export async function runExplain(args: string[]): Promise<void> {
   }
 
   const events = await readCanonicalEventsFromRunDir(runDir);
-  const summary = toLegacyAggregateSummary(analyzeEvents(events));
+  const summary = analyzeEvents(events);
   console.log(formatArtifactDetail(summary, artifact));
 }
 

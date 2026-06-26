@@ -44,6 +44,138 @@ export type AnalysisCaveat = {
 
 export type AnalyzerRow = Record<string, unknown>;
 
+export type PreviewState = "hidden" | "unavailable" | "preview" | "raw_available";
+
+export type DisplayCategory =
+  | "command"
+  | "command_output"
+  | "patch"
+  | "tool_call"
+  | "assistant_message"
+  | "user_message"
+  | "file_context"
+  | "request_metadata"
+  | "unknown";
+
+export type ReadableArtifact = {
+  artifact_id: string;
+  artifact_name: string;
+  stable_short_id: string;
+  display_name: string;
+  display_category: DisplayCategory;
+  summary?: string | undefined;
+  tool_name?: string | undefined;
+  call_id?: string | undefined;
+  request_id?: string | undefined;
+  total_exposure: number;
+  repeated_exposure: number;
+  inclusion_count: number;
+  attribution_state?: string | undefined;
+  storage_mode: string;
+  preview_state: PreviewState;
+  specificity: number;
+  source_facts: string[];
+  caveats: AnalysisCaveat[];
+};
+
+export type ToolCallLink = {
+  link_id: string;
+  call_id?: string | undefined;
+  tool_name?: string | undefined;
+  call_artifact_id?: string | undefined;
+  output_artifact_ids: string[];
+  match_state: "exact" | "inferred" | "unmatched_call" | "unmatched_output";
+  confidence: "high" | "medium" | "low";
+  evidence: string[];
+  caveats: AnalysisCaveat[];
+};
+
+export type ArtifactDetail = {
+  artifact_id: string;
+  display_name: string;
+  display_category: DisplayCategory;
+  identity: {
+    artifact_name: string;
+    stable_short_id: string;
+    request_ids: string[];
+  };
+  metrics: {
+    total_exposure: number;
+    repeated_exposure: number;
+    inclusion_count: number;
+    distinct_hash_count?: number | undefined;
+    estimated_cached_input_tokens?: number | undefined;
+    estimated_uncached_input_tokens?: number | undefined;
+    attribution_state?: string | undefined;
+  };
+  persistence: {
+    first_seen_at?: string | undefined;
+    last_seen_at?: string | undefined;
+    task_group_ids?: string[] | undefined;
+  };
+  command?: {
+    command?: string | undefined;
+    workdir?: string | undefined;
+    exit_code?: number | undefined;
+    output_preview?: string | undefined;
+    preview_state: PreviewState;
+  };
+  patch?: {
+    touched_files?: string[] | undefined;
+    touched_file_count?: number | undefined;
+    adds?: number | undefined;
+    updates?: number | undefined;
+    deletes?: number | undefined;
+  };
+  privacy: {
+    storage_mode: string;
+    preview_state: PreviewState;
+    hidden_fields: string[];
+  };
+  tool_links: ToolCallLink[];
+  caveats: AnalysisCaveat[];
+};
+
+export type TaskGroup = {
+  task_group_id: string;
+  display_name: string;
+  label_source: "user_prompt" | "safe_summary" | "request_window" | "fallback";
+  confidence: "complete" | "partial" | "heuristic";
+  start_request_id: string;
+  end_request_id: string;
+  request_ids: string[];
+  artifact_ids: string[];
+  tool_call_link_ids: string[];
+  metrics: {
+    input_tokens?: number | undefined;
+    cached_input_tokens?: number | undefined;
+    uncached_input_tokens?: number | undefined;
+    output_tokens?: number | undefined;
+    total_exposure: number;
+    repeated_exposure: number;
+    artifact_count: number;
+  };
+  top_artifact_ids: string[];
+  privacy: {
+    prompt_available: boolean;
+    preview_state: PreviewState;
+    hidden_reason?: string | undefined;
+  };
+  caveats: AnalysisCaveat[];
+};
+
+export type LegibilityAnalysisResult = Omit<AnalyzerResult, "analyzer_id" | "rows"> & {
+  analyzer_id: "legibility";
+  rows: ReadableArtifact[];
+  tool_links: ToolCallLink[];
+  details: ArtifactDetail[];
+};
+
+export type TaskGroupAnalysisResult = Omit<AnalyzerResult, "analyzer_id" | "rows"> & {
+  analyzer_id: "task-groups";
+  rows: TaskGroup[];
+};
+
 /**
  * Output from a single analyzer module.
  *
@@ -55,7 +187,7 @@ export type AnalyzerResult = {
   schema_version: number;
   availability: AnalyzerAvailability;
   metrics: Record<string, number | string | boolean | null>;
-  rows?: AnalyzerRow[];
+  rows?: unknown[];
   caveats: AnalysisCaveat[];
 };
 
@@ -73,6 +205,8 @@ export type RunAnalysisSummary = AggregateSummary & {
   analyzers: AnalyzerResult[];
   artifact_aggregates: ArtifactAggregate[];
   caveats: AnalysisCaveat[];
+  legibility?: LegibilityAnalysisResult;
+  task_groups?: TaskGroup[];
 };
 
 /**

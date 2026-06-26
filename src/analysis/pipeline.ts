@@ -1,9 +1,11 @@
 import { analyzeCacheAttribution } from "./cache-attribution.ts";
 import { analyzeContextClutter } from "./context-clutter.ts";
 import { analyzeExposure } from "./exposure.ts";
+import { analyzeLegibility } from "./legibility.ts";
 import { analyzePersistence } from "./persistence.ts";
 import { prepareRunData } from "./run-data.ts";
 import { compareArtifactsByMetric } from "./sort.ts";
+import { analyzeTaskGroups } from "./task-groups.ts";
 import type { RunAnalysisSummary } from "./types.ts";
 
 /**
@@ -31,6 +33,8 @@ export function analyzeEvents(events: unknown[]): RunAnalysisSummary {
   });
   const persistence = analyzePersistence(artifacts, requests);
   const contextClutter = analyzeContextClutter(artifacts);
+  const legibility = analyzeLegibility(artifacts, requests, runData.artifactEvents);
+  const taskGroups = analyzeTaskGroups(requests, legibility);
 
   return {
     schema_version: 1,
@@ -51,10 +55,16 @@ export function analyzeEvents(events: unknown[]): RunAnalysisSummary {
       exposure.result,
       cache.result,
       persistence,
-      contextClutter
+      contextClutter,
+      legibility,
+      taskGroups
     ],
+    legibility,
+    task_groups: taskGroups.rows,
     caveats: [
-      ...cache.caveats
+      ...cache.caveats,
+      ...legibility.caveats,
+      ...taskGroups.caveats
     ]
   };
 }

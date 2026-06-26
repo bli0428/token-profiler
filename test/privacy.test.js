@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { formatArtifactDetail } from "../src/analysis/legibility.ts";
+import { analyzeEvents } from "../src/analysis/pipeline.ts";
 import { applyStorageMode, createContentPreview, normalizeStorageMode } from "../src/core/privacy/index.ts";
 
 const baseEvent = {
@@ -48,4 +51,34 @@ test("content preview captures short text without truncation", () => {
     line_count: 2,
     truncated: false
   });
+});
+
+async function fixture(name) {
+  const text = await readFile(new URL(`./fixtures/events/${name}`, import.meta.url), "utf8");
+  return text.trim().split("\n").map((line) => JSON.parse(line));
+}
+
+test("legibility labels and task names respect metadata-only storage", async () => {
+  const summary = analyzeEvents(await fixture("legibility-privacy.jsonl"));
+  const metadata = summary.legibility.rows.find((row) => row.artifact_id === "MSG:user:metadata");
+
+  assert.equal(metadata.preview_state, "hidden");
+  assert.equal(metadata.display_name.includes("SECRET"), false);
+  assert.ok(summary.task_groups.some((group) => group.privacy.prompt_available === false));
+});
+
+test("artifact detail distinguishes preview and raw permission states", async () => {
+  const summary = analyzeEvents(await fixture("legibility-privacy.jsonl"));
+
+  assert.match(formatArtifactDetail(summary, "OUT:exec:preview"), /Preview State:\s+preview/);
+  assert.match(formatArtifactDetail(summary, "OUT:exec:preview"), /SECRET_PREVIEW/);
+  assert.match(formatArtifactDetail(summary, "OUT:exec:raw"), /Preview State:\s+raw_available/);
+});
+
+test("hidden and unavailable privacy caveats remain visible", async () => {
+  const summary = analyzeEvents(await fixture("legibility-privacy.jsonl"));
+  const metadata = formatArtifactDetail(summary, "MSG:user:metadata");
+
+  assert.match(metadata, /privacy_hidden/);
+  assert.match(metadata, /Hidden Fields/);
 });
