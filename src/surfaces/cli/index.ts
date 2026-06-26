@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { runCodexImport, runCommand, runDemo, runRecord, runWatch } from "./capture-commands.ts";
+import { runDashboardApi } from "./dashboard-api-commands.ts";
 import { runCodexConfig, runProxy } from "./proxy-commands.ts";
 import { runDashboard, runExplain, runHtml, runLegibility, runSessions, runSummarize } from "./report-commands.ts";
 import { printHelp } from "./utils.ts";
@@ -31,6 +32,8 @@ try {
     await runHtml(args);
   } else if (command === "dashboard") {
     await runDashboard(args);
+  } else if (command === "dashboard-api") {
+    await runDashboardApi(args);
   } else if (command === "sessions") {
     await runSessions(args);
   } else {

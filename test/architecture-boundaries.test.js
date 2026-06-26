@@ -29,6 +29,18 @@ test("dashboard surface modules do not import provider-specific adapter code", a
   }
 });
 
+test("dashboard API modules only consume canonical store, analyzers, and dashboard-safe model code", async () => {
+  const files = await listJavaScriptFiles(join(SRC_ROOT, "surfaces", "dashboard-api"));
+  for (const file of files) {
+    const source = await readFile(file, "utf8");
+    assert.doesNotMatch(
+      source,
+      /from\s+["'][^"']*(?:adapters|ingest|proxy|codex|claude|dashboard\/render|html-report)[^"']*["']/,
+      `${file} must stay behind the dashboard API boundary`
+    );
+  }
+});
+
 async function listJavaScriptFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
   const files = [];

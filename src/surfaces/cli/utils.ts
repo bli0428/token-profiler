@@ -161,6 +161,9 @@ Commands:
   dashboard [--limit <count>] [--data-dir <path>] [--out <path>]
     Write a static local dashboard session index.
 
+  dashboard-api serve [--port <port>] [--host <host>] [--data-dir <path>] [--origin <origin>]
+    Start a local read-only dashboard HTTP API.
+
   sessions [--limit <count>] [--data-dir <path>] [--codex-home <path>] [--no-codex]
     List recently captured sessions, enriched with Codex thread titles when available.
 `);

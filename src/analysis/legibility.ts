@@ -63,6 +63,36 @@ export function findArtifactDetail(analysis: LegibilityAnalysisResult, query: st
   );
 }
 
+export function formatArtifactDetail(summary: RunAnalysisSummary | AggregateSummary, artifactQuery: string): string {
+  const analysis = "legibility" in summary && summary.legibility
+    ? summary.legibility
+    : analyzeLegibility(summary.artifacts, summary.requests);
+  const detail = findArtifactDetail(analysis, artifactQuery);
+  if (!detail) return `No artifact matched "${artifactQuery}".`;
+
+  const lines: string[] = [
+    detail.display_name,
+    "",
+    `ID:              ${detail.artifact_id}`,
+    `Short ID:        ${detail.identity.stable_short_id}`,
+    `Type:            ${detail.display_category}`,
+    `Artifact Name:   ${detail.identity.artifact_name}`,
+    `Storage Mode:    ${detail.privacy.storage_mode}`,
+    `Preview State:   ${detail.privacy.preview_state}`
+  ];
+
+  if (detail.command?.output_preview) lines.push(`Output Preview:  ${detail.command.output_preview}`);
+  if (detail.privacy.hidden_fields.length > 0) lines.push(`Hidden Fields:   ${detail.privacy.hidden_fields.join(", ")}`);
+
+  if (detail.caveats.length > 0) {
+    lines.push("");
+    lines.push("Caveats");
+    for (const caveat of detail.caveats) lines.push(`${caveat.code}: ${caveat.message}`);
+  }
+
+  return lines.join("\n");
+}
+
 function readableArtifact(
   artifact: ArtifactAggregate,
   requests: RequestSummary[],
