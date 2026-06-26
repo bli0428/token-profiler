@@ -2,11 +2,11 @@ import { statSync } from "node:fs";
 import { mkdir, readdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { aggregateEvents } from "../../analysis/aggregate.ts";
+import { analyzeEvents, toLegacyAggregateSummary } from "../../analysis/pipeline.ts";
 import { enrichProfilerSessions, readCodexSessionMetadata } from "../../adapters/codex/log-import/index.ts";
-import { createHtmlReport } from "../../html-report.js";
+import { createHtmlReport } from "../html-report.ts";
 import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
-import { formatSummary } from "../../report.js";
+import { formatSummary } from "./report-renderer.ts";
 
 import { optionString, parseOptions, positionalArgs, readCanonicalEventsFromRunDir } from "./utils.ts";
 
@@ -71,7 +71,7 @@ export async function runSummarize(args: string[]): Promise<void> {
   const options = parseOptions(args);
   const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const events = await readCanonicalEventsFromRunDir(runDir);
-  const summary = aggregateEvents(events);
+  const summary = analyzeEvents(events);
 
   if (options.json) {
     console.log(JSON.stringify(summary, null, 2));
@@ -86,7 +86,7 @@ export async function runLegibility(args: string[]): Promise<void> {
   const options = parseOptions(args);
   const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const events = await readCanonicalEventsFromRunDir(runDir);
-  const summary = aggregateEvents(events);
+  const summary = toLegacyAggregateSummary(analyzeEvents(events));
 
   console.log(formatLegibilityReport(summary, {
     limit: Number(options.limit ?? 20)
@@ -103,7 +103,7 @@ export async function runExplain(args: string[]): Promise<void> {
   }
 
   const events = await readCanonicalEventsFromRunDir(runDir);
-  const summary = aggregateEvents(events);
+  const summary = toLegacyAggregateSummary(analyzeEvents(events));
   console.log(formatArtifactDetail(summary, artifact));
 }
 
@@ -113,7 +113,7 @@ export async function runHtml(args: string[]): Promise<void> {
   const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const out = optionString(options.out, `${runDir}/report.html`);
   const events = await readCanonicalEventsFromRunDir(runDir);
-  const summary = aggregateEvents(events);
+  const summary = analyzeEvents(events);
 
   await mkdir(dirname(out), { recursive: true });
   await createHtmlReport(summary, out);

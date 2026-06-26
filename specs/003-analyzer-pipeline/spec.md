@@ -8,90 +8,137 @@
 
 **Input**: User description: "Separate context bloat, top contributors, burn, attribution, and legibility into derived modules over metadata."
 
-## User Scenarios & Testing
+**Sequencing**: Execute after `001-canonical-event-schema-privacy` and the module-boundary work in `006-module-boundaries-architecture`. This feature depends on canonical captured records and must not consume provider-specific payloads directly.
 
-### User Story 1 - Exposure And Replay Analyzer (Priority: P1)
+## User Scenarios & Testing *(mandatory)*
 
-A user can identify which artifacts were repeatedly present in context and how much cumulative exposure they represent.
+### User Story 1 - Understand Exposure And Replay (Priority: P1)
 
-**Why this priority**: This is the core value already proven by the MVP.
+A user can open a report for a captured run and understand how much context was present overall, how much of it was newly introduced, and which artifacts were repeatedly carried forward across requests.
 
-**Independent Test**: Run the analyzer over a fixture with repeated hashes and verify total, unique, repeated exposure, replay ratio, and top contributors.
+**Why this priority**: Exposure and replay are the core value of the current product. Users need to see whether a session is spending context on fresh work, useful persistence, or repeated baggage.
+
+**Independent Test**: Analyze a representative run with repeated artifact identities, changed artifact content, and multiple requests; verify total exposure, unique exposure, repeated exposure, replay ratio, context efficiency, request count, artifact count, and top contributors.
 
 **Acceptance Scenarios**:
 
-1. **Given** the same artifact content appears in multiple requests, **When** exposure analysis runs, **Then** only the first content hash counts as unique exposure.
-2. **Given** an artifact changes content, **When** exposure analysis runs, **Then** the new hash contributes new unique exposure.
+1. **Given** the same artifact content appears in multiple requests, **When** exposure analysis runs, **Then** the artifact contributes once to unique exposure and each later inclusion contributes to repeated exposure.
+2. **Given** an artifact keeps the same label but its content changes, **When** exposure analysis runs, **Then** the changed content is counted as a new unique exposure while preserving the relationship to the artifact identity.
+3. **Given** a run contains many artifacts with different sizes and inclusion counts, **When** top contributors are shown, **Then** the user can identify which artifacts account for the largest cumulative exposure.
+4. **Given** replayed content is present in a run, **When** summary metrics are displayed, **Then** the report distinguishes repeated context from a judgment that the repetition was wasteful.
 
 ---
 
-### User Story 2 - Cache Attribution Documentation (Priority: P1)
+### User Story 2 - Understand Cache And Burn Attribution (Priority: P1)
 
-A user can see per-artifact cached and uncached contribution while the report documents which values are provider-reported and which values are estimated from local tokenization.
+A user can compare provider-reported usage totals with local artifact-level estimates, see how much attribution coverage exists, and understand where cached, uncached, and unattributed tokens are being reported or estimated.
 
-**Why this priority**: Users should not confuse provider-reported request totals with locally estimated artifact attribution.
+**Why this priority**: Token-heavy sessions become misleading if provider totals and locally estimated artifact attribution are blended together. The user needs clear caveats before making cost or efficiency decisions.
 
-**Independent Test**: Run fixtures where reconstructed artifact tokens exactly match, undercount, and overcount provider usage.
+**Independent Test**: Analyze fixtures where local artifact token totals exactly match, undercount, and overcount request-level usage; verify coverage, mismatch state, provider totals, local estimates, proportional coordinate normalization for overlong reconstructed artifact ranges, and user-facing attribution notes.
 
 **Acceptance Scenarios**:
 
-1. **Given** reconstructed artifact tokens match provider input tokens, **When** cache attribution runs, **Then** the report documents that artifact attribution is estimated from local tokenizer counts.
-2. **Given** reconstructed tokens exceed provider input, **When** attribution runs, **Then** the analyzer normalizes or flags the coordinate mismatch.
-3. **Given** artifact-level cost estimates are shown, **When** reports render, **Then** users can distinguish them from provider-reported request totals.
+1. **Given** provider-reported usage exists for a request, **When** cache attribution runs, **Then** the output separates provider-reported totals from locally estimated artifact contributions.
+2. **Given** locally estimated artifact tokens exactly match provider-reported input tokens, **When** attribution is displayed, **Then** the report states that artifact-level allocation is still locally estimated.
+3. **Given** locally estimated artifact tokens are lower than provider-reported input tokens, **When** attribution is displayed, **Then** the output reports an unattributed remainder and does not hide the gap.
+4. **Given** reconstructed artifact coordinate ranges exceed provider-reported input tokens, **When** cache attribution runs, **Then** artifact ranges are proportionally scaled into the provider-reported input-token range before cached and uncached estimates are allocated.
+5. **Given** provider usage is missing for some requests, **When** burn analysis runs, **Then** the output marks those requests as usage-unavailable and keeps them separate from requests with authoritative usage totals.
 
 ---
 
-### User Story 3 - Analyzer Registry (Priority: P2)
+### User Story 3 - Separate Context Clutter From Useful Persistence (Priority: P2)
 
-A developer can add or disable analyzer modules without editing the capture layer or report-specific code.
+A user can tell whether repeated context appears to be normal task persistence, potentially stale clutter, or simply unclassified replay that needs more evidence.
 
-**Why this priority**: The tool will grow beyond the current report sections.
+**Why this priority**: The product should help users reason about context behavior without treating every repeated artifact as a problem. Some persistence is essential for long tasks.
 
-**Independent Test**: Register a synthetic analyzer that consumes canonical events and produces a named result without affecting other analyzers.
+**Independent Test**: Analyze fixtures containing artifacts that appear briefly, artifacts that persist across many requests, artifacts that disappear and later reappear, and artifacts with missing readable metadata; verify each receives an explainable persistence classification.
 
 **Acceptance Scenarios**:
 
-1. **Given** a new analyzer module, **When** the pipeline runs, **Then** the module receives canonical run data and emits a typed result.
-2. **Given** an analyzer is disabled, **When** reports render, **Then** sections depending on it are omitted or marked unavailable.
+1. **Given** an artifact appears across a contiguous request span, **When** persistence analysis runs, **Then** the output reports first seen, last seen, inclusion count, and span length.
+2. **Given** an artifact disappears and later reappears, **When** persistence analysis runs, **Then** the output distinguishes continuous persistence from reintroduced replay.
+3. **Given** an artifact has high repeated exposure but no readable task or source metadata, **When** clutter analysis runs, **Then** the output marks the concern as uncertain rather than declaring it waste.
+4. **Given** an artifact is repeatedly present near related task activity, **When** clutter analysis runs, **Then** the output can describe it as useful or normal persistence when evidence supports that classification.
+
+---
+
+### User Story 4 - Reuse Analyzer Results Across Surfaces (Priority: P2)
+
+A developer or advanced user can rely on one set of analyzer outputs for CLI summaries, local dashboard views, and future exports, so each surface reports the same totals and caveats for the same run.
+
+**Why this priority**: Multiple surfaces are on the roadmap. Users should not see different numbers because each surface recomputed the same concept differently.
+
+**Independent Test**: Analyze the same fixture run and render the available CLI output plus a structured result export; verify metric names, totals, top contributor ordering, unavailable states, and attribution notes are consistent.
+
+**Acceptance Scenarios**:
+
+1. **Given** a run has analyzer results available, **When** a CLI report and another surface consume the results, **Then** the headline totals and attribution notes match.
+2. **Given** an analyzer result is unavailable because required source records are missing, **When** a surface renders the report, **Then** it shows the section as unavailable or omitted with a clear reason.
+3. **Given** a new analyzer is introduced, **When** existing surfaces render a run, **Then** they continue to display existing results without requiring source-adapter changes.
 
 ### Edge Cases
 
-- Mixed-version runs contain generic and readable metadata for the same artifact.
-- Usage events may be missing for some requests.
-- Artifact offsets may be missing in older runs.
-- Two artifacts may have similar display names but different stable IDs.
-- Replayed cached content may be normal persistence, not waste.
+- Mixed-version runs may contain older records that lack newer canonical fields.
+- Usage records may be missing for some requests or unavailable for some sources.
+- Local artifact token estimates may undercount or overcount provider-reported request totals.
+- Artifacts may share readable labels while representing different stable identities.
+- The same stable artifact may gain richer metadata later in the run.
+- Request ordering may contain gaps, duplicate timestamps, or imported records without precise timing.
+- Metadata-only runs may lack raw content and previews, so analyzers must still provide useful metrics from captured facts.
+- Very large runs should remain understandable without requiring the user to inspect raw JSONL.
+- Replayed cached content may reflect necessary task continuity rather than context clutter.
 
-## Requirements
+## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST separate capture from analysis.
-- **FR-002**: System MUST expose analyzer outputs as typed data reusable by CLI and dashboard surfaces.
-- **FR-003**: Exposure analysis MUST report total, unique, repeated, replay ratio, context efficiency, artifact count, and request count.
-- **FR-004**: Cache analysis MUST report provider usage totals and attribution coverage.
-- **FR-005**: Analyzer reports MUST document that local artifact attribution is estimated based on local tokenizer counts.
-- **FR-006**: Reports MUST distinguish exposure, persistence, uncached cost, and context clutter rather than treating replay as inherently bad.
-- **FR-007**: Analyzer modules MUST be testable with synthetic canonical fixtures.
+- **FR-001**: The system MUST derive analyzer outputs from canonical captured records only.
+- **FR-002**: The system MUST keep captured facts separate from derived metrics in all user-facing output.
+- **FR-003**: The system MUST produce reusable analyzer results that can be consumed by CLI reports, local dashboards, and exports without recomputing analyzer logic in those surfaces.
+- **FR-004**: Exposure analysis MUST report total exposure, unique exposure, repeated exposure, replay ratio, context efficiency, artifact count, request count, and top contributors.
+- **FR-005**: Exposure analysis MUST preserve stable artifact identity while distinguishing unchanged repeated content from changed content.
+- **FR-006**: Top contributor analysis MUST rank artifacts by cumulative exposure and include enough identity, size, inclusion, and caveat information for a user to understand each row.
+- **FR-007**: Cache and burn analysis MUST report provider-reported usage totals separately from local artifact-level estimates.
+- **FR-008**: Cache and burn analysis MUST report attribution coverage for each analyzable request and for the run as a whole.
+- **FR-009**: Cache and burn analysis MUST classify attribution state as exact-match, under-attributed, over-attributed, usage-unavailable, or not-applicable where those states can be determined from available records.
+- **FR-010**: Cache and burn analysis MUST proportionally normalize overlong reconstructed artifact coordinate ranges to provider-reported input tokens before allocating cached and uncached estimates.
+- **FR-011**: User-facing reports MUST explain that artifact-level attribution is estimated from local tokenization while provider-reported request totals remain authoritative when present.
+- **FR-012**: Persistence analysis MUST report each artifact's first seen request, last seen request, inclusion count, span, and whether replay appears continuous, reintroduced, or unknown.
+- **FR-013**: Context clutter analysis MUST distinguish exposure, persistence, uncached burn, and possible clutter rather than treating replay as inherently bad.
+- **FR-014**: Analyzer outputs MUST include unavailable and partial-data states with user-readable reasons.
+- **FR-015**: Analyzer outputs MUST be stable enough for automated comparison across fixture runs, including deterministic ordering for tied or similar contributor rows.
+- **FR-016**: Analyzer results MUST support privacy-safe operation in metadata-only mode and MUST NOT require raw captured content to produce baseline metrics.
+- **FR-017**: Analyzer behavior MUST be testable with synthetic canonical fixtures that cover exact, partial, missing, and contradictory data conditions.
 
-### Key Entities
+### Key Entities *(include if feature involves data)*
 
-- **Analyzer**: A module that derives one result from canonical run data.
-- **AnalyzerResult**: Typed output consumed by CLI, dashboard, or exports.
-- **AttributionDocumentation**: Plain-language caveat explaining provider totals vs local artifact estimates.
-- **ArtifactAggregate**: Per-artifact totals, replay, cache attribution, metadata, and inclusion span.
+- **Analyzer**: A named derivation that turns canonical run records into one focused result, such as exposure, cache attribution, persistence, or contributor ranking.
+- **Analyzer Result**: Reusable output containing metrics, ranked rows, partial-data states, and user-facing caveats for one analyzer.
+- **Run Analysis Summary**: The combined set of analyzer results for one captured run, including headline metrics and cross-analyzer caveats.
+- **Artifact Aggregate**: Per-artifact summary containing identity, label metadata, token estimates, inclusion counts, exposure totals, replay state, attribution information, and caveats.
+- **Attribution Coverage**: The relationship between provider-reported request usage and the portion that can be explained by locally estimated artifact tokens.
+- **Persistence Classification**: A user-facing classification that describes whether repeated artifacts appear continuous, reintroduced, useful, uncertain, or potentially cluttered based on available evidence.
+- **Analyzer Availability State**: A state describing whether an analyzer result is complete, partial, unavailable, or not applicable for a run.
 
-## Success Criteria
+## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Existing summary output can be reproduced from analyzer results.
-- **SC-002**: Analyzer tests cover exact, under-attributed, and over-attributed prompt-coordinate cases.
-- **SC-003**: Adding a new analyzer does not require changing source adapters.
-- **SC-004**: Reports document that local artifact attribution is estimated based on local tokenizer counts.
+- **SC-001**: Existing summary output for representative captured runs can be reproduced from analyzer results without relying on source-specific payloads.
+- **SC-002**: Fixture analysis covers exact-match, under-attributed, over-attributed, overlong-coordinate normalization, missing-usage, and metadata-only scenarios.
+- **SC-003**: CLI and structured result consumers report matching headline totals, top contributor ordering, and attribution caveats for the same fixture run.
+- **SC-004**: A new analyzer can be added without changing source-adapter behavior or requiring existing surfaces to recompute existing metrics.
+- **SC-005**: User-facing output always labels local artifact attribution as estimated when provider-reported usage is shown.
+- **SC-006**: For a fixture comparable to current long local sessions, a user can identify the top cumulative exposure contributors, their replay state, and their attribution caveats without opening raw event files.
+- **SC-007**: Metadata-only fixture runs still produce baseline exposure, replay, top contributor, and attribution-availability results.
 
 ## Assumptions
 
-- Local tokenizer counts remain estimates.
-- Provider usage events may not be available for every source adapter.
-- Analyzer output schemas can evolve with explicit versioning.
+- Canonical event schema and privacy-mode behavior from spec 001 are available before this feature is planned.
+- Module boundaries from spec 006 are in place before substantial analyzer work begins.
+- Provider-reported usage may be absent, incomplete, or available only at request level.
+- Local tokenization remains an estimate for artifact-level attribution.
+- Legibility and task-grouping improvements in spec 004 can enrich analyzer output later, but this feature must provide useful baseline metrics without them.
+- Dashboard work in spec 005 consumes analyzer results rather than defining separate metric calculations.

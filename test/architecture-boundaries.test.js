@@ -27,7 +27,7 @@ async function listJavaScriptFiles(root) {
       files.push(...await listJavaScriptFiles(path));
       continue;
     }
-    if (entry.isFile() && entry.name.endsWith(".js")) files.push(path);
+    if (entry.isFile() && (entry.name.endsWith(".js") || entry.name.endsWith(".ts"))) files.push(path);
   }
 
   return files;
