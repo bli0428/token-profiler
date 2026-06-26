@@ -5,10 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gzipSync } from "node:zlib";
 import test from "node:test";
-import { disableCodexProxyConfig, enableCodexProxyConfig } from "../src/codex-config.js";
-import { TokenProfiler } from "../src/profiler.js";
-import { buildUpstreamUrl, createProfilerProxy, extractResponsesArtifacts } from "../src/proxy.js";
-import { SessionRouter } from "../src/session-router.js";
+import { disableCodexProxyConfig, enableCodexProxyConfig } from "../src/adapters/codex/live-proxy/config.ts";
+import { buildUpstreamUrl, createProfilerProxy, extractResponsesArtifacts } from "../src/adapters/codex/live-proxy/index.ts";
+import { SessionRouter } from "../src/adapters/codex/live-proxy/session-router.ts";
+import { TokenProfiler } from "../src/core/capture/index.ts";
 
 test("extracts instructions, tool definitions, messages, and tool output", () => {
   const artifacts = extractResponsesArtifacts({

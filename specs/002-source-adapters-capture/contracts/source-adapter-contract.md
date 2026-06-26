@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Source adapters convert provider-specific live capture, local logs, or fixture data into canonical records and source limitations. This contract exists so Codex, future Claude Code support, and provider-compatible sources can be added as sibling ingestors without analyzer or Codex-module coupling.
+Source adapters convert provider-specific live capture, local logs, or fixture data into canonical records and source limitations. This contract exists so Codex, future Claude Code support, and provider-compatible sources can be added as sibling adapters without analyzer or Codex-module coupling.
 
 ## Adapter Responsibilities
 
@@ -14,7 +14,7 @@ Each source adapter must:
 - Preserve source identity and capture method in emitted metadata where user-facing reports need it.
 - Honor the selected storage/privacy mode for every artifact.
 - Declare limitations for missing, partial, skipped, malformed, or estimated facts.
-- Keep provider-specific payload interpretation inside its own `src/ingest/<source>/` folder.
+- Keep provider-specific payload interpretation inside its own `src/adapters/<adapter>/` folder.
 
 Each source adapter must not:
 
@@ -72,6 +72,8 @@ It must:
 - emit at least one source limitation
 - run through analyzers without Codex-specific imports or code changes
 
-## Compatibility Modules
+## Public Exports
 
-Top-level modules may remain only when they are thin public compatibility re-exports. They must not contain provider-specific parsing, canonical event writing implementation, session routing implementation, or config mutation implementation.
+Top-level compatibility modules should not be added while the project is
+pre-public. Public exports should go through `src/index.js` or canonical domain
+modules, not duplicated source-root shims.

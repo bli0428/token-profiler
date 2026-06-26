@@ -15,7 +15,7 @@
 
 **Alternatives considered**:
 
-- Move the writer into `src/ingest/codex-proxy/`. Rejected because it would make future sources depend on Codex-owned code.
+- Move the writer into `src/adapters/codex/live-proxy/`. Rejected because it would make future sources depend on Codex-owned code.
 - Leave `src/profiler.js` as implementation. Rejected because it keeps canonical writing in a top-level legacy file.
 
 ## Decision: Codex config and session routing are Codex proxy domain concerns
@@ -27,9 +27,9 @@
 - Treat session routing as a generic core service. Rejected because the current routing heuristics are Codex payload-specific.
 - Keep config mutation in the CLI surface. Rejected because CLI should orchestrate commands, not own Codex config behavior.
 
-## Decision: Codex rollout import belongs in `src/ingest/codex-log-import/`
+## Decision: Codex rollout import belongs in `src/adapters/codex/log-import/`
 
-**Rationale**: Rollout parsing and Codex session metadata enrichment are source-specific import concerns. The CLI should delegate to this ingestor and surfaces should consume the resulting records or enrichment output.
+**Rationale**: Rollout parsing and Codex session metadata enrichment are source-specific import concerns. The CLI should delegate to this adapter and surfaces should consume the resulting records or enrichment output.
 
 **Alternatives considered**:
 
@@ -45,11 +45,11 @@
 - Build a Claude Code importer. Rejected as out of scope.
 - Only document the seam without code validation. Rejected because it would not catch accidental coupling.
 
-## Decision: preserve top-level modules only as thin compatibility exports
+## Decision: remove top-level compatibility modules while pre-public
 
-**Rationale**: The package already exposes some top-level imports used by tests and possibly consumers. Temporary thin re-exports are acceptable if implementation lives in domain modules and architecture-boundary tests enforce thinness.
+**Rationale**: The project is pre-public, so preserving old import paths creates clutter without meaningful compatibility value. Tests and internal code should import canonical module paths directly.
 
 **Alternatives considered**:
 
-- Remove every top-level module immediately. Rejected because it would expand review risk and may break public imports.
+- Keep temporary top-level re-exports. Rejected because it duplicates the architecture and makes future contributors wonder which path is canonical.
 - Keep implementation in top-level files. Rejected because it fails the migration success criteria.

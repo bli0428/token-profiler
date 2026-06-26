@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { aggregateEvents } from "../src/aggregate.js";
+import { aggregateEvents } from "../src/analysis/aggregate.ts";
 
 test("aggregates exposure and replay by exact content hash", () => {
   const events = [

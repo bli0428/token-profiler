@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { aggregateEvents } from "../src/aggregate.js";
-import { formatArtifactDetail, formatLegibilityReport } from "../src/legibility.js";
+import { aggregateEvents } from "../src/analysis/aggregate.ts";
+import { formatArtifactDetail, formatLegibilityReport } from "../src/analysis/legibility.ts";
 
 test("formats readable artifacts and artifact detail", () => {
   const summary = aggregateEvents([

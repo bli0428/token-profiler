@@ -3,7 +3,7 @@ import { mkdir, readdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { aggregateEvents } from "../../analysis/aggregate.ts";
-import { enrichProfilerSessions, readCodexSessionMetadata } from "../../ingest/codex-log-import/index.ts";
+import { enrichProfilerSessions, readCodexSessionMetadata } from "../../adapters/codex/log-import/index.ts";
 import { createHtmlReport } from "../../html-report.js";
 import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
 import { formatSummary } from "../../report.js";

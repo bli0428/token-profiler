@@ -5,12 +5,12 @@ context artifacts, token exposure, cache attribution, and privacy-aware content
 inspection.
 
 ```text
-Ingestors -> Canonical Store -> Analyzers -> Surfaces
+Adapters -> Canonical Store -> Analyzers -> Surfaces
 ```
 
 ## Rules
 
-- Provider-specific payloads terminate at ingestors.
+- Provider-specific payloads terminate at adapters.
 - Canonical records are the only contract shared across layers.
 - Analyzers consume canonical records only.
 - Surfaces render analyzer outputs and must not recompute analyzer logic.
@@ -19,7 +19,7 @@ Ingestors -> Canonical Store -> Analyzers -> Surfaces
 
 ## Layers
 
-**Ingestors** convert source-specific data into canonical records:
+**Adapters** convert source-specific data into canonical records:
 
 - Codex proxy
 - Codex log import
@@ -58,16 +58,22 @@ Ingestors -> Canonical Store -> Analyzers -> Surfaces
 
 ```text
 src/
+  adapters/
+    source-adapter.ts
+    codex/
+      live-proxy/
+      log-import/
+    claude-code/
+      telemetry-import/
+      log-import/
+    openai-compatible/
+      live-proxy/
+    manual-jsonl/
+      import/
   core/
     events/
     privacy/
     store/
-  ingest/
-    codex-proxy/
-    codex-log-import/
-    claude-telemetry-import/
-    openai-proxy/
-    manual-jsonl-import/
   analysis/
   surfaces/
 ```
@@ -76,8 +82,9 @@ Always ensure clean separation of concerns. Every module should pass the AND tes
 
 ## Technology Direction
 
-Current new infrastructure: TypeScript + JSONL, with thin JavaScript
-compatibility wrappers.
+Current new infrastructure: TypeScript + JSONL. Because the project is
+pre-public, avoid source-root compatibility wrappers and prefer canonical module
+paths.
 
 Building towards runtime schemas, SQLite, analyzer plugins, local API,
 Vite/React dashboard, JSONL import/export, optional OTel/Langfuse export.

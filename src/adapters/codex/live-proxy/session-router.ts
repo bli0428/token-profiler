@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { TokenProfiler } from "../../core/capture/index.ts";
-import { sha256 } from "../../core/hash/index.ts";
-import { normalizeStorageMode } from "../../core/privacy/index.ts";
+import { TokenProfiler } from "../../../core/capture/index.ts";
+import { sha256 } from "../../../core/hash/index.ts";
+import { normalizeStorageMode } from "../../../core/privacy/index.ts";
 
 const SESSION_HEADER = "x-token-profiler-session";
 

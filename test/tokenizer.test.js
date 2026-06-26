@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { countTokens } from "../src/tokenizer.js";
+import { countTokens } from "../src/core/tokenization/index.ts";
 
 test("counts text with o200k_base", () => {
   assert.equal(countTokens(""), 0);

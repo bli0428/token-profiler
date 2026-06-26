@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createArtifactEvent, createRequestUsageEvent, validateEvent } from "../src/events.js";
+import { createArtifactEvent, createRequestUsageEvent, validateEvent } from "../src/core/events/index.ts";
 
 test("creates strict metadata-only artifact events", () => {
   const event = createArtifactEvent({

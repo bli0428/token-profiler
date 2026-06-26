@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { aggregateEvents } from "../src/analysis/aggregate.ts";
-import { writeFixtureSourceRun } from "../src/ingest/fixture-source/index.ts";
+import { writeFixtureSourceRun } from "../src/adapters/fixture-source/index.ts";
 
 test("fixture-only non-Codex adapter emits canonical records and limitations", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "fixture-source-test-"));

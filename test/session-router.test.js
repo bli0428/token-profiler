@@ -3,7 +3,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { SessionRouter } from "../src/session-router.js";
+import { SessionRouter } from "../src/adapters/codex/live-proxy/session-router.ts";
 
 test("uses an explicit profiler session header", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "session-router-test-"));

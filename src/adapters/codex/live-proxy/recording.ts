@@ -1,5 +1,5 @@
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
-import { createRequestUsageEvent } from "../../core/events/index.ts";
+import { createRequestUsageEvent } from "../../../core/events/index.ts";
 import { extractResponsesArtifacts } from "./artifacts.ts";
 
 export async function recordRequestArtifacts({

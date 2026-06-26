@@ -1,7 +1,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
-import { TokenProfiler } from "../../core/capture/index.ts";
-import { createRequestUsageEvent } from "../../core/events/index.ts";
+import { TokenProfiler } from "../../../core/capture/index.ts";
+import { createRequestUsageEvent } from "../../../core/events/index.ts";
 
 const ROLLOUT_RE = /^rollout-.+-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.jsonl$/i;
 

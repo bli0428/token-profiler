@@ -70,6 +70,6 @@ node --import tsx --test test/architecture-boundaries.test.js
 
 Expected outcome:
 
-- Analyzer modules do not import provider-specific ingest or surface code.
-- Top-level compatibility modules are thin re-exports only.
+- Analyzer modules do not import provider-specific adapter or surface code.
+- Legacy source-root compatibility modules do not exist.
 - Legacy capture/import/config/session implementation files no longer live at source root.

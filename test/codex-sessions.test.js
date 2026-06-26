@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, readFile, rm, utimes, writeFile } from "node:fs/promise
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { enrichProfilerSessions, importCodexRolloutUsage, readCodexSessionMetadata } from "../src/codex-sessions.js";
+import { enrichProfilerSessions, importCodexRolloutUsage, readCodexSessionMetadata } from "../src/adapters/codex/log-import/index.ts";
 
 test("enriches profiler sessions from Codex session index by direct UUID", async () => {
   const codexHome = await mkdtemp(join(tmpdir(), "codex-session-index-test-"));

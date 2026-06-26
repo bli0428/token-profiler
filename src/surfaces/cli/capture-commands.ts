@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, relative, resolve } from "node:path";
 import { TokenProfiler } from "../../core/capture/index.ts";
-import { importCodexRolloutUsage } from "../../ingest/codex-log-import/index.ts";
+import { importCodexRolloutUsage } from "../../adapters/codex/log-import/index.ts";
 
 import { listFiles, optionString, parseOptions, positionalArgs, required } from "./utils.ts";
 

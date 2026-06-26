@@ -100,4 +100,4 @@ Existing top-level implementation that must be moved or split.
 - `src/session-router.js`: Codex proxy session routing behavior
 - `src/codex-config.js`: Codex config mutation behavior
 - `src/codex-sessions.js`: Codex session metadata/log reading behavior
-- CLI-owned `runCodexImport`: Codex log import behavior that should move into an ingestor
+- CLI-owned `runCodexImport`: Codex log import behavior that should move into an adapter

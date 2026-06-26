@@ -32,5 +32,5 @@
 ## Notes
 
 - Validation passed after clarifying that Claude Code functionality is out of scope, while the future adapter seam must allow Claude Code or other non-Codex sources to be added without touching Codex-specific code.
-- Validation now also requires legacy top-level capture/import/config/session implementation files to be moved, split, removed, or reduced to thin compatibility re-exports by feature completion.
+- Validation now also requires legacy top-level capture/import/config/session implementation files to be moved or removed by feature completion.
 - Ready for `/speckit-plan`; `/speckit-clarify` is optional if you want to make product choices narrower before planning.

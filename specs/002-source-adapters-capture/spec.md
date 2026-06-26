@@ -91,8 +91,8 @@ A developer can complete this feature and see that legacy top-level source-captu
 **Acceptance Scenarios**:
 
 1. **Given** existing top-level capture helpers exist before migration, **When** spec 002 is complete, **Then** Codex capture extraction, request recording, usage recording, session routing, Codex config mutation, and Codex log import behavior live under their appropriate source-adapter or surface domains.
-2. **Given** public imports still need compatibility, **When** top-level compatibility files remain, **Then** they are thin re-exports only and do not contain provider-specific logic.
-3. **Given** a developer searches source root for Codex capture/import implementation, **When** the migration is complete, **Then** they find either no top-level implementation files or only documented compatibility wrappers.
+2. **Given** the project is pre-public, **When** top-level compatibility files are no longer needed, **Then** they are removed rather than preserved as re-exports.
+3. **Given** a developer searches source root for Codex capture/import implementation, **When** the migration is complete, **Then** they find no top-level implementation or compatibility wrapper files.
 4. **Given** existing Codex capture and import tests run after migration, **When** they pass, **Then** behavior has been preserved while ownership moved to the target domains.
 
 ### Edge Cases
@@ -128,7 +128,7 @@ A developer can complete this feature and see that legacy top-level source-captu
 - **FR-013**: System MUST keep raw provider payloads out of persisted analyzer-visible records unless the user has explicitly selected a privacy mode that allows raw local content retention.
 - **FR-014**: System MUST support sessions containing records from multiple adapter versions without corrupting existing captured or imported data.
 - **FR-015**: Future Claude Code support MUST be addable as a separate source adapter without modifying Codex live capture, Codex log import, or Codex-specific configuration behavior.
-- **FR-016**: Completion of this feature MUST migrate legacy top-level capture/import/config/session modules into their appropriate source, canonical, or surface domains, or reduce retained top-level files to documented thin compatibility re-exports.
+- **FR-016**: Completion of this feature MUST migrate legacy top-level capture/import/config/session modules into their appropriate adapter, canonical, or surface domains and remove unnecessary top-level compatibility files.
 
 ### Key Entities
 
@@ -154,7 +154,7 @@ A developer can complete this feature and see that legacy top-level source-captu
 - **SC-005**: Mixed-quality import fixtures preserve valid supported entries and report unsupported or malformed entries without corrupting the resulting session.
 - **SC-006**: Adding a fixture-only non-Codex adapter stub requires no Codex-specific code changes, no analyzer requirement changes, and produces a visible limitation when a report fact is unavailable.
 - **SC-007**: Restarting local capture or mixing adapter versions does not require deleting existing captured session data.
-- **SC-008**: Source-root legacy capture/import/config/session implementation files are removed, moved, split, or reduced to thin compatibility re-exports while existing Codex capture and import behavior remains testable.
+- **SC-008**: Source-root legacy capture/import/config/session implementation files are removed or moved while existing Codex capture and import behavior remains testable.
 
 ## Assumptions
 

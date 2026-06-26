@@ -1,3 +1,9 @@
+/**
+ * Test-only adapter used to validate the adapter seam with a non-Codex source.
+ *
+ * This is not a real integration. Future adapters such as Claude Code should be
+ * sibling adapters that emit the same canonical record shapes.
+ */
 import { TokenProfiler } from "../../core/capture/index.ts";
 import { createRequestUsageEvent } from "../../core/events/index.ts";
 
@@ -41,6 +47,8 @@ export async function writeFixtureSourceRun({
     tokenEnd: 8
   });
 
+  // Until limitations become a first-class event kind, the seam test represents
+  // source limitations as canonical metadata on a SUMMARY artifact.
   await profiler.recordAsync({
     requestId: "fixture_request_0001",
     artifactType: "SUMMARY",

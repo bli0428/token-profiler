@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyStorageMode, createContentPreview, normalizeStorageMode } from "../src/privacy.js";
+import { applyStorageMode, createContentPreview, normalizeStorageMode } from "../src/core/privacy/index.ts";
 
 const baseEvent = {
   schema_version: 1,
