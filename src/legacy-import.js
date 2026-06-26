@@ -1,1 +1,1 @@
-export * from "./ingest/legacy-import/index.js";
+export * from "./ingest/legacy-import/index.ts";

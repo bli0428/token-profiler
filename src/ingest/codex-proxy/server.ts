@@ -1,7 +1,7 @@
 import http from "node:http";
 import { randomUUID } from "node:crypto";
-import { parseRequestPayload, recordPayloadArtifacts, recordUsageEvent } from "./recording.js";
-import { forwardRequest, readRequestBody } from "./transport.js";
+import { parseRequestPayload, recordPayloadArtifacts, recordUsageEvent } from "./recording.ts";
+import { forwardRequest, readRequestBody } from "./transport.ts";
 
 export function createProfilerProxy({
   profiler,
@@ -11,13 +11,13 @@ export function createProfilerProxy({
   port = 8787,
   maxBodyBytes = 100 * 1024 * 1024,
   logger = console
-}) {
+}: any) {
   if (!profiler && !sessionRouter) {
     throw new Error("createProfilerProxy requires a profiler or sessionRouter.");
   }
 
   const upstreamUrl = new URL(upstream);
-  const pendingObservations = new Set();
+  const pendingObservations = new Set<Promise<void>>();
   if (!["https:", "http:"].includes(upstreamUrl.protocol)) {
     throw new Error("Proxy upstream must use http or https.");
   }
@@ -87,7 +87,7 @@ export function createProfilerProxy({
     host,
     port,
     async listen() {
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         server.once("error", reject);
         server.listen(port, host, () => {
           server.off("error", reject);
@@ -100,14 +100,14 @@ export function createProfilerProxy({
       await Promise.all([...pendingObservations]);
       await profiler?.flush();
       await sessionRouter?.flush();
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
       });
     }
   };
 }
 
-function queueObservation(pending, task) {
+function queueObservation(pending: Set<Promise<void>>, task: () => Promise<void>) {
   const promise = Promise.resolve().then(task).finally(() => pending.delete(promise));
   pending.add(promise);
   return promise;

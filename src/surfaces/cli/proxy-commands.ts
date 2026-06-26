@@ -3,21 +3,21 @@ import { closeSync, existsSync, openSync, statSync } from "node:fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
-import { aggregateEvents } from "../../analysis/aggregate.js";
+import { aggregateEvents } from "../../analysis/aggregate.ts";
 import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../codex-config.js";
 import { enrichProfilerSessions, readCodexSessionMetadata } from "../../codex-sessions.js";
 import { createHtmlReport } from "../../html-report.js";
-import { createRequestUsageEvent } from "../../core/events/index.js";
-import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.js";
-import { importLegacyEvents } from "../../ingest/legacy-import/index.js";
-import { normalizeStorageMode } from "../../core/privacy/index.js";
+import { createRequestUsageEvent } from "../../core/events/index.ts";
+import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
+import { importLegacyEvents } from "../../ingest/legacy-import/index.ts";
+import { normalizeStorageMode } from "../../core/privacy/index.ts";
 import { TokenProfiler } from "../../profiler.js";
-import { createProfilerProxy } from "../../ingest/codex-proxy/index.js";
+import { createProfilerProxy } from "../../ingest/codex-proxy/index.ts";
 import { formatSummary } from "../../report.js";
 import { createSessionId, SessionRouter, sanitizeSessionId } from "../../session-router.js";
-import { readEventsFromRunDir } from "../../core/store/index.js";
+import { readEventsFromRunDir } from "../../core/store/index.ts";
 
-import { parseOptions, positionalArgs, required } from "./utils.js";
+import { parseOptions, positionalArgs, required } from "./utils.ts";
 
 export async function runProxy(args) {
   const [action = "start", ...optionArgs] = args;
@@ -314,7 +314,7 @@ async function runCodexThroughProxy(args) {
     cwd: resolve(options.cwd ?? process.cwd()),
     stdio: "inherit"
   });
-  const exitCode = await new Promise((resolveExit, reject) => {
+  const exitCode: any = await new Promise((resolveExit, reject) => {
     child.once("error", reject);
     child.once("close", resolveExit);
   });
@@ -322,4 +322,3 @@ async function runCodexThroughProxy(args) {
   console.log(`Report: node ${process.argv[1]} summarize ${join(rootDir, "runs", runId)}`);
   process.exitCode = exitCode;
 }
-

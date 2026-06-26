@@ -16,15 +16,16 @@ remaining adapter, analyzer, legibility, or dashboard specs.
 
 ## Technical Context
 
-**Language/Version**: Current JavaScript on Node.js 18+
+**Language/Version**: TypeScript for new architecture modules on Node.js 18+,
+with thin JavaScript compatibility wrappers where needed.
 
-**Primary Dependencies**: Existing dependencies only for the first migration
-slice.
+**Primary Dependencies**: Existing runtime dependencies plus TypeScript, tsx, and
+Node type definitions for typechecking and no-build execution.
 
 **Storage**: Keep JSONL for current runtime behavior. Do not migrate to SQLite in
 this spec unless a later task explicitly scopes that work.
 
-**Testing**: `node --test`
+**Testing**: `node --import tsx --test`
 
 **Target Platform**: Local developer machine.
 

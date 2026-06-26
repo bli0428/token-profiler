@@ -2,13 +2,13 @@ import { statSync } from "node:fs";
 import { mkdir, readdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { aggregateEvents } from "../../analysis/aggregate.js";
+import { aggregateEvents } from "../../analysis/aggregate.ts";
 import { enrichProfilerSessions, readCodexSessionMetadata } from "../../codex-sessions.js";
 import { createHtmlReport } from "../../html-report.js";
-import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.js";
+import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
 import { formatSummary } from "../../report.js";
 
-import { parseOptions, positionalArgs, readCanonicalEventsFromRunDir } from "./utils.js";
+import { parseOptions, positionalArgs, readCanonicalEventsFromRunDir } from "./utils.ts";
 
 export async function runSessions(args) {
   const options = parseOptions(args);
@@ -19,7 +19,7 @@ export async function runSessions(args) {
     if (error.code === "ENOENT") return [];
     throw error;
   });
-  let sessions = entries
+  let sessions: any[] = entries
     .filter((entry) => entry.isDirectory())
     .map((entry) => {
       const eventsPath = join(runsDir, entry.name, "events.jsonl");
@@ -27,7 +27,7 @@ export async function runSessions(args) {
       return stat ? { id: entry.name, updatedAt: stat.mtime } : null;
     })
     .filter(Boolean)
-    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
     .slice(0, Number(options.limit ?? 20));
 
   if (!options["no-codex"]) {
@@ -110,4 +110,3 @@ export async function runHtml(args) {
   await createHtmlReport(summary, out);
   console.log(`Wrote ${out}`);
 }
-

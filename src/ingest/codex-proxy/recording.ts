@@ -1,6 +1,6 @@
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
-import { createRequestUsageEvent } from "../../core/events/index.js";
-import { extractResponsesArtifacts } from "./artifacts.js";
+import { createRequestUsageEvent } from "../../core/events/index.ts";
+import { extractResponsesArtifacts } from "./artifacts.ts";
 
 export async function recordRequestArtifacts({
   profiler,
@@ -9,7 +9,7 @@ export async function recordRequestArtifacts({
   requestPath,
   contentEncoding,
   maxBodyBytes = 100 * 1024 * 1024
-}) {
+}: any) {
   const payload = parseRequestPayload(body, contentEncoding, maxBodyBytes);
   if (!payload) return 0;
 
@@ -22,7 +22,7 @@ export async function recordPayloadArtifacts({
   payload,
   requestPath,
   sessionSource
-}) {
+}: any) {
   if (!profiler) return 0;
 
   const artifacts = extractResponsesArtifacts(payload);
@@ -50,7 +50,7 @@ export async function recordPayloadArtifacts({
   return artifacts.length;
 }
 
-export function parseRequestPayload(body, contentEncoding, maxBodyBytes) {
+export function parseRequestPayload(body: Buffer, contentEncoding: unknown, maxBodyBytes: number) {
   try {
     const decoded = decodeBody(body, contentEncoding);
     if (decoded.length > maxBodyBytes) throw new Error("Decoded request body is too large to profile.");
@@ -60,7 +60,7 @@ export function parseRequestPayload(body, contentEncoding, maxBodyBytes) {
   }
 }
 
-export async function recordUsageEvent({ profiler, requestId, usage, responseId }) {
+export async function recordUsageEvent({ profiler, requestId, usage, responseId }: any) {
   await profiler.store.append(createRequestUsageEvent({
     runId: profiler.runId,
     requestId,

@@ -24,7 +24,7 @@ export function buildUpstreamUrl(upstream, incomingPath) {
 }
 
 
-export function readRequestBody(request, maxBodyBytes) {
+export function readRequestBody(request: any, maxBodyBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks = [];
     let size = 0;
@@ -33,7 +33,7 @@ export function readRequestBody(request, maxBodyBytes) {
       size += chunk.length;
       if (size > maxBodyBytes) {
         const error = new Error(`Request body exceeds ${maxBodyBytes} bytes.`);
-        error.code = "BODY_TOO_LARGE";
+        (error as any).code = "BODY_TOO_LARGE";
         reject(error);
         request.destroy();
         return;
@@ -45,7 +45,7 @@ export function readRequestBody(request, maxBodyBytes) {
   });
 }
 
-export function forwardRequest({ request, response, body, upstreamUrl, logger, onCompleted }) {
+export function forwardRequest({ request, response, body, upstreamUrl, logger, onCompleted }: any) {
   const target = buildUpstreamUrl(upstreamUrl, request.url);
   const transport = target.protocol === "https:" ? https : http;
   const headers = filterHeaders(request.headers);
@@ -82,7 +82,7 @@ export function forwardRequest({ request, response, body, upstreamUrl, logger, o
   upstreamRequest.end(body);
 }
 
-function createResponseObserver(headers, onCompleted) {
+function createResponseObserver(headers: any, onCompleted: any) {
   if (!onCompleted) return null;
 
   const decoder = new TextDecoder();
@@ -154,7 +154,7 @@ function createResponseObserver(headers, onCompleted) {
   };
 }
 
-function filterHeaders(headers) {
+function filterHeaders(headers: Record<string, any>) {
   return Object.fromEntries(
     Object.entries(headers).filter(([name]) => !HOP_BY_HOP_HEADERS.has(name.toLowerCase()))
   );

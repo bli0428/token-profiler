@@ -1,1 +1,1 @@
-export * from "./analysis/aggregate.js";
+export * from "./analysis/aggregate.ts";

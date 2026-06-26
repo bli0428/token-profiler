@@ -76,6 +76,8 @@ Always ensure clean separation of concerns. Every module should pass the AND tes
 
 ## Technology Direction
 
-Building towards TypeScript, runtime schemas, SQLite, analyzer plugins, local
-API, Vite/React dashboard, JSONL import/export, optional OTel/Langfuse export.
+Current new infrastructure: TypeScript + JSONL, with thin JavaScript
+compatibility wrappers.
 
+Building towards runtime schemas, SQLite, analyzer plugins, local API,
+Vite/React dashboard, JSONL import/export, optional OTel/Langfuse export.

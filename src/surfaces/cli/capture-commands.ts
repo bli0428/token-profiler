@@ -3,24 +3,24 @@ import { closeSync, existsSync, openSync, statSync } from "node:fs";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
-import { aggregateEvents } from "../../analysis/aggregate.js";
+import { aggregateEvents } from "../../analysis/aggregate.ts";
 import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../codex-config.js";
 import { enrichProfilerSessions, readCodexSessionMetadata } from "../../codex-sessions.js";
 import { createHtmlReport } from "../../html-report.js";
-import { createRequestUsageEvent } from "../../core/events/index.js";
-import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.js";
-import { importLegacyEvents } from "../../ingest/legacy-import/index.js";
-import { normalizeStorageMode } from "../../core/privacy/index.js";
+import { createRequestUsageEvent } from "../../core/events/index.ts";
+import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
+import { importLegacyEvents } from "../../ingest/legacy-import/index.ts";
+import { normalizeStorageMode } from "../../core/privacy/index.ts";
 import { TokenProfiler } from "../../profiler.js";
-import { createProfilerProxy } from "../../ingest/codex-proxy/index.js";
+import { createProfilerProxy } from "../../ingest/codex-proxy/index.ts";
 import { formatSummary } from "../../report.js";
 import { createSessionId, SessionRouter, sanitizeSessionId } from "../../session-router.js";
-import { readEventsFromRunDir } from "../../core/store/index.js";
+import { readEventsFromRunDir } from "../../core/store/index.ts";
 
-import { listFiles, parseOptions, positionalArgs, required } from "./utils.js";
+import { listFiles, parseOptions, positionalArgs, required } from "./utils.ts";
 
 export async function runDemo() {
-  const profiler = new TokenProfiler({ runId: "demo" });
+  const profiler = new (TokenProfiler as any)({ runId: "demo" });
   await mkdir(".token-profiler/runs/demo", { recursive: true });
   await writeFile(".token-profiler/runs/demo/events.jsonl", "");
 
@@ -86,7 +86,7 @@ export async function runRecord(args) {
     ? await readFile(resolve(options.content), "utf8")
     : required(options, "text");
 
-  const profiler = new TokenProfiler({ runId });
+  const profiler = new (TokenProfiler as any)({ runId });
   const event = await profiler.recordAsync({
     requestId,
     artifactType,
@@ -106,7 +106,7 @@ export async function runWatch(args) {
   const root = resolve(options.cwd ?? process.cwd());
   const paths = positionalArgs(args).map((path) => resolve(root, path));
   const targets = paths.length > 0 ? paths : [root];
-  const profiler = new TokenProfiler({ runId });
+  const profiler = new (TokenProfiler as any)({ runId });
   const known = new Map();
 
   console.log(`Watching ${targets.map((target) => relative(root, target) || ".").join(", ")}`);
@@ -207,11 +207,11 @@ export async function runCommand(args) {
     process.stderr.write(text);
   });
 
-  const exitCode = await new Promise((resolveExit) => {
+  const exitCode: any = await new Promise((resolveExit) => {
     child.on("close", resolveExit);
   });
 
-  const profiler = new TokenProfiler({ runId });
+  const profiler = new (TokenProfiler as any)({ runId });
   const output = [stdout, stderr].filter(Boolean).join("\n");
 
   if (output.length > 0) {
@@ -236,7 +236,7 @@ export async function runCodexImport(args) {
   }
 
   const runId = required(options, "run");
-  const profiler = new TokenProfiler({ runId });
+  const profiler = new (TokenProfiler as any)({ runId });
   const raw = await readFile(resolve(rolloutPath), "utf8");
   const lines = raw.split("\n").filter(Boolean);
   let imported = 0;
@@ -267,4 +267,3 @@ export async function runCodexImport(args) {
 
   console.log(`Imported ${imported} Codex token usage events.`);
 }
-

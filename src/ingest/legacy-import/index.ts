@@ -1,4 +1,4 @@
-import { validateEvent } from "../../core/events/index.js";
+import { validateEvent } from "../../core/events/index.ts";
 
 export function importLegacyEvents(events) {
   return events.map((event, index) => importLegacyEvent(event, index + 1));

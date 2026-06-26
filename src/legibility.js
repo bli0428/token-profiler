@@ -1,1 +1,1 @@
-export * from "./analysis/legibility.js";
+export * from "./analysis/legibility.ts";

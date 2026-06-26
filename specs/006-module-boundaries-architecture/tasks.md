@@ -64,3 +64,15 @@
 - [X] T024 [US3] Verify all split modules stay below the 600-line responsibility guideline
 - [X] T025 [US3] Rerun full test suite after internal module split
 - [X] T026 [US3] Rerun demo and summarize after internal module split
+
+---
+
+## Phase 7: TypeScript Migration
+
+- [X] T027 [US2] Add TypeScript, tsx, Node types, and `tsconfig.json`
+- [X] T028 [US2] Convert core, ingest, analysis, and surface modules to `.ts`
+- [X] T029 [US2] Keep top-level JavaScript compatibility wrappers and CLI executable stable
+- [X] T030 [US2] Update test runtime to load TypeScript modules through `tsx`
+- [X] T031 [US3] Run `npm run typecheck`
+- [X] T032 [US3] Run full test suite after TypeScript migration
+- [X] T033 [US3] Rerun demo and summarize after TypeScript migration

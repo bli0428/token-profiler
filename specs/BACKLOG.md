@@ -3,23 +3,23 @@
 Items here are architecture or product work that is directionally desired but not
 yet captured as executable Spec Kit feature specs.
 
-## 007 TypeScript And Runtime Schemas
+## 007 Runtime Schema Library
 
-**Why**: Canonical records, adapters, analyzer outputs, and dashboard/API
-contracts are stable enough to benefit from compile-time types. Runtime
-validation should remain because persisted data and imported logs can be old or
-malformed.
+**Why**: The new infrastructure now uses TypeScript, but runtime validation is
+still hand-rolled. Persisted data and imported logs can be old or malformed, so
+compile-time types are not enough.
 
 **Scope**:
 
-- Migrate core canonical records to TypeScript.
 - Introduce runtime schemas for persisted event records.
+- Derive or align TypeScript types with runtime schemas.
 - Keep legacy import quarantined from canonical readers.
-- Use `.ts` for core, ingest, analysis, and CLI.
-- Reserve `.tsx` for future React dashboard files.
+- Validate canonical records at write/read boundaries.
+- Keep local artifact attribution documentation unchanged.
 
 **Not Included**:
 
+- TypeScript migration for already-migrated new infrastructure.
 - SQLite migration.
 - Dashboard implementation.
 
@@ -58,4 +58,3 @@ and analyzer outputs. This should be explicit rather than hidden inside the UI.
 
 - Public hosted API.
 - Authentication beyond local-only protections unless later required.
-

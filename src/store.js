@@ -1,1 +1,1 @@
-export * from "./core/store/index.js";
+export * from "./core/store/index.ts";

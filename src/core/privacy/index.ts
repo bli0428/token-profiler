@@ -2,7 +2,12 @@ export const STORAGE_MODES = Object.freeze(["metadata", "preview", "raw"]);
 
 const DEFAULT_PREVIEW_CHARS = 800;
 
-export function normalizeStorageMode({ storageMode, storeContent } = {}) {
+export type StorageMode = typeof STORAGE_MODES[number];
+
+export function normalizeStorageMode({
+  storageMode,
+  storeContent
+}: { storageMode?: StorageMode; storeContent?: boolean } = {}): StorageMode {
   if (storageMode !== undefined) {
     if (!STORAGE_MODES.includes(storageMode)) {
       throw new Error(`Unsupported storage mode "${storageMode}".`);
@@ -13,10 +18,10 @@ export function normalizeStorageMode({ storageMode, storeContent } = {}) {
   return storeContent ? "raw" : "metadata";
 }
 
-export function applyStorageMode(event, content, storageMode) {
+export function applyStorageMode(event: Record<string, any>, content: unknown, storageMode: StorageMode) {
   const normalizedContent = String(content ?? "");
   const mode = normalizeStorageMode({ storageMode });
-  const stored = {
+  const stored: Record<string, any> = {
     ...event,
     storage_mode: mode
   };
@@ -35,7 +40,7 @@ export function applyStorageMode(event, content, storageMode) {
   return stored;
 }
 
-export function createContentPreview(content, { maxChars = DEFAULT_PREVIEW_CHARS } = {}) {
+export function createContentPreview(content: unknown, { maxChars = DEFAULT_PREVIEW_CHARS } = {}) {
   const text = String(content ?? "");
   const charCount = text.length;
   const lineCount = text.length === 0 ? 0 : text.split("\n").length;

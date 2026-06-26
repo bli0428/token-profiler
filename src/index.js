@@ -1,11 +1,11 @@
 export { ARTIFACT_TYPES, TokenProfiler } from "./profiler.js";
-export { aggregateEvents } from "./analysis/aggregate.js";
+export { aggregateEvents } from "./analysis/aggregate.ts";
 export { enrichProfilerSessions, readCodexSessionMetadata } from "./codex-sessions.js";
-export { createArtifactEvent, createRequestUsageEvent, validateEvent } from "./core/events/index.js";
+export { createArtifactEvent, createRequestUsageEvent, validateEvent } from "./core/events/index.ts";
 export { createHtmlReport } from "./html-report.js";
-export { importLegacyEvent, importLegacyEvents } from "./ingest/legacy-import/index.js";
-export { applyStorageMode, createContentPreview, normalizeStorageMode } from "./core/privacy/index.js";
+export { importLegacyEvent, importLegacyEvents } from "./ingest/legacy-import/index.ts";
+export { applyStorageMode, createContentPreview, normalizeStorageMode } from "./core/privacy/index.ts";
 export { countTokens, estimateTokens } from "./tokenizer.js";
-export { JsonlEventStore } from "./core/store/index.js";
-export { createProfilerProxy, extractResponsesArtifacts } from "./ingest/codex-proxy/index.js";
+export { JsonlEventStore } from "./core/store/index.ts";
+export { createProfilerProxy, extractResponsesArtifacts } from "./ingest/codex-proxy/index.ts";
 export { createSessionId, SessionRouter } from "./session-router.js";

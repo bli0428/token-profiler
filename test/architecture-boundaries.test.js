@@ -49,7 +49,7 @@ test("top-level compatibility modules remain thin re-exports", async () => {
 
   for (const file of wrappers) {
     const source = (await readFile(file, "utf8")).trim();
-    assert.match(source, /^export \* from "\.\/.+\.js";$/, `${file} should stay a thin compatibility wrapper`);
+    assert.match(source, /^export \* from "\.\/.+\.ts";$/, `${file} should stay a thin compatibility wrapper`);
   }
 });
 

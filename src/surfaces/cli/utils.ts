@@ -1,10 +1,10 @@
 import { existsSync, statSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
-import { importLegacyEvents } from "../../ingest/legacy-import/index.js";
-import { readEventsFromRunDir } from "../../core/store/index.js";
+import { importLegacyEvents } from "../../ingest/legacy-import/index.ts";
+import { readEventsFromRunDir } from "../../core/store/index.ts";
 
-export function parseOptions(args) {
+export function parseOptions(args: string[]): any {
   const options = {};
 
   for (let index = 0; index < args.length; index += 1) {
@@ -28,7 +28,7 @@ export function parseOptions(args) {
   return options;
 }
 
-export function positionalArgs(args) {
+export function positionalArgs(args: string[]): string[] {
   const positional = [];
 
   for (let index = 0; index < args.length; index += 1) {
@@ -49,11 +49,11 @@ export function positionalArgs(args) {
   return positional;
 }
 
-export async function readCanonicalEventsFromRunDir(runDir) {
+export async function readCanonicalEventsFromRunDir(runDir: string) {
   return importLegacyEvents(await readEventsFromRunDir(runDir));
 }
 
-export async function listFiles(targets, root) {
+export async function listFiles(targets: string[], root: string) {
   const files = [];
 
   for (const target of targets) {
@@ -63,7 +63,7 @@ export async function listFiles(targets, root) {
   return files;
 }
 
-async function collectFiles(target, root, files) {
+async function collectFiles(target: string, root: string, files: string[]) {
   if (shouldIgnore(target, root) || !existsSync(target)) {
     return;
   }
@@ -86,7 +86,7 @@ async function collectFiles(target, root, files) {
   }
 }
 
-function shouldIgnore(target, root) {
+function shouldIgnore(target: string, root: string) {
   const path = relative(root, target);
   const parts = path.split(/[\\/]/);
   return parts.some((part) =>
@@ -102,7 +102,7 @@ function shouldIgnore(target, root) {
   );
 }
 
-export function required(options, key) {
+export function required(options: any, key: string): string {
   if (!options[key]) {
     throw new Error(`Missing --${key}`);
   }

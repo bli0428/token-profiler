@@ -7,7 +7,8 @@
     "token-efficiency": "./src/cli.js"
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --import tsx --test",
+    "typecheck": "tsc --noEmit",
     "demo": "node src/cli.js demo",
     "summarize": "node src/cli.js summarize"
   },
@@ -17,5 +18,10 @@
   "license": "MIT",
   "dependencies": {
     "tiktoken": "^1.0.22"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
   }
 }

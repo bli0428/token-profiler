@@ -79,8 +79,8 @@ and reports continue to work.
 - Current JSONL runs must remain readable.
 - Some migration slices may touch large files that are already over the
   responsibility guideline.
-- Documentation must not imply that future SQLite or TypeScript migration is
-  required before current MVP features can work.
+- Documentation must not imply that future SQLite migration is required before
+  current MVP features can work.
 
 ## Requirements
 
@@ -123,5 +123,5 @@ and reports continue to work.
 
 - The project will remain local-first.
 - JSONL remains acceptable while storage schemas stabilize.
-- SQLite and TypeScript remain preferred future directions, not prerequisites for
-  this migration.
+- SQLite remains a preferred future direction, not a prerequisite for this
+  migration.

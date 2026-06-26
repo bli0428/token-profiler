@@ -1,1 +1,1 @@
-export * from "./ingest/codex-proxy/index.js";
+export * from "./ingest/codex-proxy/index.ts";

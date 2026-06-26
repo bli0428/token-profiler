@@ -1,4 +1,4 @@
-import { validateEvent } from "../core/events/index.js";
+import { validateEvent } from "../core/events/index.ts";
 
 export function aggregateEvents(events) {
   const canonicalEvents = events.map((event) => validateEvent(event));
@@ -270,7 +270,7 @@ function shouldReplaceDisplayName(current, next, currentMetadata, nextMetadata) 
     || (isGenericDisplayName(current) && !isGenericDisplayName(next));
 }
 
-function metadataSpecificity(metadata = {}) {
+function metadataSpecificity(metadata: Record<string, any> = {}) {
   let score = 0;
   if (metadata.command) score += 4;
   if (metadata.touched_files?.length > 0) score += 3;

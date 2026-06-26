@@ -1,5 +1,5 @@
 import { sha256 } from "../../hash.js";
-import { applyStorageMode, STORAGE_MODES } from "../privacy/index.js";
+import { applyStorageMode, STORAGE_MODES } from "../privacy/index.ts";
 
 export const ARTIFACT_TYPES = Object.freeze([
   "SYSTEM_PROMPT",
@@ -29,7 +29,7 @@ export function createArtifactEvent({
   tokenizerName,
   storageMode,
   timestamp
-}) {
+}: any) {
   if (!runId) throw new Error("Artifact event requires runId.");
   if (!requestId) throw new Error("Artifact event requires requestId.");
   if (!ARTIFACT_TYPES.includes(artifactType)) {
@@ -40,7 +40,7 @@ export function createArtifactEvent({
   if (!tokenizerName) throw new Error("Artifact event requires tokenizerName.");
 
   const normalizedContent = String(content ?? "");
-  const event = {
+  const event: Record<string, any> = {
     schema_version: 1,
     event_kind: "artifact",
     run_id: runId,
@@ -70,7 +70,7 @@ export function createRequestUsageEvent({
   responseId,
   usage,
   timestamp
-}) {
+}: any) {
   if (!runId) throw new Error("Usage event requires runId.");
   if (!requestId) throw new Error("Usage event requires requestId.");
 
@@ -97,13 +97,13 @@ export function createRequestUsageEvent({
   });
 }
 
-export function validateEvent(event) {
+export function validateEvent(event: any) {
   if (event?.event_kind === "artifact") return validateArtifactEvent(event);
   if (event?.event_kind === "request_usage") return validateRequestUsageEvent(event);
   throw new Error(`Unsupported event_kind "${event?.event_kind}".`);
 }
 
-export function validateArtifactEvent(event) {
+export function validateArtifactEvent(event: any) {
   requireField(event, "schema_version");
   requireExact(event, "event_kind", "artifact");
   requireString(event, "run_id");
@@ -133,7 +133,7 @@ export function validateArtifactEvent(event) {
   return event;
 }
 
-export function validateRequestUsageEvent(event) {
+export function validateRequestUsageEvent(event: any) {
   requireField(event, "schema_version");
   requireExact(event, "event_kind", "request_usage");
   requireString(event, "run_id");
@@ -147,29 +147,29 @@ export function validateRequestUsageEvent(event) {
   return event;
 }
 
-function requireField(event, key) {
+function requireField(event: any, key: string) {
   if (event?.[key] === undefined) throw new Error(`Event requires ${key}.`);
 }
 
-function requireExact(event, key, expected) {
+function requireExact(event: any, key: string, expected: string) {
   if (event?.[key] !== expected) {
     throw new Error(`Event requires ${key} to be "${expected}".`);
   }
 }
 
-function requireString(event, key) {
+function requireString(event: any, key: string) {
   if (typeof event?.[key] !== "string" || event[key].length === 0) {
     throw new Error(`Event requires string ${key}.`);
   }
 }
 
-function requireNumber(event, key) {
+function requireNumber(event: any, key: string) {
   if (!Number.isFinite(Number(event?.[key]))) {
     throw new Error(`Event requires numeric ${key}.`);
   }
 }
 
-function requireStorageMode(event) {
+function requireStorageMode(event: any) {
   if (!STORAGE_MODES.includes(event?.storage_mode)) {
     throw new Error("Artifact event requires valid storage_mode.");
   }

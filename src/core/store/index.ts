@@ -2,6 +2,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 export class JsonlEventStore {
+  rootDir: string;
+  runId: string;
+  runDir: string;
+  eventsPath: string;
+
   constructor({ rootDir = ".token-profiler", runId }) {
     if (!runId) {
       throw new Error("JsonlEventStore requires a runId.");
@@ -13,7 +18,7 @@ export class JsonlEventStore {
     this.eventsPath = join(this.runDir, "events.jsonl");
   }
 
-  async append(event) {
+  async append(event: unknown) {
     await mkdir(dirname(this.eventsPath), { recursive: true });
     await writeFile(this.eventsPath, `${JSON.stringify(event)}\n`, { flag: "a" });
   }
@@ -69,4 +74,3 @@ export async function readEventsFromRunDir(runDir) {
       }
     });
 }
-

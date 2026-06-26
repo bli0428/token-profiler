@@ -1,1 +1,1 @@
-export * from "./core/privacy/index.js";
+export * from "./core/privacy/index.ts";

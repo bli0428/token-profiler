@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { ARTIFACT_TYPES, createArtifactEvent } from "./core/events/index.js";
-import { JsonlEventStore } from "./core/store/index.js";
+import { ARTIFACT_TYPES, createArtifactEvent } from "./core/events/index.ts";
+import { JsonlEventStore } from "./core/store/index.ts";
 import { countTokens } from "./tokenizer.js";
-import { normalizeStorageMode } from "./core/privacy/index.js";
+import { normalizeStorageMode } from "./core/privacy/index.ts";
 
 export { ARTIFACT_TYPES };
 
