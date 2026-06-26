@@ -1,0 +1,270 @@
+import { spawn } from "node:child_process";
+import { closeSync, existsSync, openSync, statSync } from "node:fs";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { dirname, join, relative, resolve } from "node:path";
+import { aggregateEvents } from "../../analysis/aggregate.js";
+import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../codex-config.js";
+import { enrichProfilerSessions, readCodexSessionMetadata } from "../../codex-sessions.js";
+import { createHtmlReport } from "../../html-report.js";
+import { createRequestUsageEvent } from "../../core/events/index.js";
+import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.js";
+import { importLegacyEvents } from "../../ingest/legacy-import/index.js";
+import { normalizeStorageMode } from "../../core/privacy/index.js";
+import { TokenProfiler } from "../../profiler.js";
+import { createProfilerProxy } from "../../ingest/codex-proxy/index.js";
+import { formatSummary } from "../../report.js";
+import { createSessionId, SessionRouter, sanitizeSessionId } from "../../session-router.js";
+import { readEventsFromRunDir } from "../../core/store/index.js";
+
+import { listFiles, parseOptions, positionalArgs, required } from "./utils.js";
+
+export async function runDemo() {
+  const profiler = new TokenProfiler({ runId: "demo" });
+  await mkdir(".token-profiler/runs/demo", { recursive: true });
+  await writeFile(".token-profiler/runs/demo/events.jsonl", "");
+
+  const system = "You are a coding agent. Be concise, careful, and useful.";
+  const repoMap = ["src/auth.js", "src/server.js", "src/db.js"].join("\n");
+  const authFile = "export function authenticate(user, password) { return Boolean(user && password); }\n";
+  const buildLog = "warning: dependency cache missed\n".repeat(240);
+
+  await profiler.recordAsync({
+    requestId: "req_001",
+    artifactType: "SYSTEM_PROMPT",
+    artifactName: "system",
+    content: system
+  });
+  await profiler.recordAsync({
+    requestId: "req_001",
+    artifactType: "REPO_MAP",
+    artifactName: "repo_map",
+    content: repoMap
+  });
+  await profiler.recordAsync({
+    requestId: "req_001",
+    artifactType: "FILE",
+    artifactName: "src/auth.js",
+    content: authFile
+  });
+  await profiler.recordAsync({
+    requestId: "req_002",
+    artifactType: "REPO_MAP",
+    artifactName: "repo_map",
+    content: repoMap
+  });
+  await profiler.recordAsync({
+    requestId: "req_002",
+    artifactType: "FILE",
+    artifactName: "src/auth.js",
+    content: authFile
+  });
+  await profiler.recordAsync({
+    requestId: "req_002",
+    artifactType: "TEST_OUTPUT",
+    artifactName: "build.log",
+    content: buildLog
+  });
+  await profiler.recordAsync({
+    requestId: "req_003",
+    artifactType: "TEST_OUTPUT",
+    artifactName: "build.log",
+    content: buildLog
+  });
+
+  console.log("Wrote demo events to .token-profiler/runs/demo/events.jsonl");
+}
+
+
+export async function runRecord(args) {
+  const options = parseOptions(args);
+  const runId = required(options, "run");
+  const requestId = required(options, "request");
+  const artifactType = required(options, "type");
+  const artifactName = required(options, "name");
+  const content = options.content
+    ? await readFile(resolve(options.content), "utf8")
+    : required(options, "text");
+
+  const profiler = new TokenProfiler({ runId });
+  const event = await profiler.recordAsync({
+    requestId,
+    artifactType,
+    artifactName,
+    artifactId: options.id,
+    content
+  });
+
+  console.log(JSON.stringify(event, null, 2));
+}
+
+
+export async function runWatch(args) {
+  const options = parseOptions(args);
+  const runId = required(options, "run");
+  const intervalMs = Number(options.interval ?? 2000);
+  const root = resolve(options.cwd ?? process.cwd());
+  const paths = positionalArgs(args).map((path) => resolve(root, path));
+  const targets = paths.length > 0 ? paths : [root];
+  const profiler = new TokenProfiler({ runId });
+  const known = new Map();
+
+  console.log(`Watching ${targets.map((target) => relative(root, target) || ".").join(", ")}`);
+  console.log(`Writing events to .token-profiler/runs/${runId}/events.jsonl`);
+
+  const scan = async () => {
+    const files = await listFiles(targets, root);
+
+    for (const file of files) {
+      let stat;
+
+      try {
+        stat = statSync(file);
+      } catch {
+        continue;
+      }
+
+      const previous = known.get(file);
+      const signature = `${stat.mtimeMs}:${stat.size}`;
+
+      if (previous === signature) {
+        continue;
+      }
+
+      known.set(file, signature);
+
+      const content = await readFile(file, "utf8").catch(() => null);
+
+      if (content === null) {
+        continue;
+      }
+
+      const artifactName = relative(root, file);
+      const requestId = `watch_${new Date().toISOString()}`;
+      const event = await profiler.recordAsync({
+        requestId,
+        artifactType: "FILE",
+        artifactName,
+        content
+      });
+
+      console.log(`recorded FILE ${artifactName} (${event.local_token_count} tokens)`);
+    }
+  };
+
+  await scan();
+  const timer = setInterval(() => {
+    scan().catch((error) => console.error(error.message));
+  }, intervalMs);
+
+  const stop = async () => {
+    clearInterval(timer);
+    await profiler.flush();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", stop);
+  process.on("SIGTERM", stop);
+}
+
+
+export async function runCommand(args) {
+  const separatorIndex = args.indexOf("--");
+
+  if (separatorIndex === -1) {
+    throw new Error("Use: run --run <id> --name <artifact-name> -- <command> [args...]");
+  }
+
+  const optionArgs = args.slice(0, separatorIndex);
+  const commandArgs = args.slice(separatorIndex + 1);
+  const options = parseOptions(optionArgs);
+  const runId = required(options, "run");
+  const artifactName = options.name ?? commandArgs.join(" ");
+  const artifactType = options.type ?? "TOOL_OUTPUT";
+  const requestId = options.request ?? `cmd_${new Date().toISOString()}`;
+
+  if (commandArgs.length === 0) {
+    throw new Error("Missing command after --");
+  }
+
+  const child = spawn(commandArgs[0], commandArgs.slice(1), {
+    cwd: options.cwd ?? process.cwd(),
+    stdio: ["inherit", "pipe", "pipe"]
+  });
+
+  let stdout = "";
+  let stderr = "";
+
+  child.stdout.on("data", (chunk) => {
+    const text = chunk.toString();
+    stdout += text;
+    process.stdout.write(text);
+  });
+
+  child.stderr.on("data", (chunk) => {
+    const text = chunk.toString();
+    stderr += text;
+    process.stderr.write(text);
+  });
+
+  const exitCode = await new Promise((resolveExit) => {
+    child.on("close", resolveExit);
+  });
+
+  const profiler = new TokenProfiler({ runId });
+  const output = [stdout, stderr].filter(Boolean).join("\n");
+
+  if (output.length > 0) {
+    await profiler.recordAsync({
+      requestId,
+      artifactType,
+      artifactName,
+      content: output
+    });
+  }
+
+  process.exitCode = exitCode;
+}
+
+
+export async function runCodexImport(args) {
+  const options = parseOptions(args);
+  const rolloutPath = positionalArgs(args)[0];
+
+  if (!rolloutPath) {
+    throw new Error("Use: codex-import <rollout.jsonl> --run <id>");
+  }
+
+  const runId = required(options, "run");
+  const profiler = new TokenProfiler({ runId });
+  const raw = await readFile(resolve(rolloutPath), "utf8");
+  const lines = raw.split("\n").filter(Boolean);
+  let imported = 0;
+
+  for (const line of lines) {
+    const entry = JSON.parse(line);
+
+    if (entry.type !== "event_msg" || entry.payload?.type !== "token_count") {
+      continue;
+    }
+
+    const usage = entry.payload.info?.last_token_usage;
+
+    if (!usage) {
+      continue;
+    }
+
+    imported += 1;
+
+    await profiler.store.append(createRequestUsageEvent({
+      runId,
+      requestId: `codex_request_${String(imported).padStart(4, "0")}`,
+      responseId: entry.payload.info?.id,
+      usage,
+      timestamp: entry.timestamp ?? new Date().toISOString()
+    }));
+  }
+
+  console.log(`Imported ${imported} Codex token usage events.`);
+}
+

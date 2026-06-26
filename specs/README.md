@@ -6,6 +6,8 @@ The specs are ordered by dependency and intended implementation sequence.
 The architecture north star is documented in
 [docs/architecture.md](../docs/architecture.md). Specs should be read as
 incremental slices of that architecture, not as separate product directions.
+Items that are desired but not yet executable specs live in
+[BACKLOG.md](./BACKLOG.md).
 
 ## Spec Map
 

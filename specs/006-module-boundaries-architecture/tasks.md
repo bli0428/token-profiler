@@ -54,3 +54,13 @@
 - [X] T019 [US3] Run full test suite
 - [X] T020 [US3] Run demo and summarize to verify CLI behavior
 - [X] T021 [US3] Review large remaining modules against the 600-line responsibility guideline
+
+---
+
+## Phase 6: Internal Module Splitting
+
+- [X] T022 [US2] Split Codex proxy capture into server, transport, recording, and artifact extraction modules
+- [X] T023 [US2] Split CLI surface into dispatcher, capture commands, proxy/Codex commands, report commands, and shared utilities
+- [X] T024 [US3] Verify all split modules stay below the 600-line responsibility guideline
+- [X] T025 [US3] Rerun full test suite after internal module split
+- [X] T026 [US3] Rerun demo and summarize after internal module split
