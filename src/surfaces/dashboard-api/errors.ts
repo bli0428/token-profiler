@@ -1,6 +1,6 @@
-import type { DashboardCaveat } from "../dashboard/types.ts";
 import {
   DASHBOARD_API_SCHEMA_VERSION,
+  type DashboardApiCaveat,
   type DashboardApiEnvelope,
   type DashboardApiError,
   type DashboardApiErrorCode
@@ -9,9 +9,9 @@ import {
 export class DashboardApiRouteError extends Error {
   code: DashboardApiErrorCode;
   status: number;
-  caveats: DashboardCaveat[];
+  caveats: DashboardApiCaveat[];
 
-  constructor(code: DashboardApiErrorCode, status: number, message: string, caveats: DashboardCaveat[] = []) {
+  constructor(code: DashboardApiErrorCode, status: number, message: string, caveats: DashboardApiCaveat[] = []) {
     super(message);
     this.name = "DashboardApiRouteError";
     this.code = code;
@@ -20,7 +20,7 @@ export class DashboardApiRouteError extends Error {
   }
 }
 
-export function envelope<T>(data: T, caveats: DashboardCaveat[] = []): DashboardApiEnvelope<T> {
+export function envelope<T>(data: T, caveats: DashboardApiCaveat[] = []): DashboardApiEnvelope<T> {
   return {
     schema_version: DASHBOARD_API_SCHEMA_VERSION,
     generated_at: new Date().toISOString(),
@@ -33,7 +33,7 @@ export function apiError(
   code: DashboardApiErrorCode,
   status: number,
   message: string,
-  caveats: DashboardCaveat[] = []
+  caveats: DashboardApiCaveat[] = []
 ): DashboardApiError {
   return {
     schema_version: DASHBOARD_API_SCHEMA_VERSION,
