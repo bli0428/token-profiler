@@ -20,9 +20,11 @@ import { readEventsFromRunDir } from "../../core/store/index.ts";
 import { listFiles, optionString, parseOptions, positionalArgs, required } from "./utils.ts";
 
 export async function runDemo(): Promise<void> {
-  const profiler = new (TokenProfiler as any)({ runId: "demo" });
-  await mkdir(".token-profiler/runs/demo", { recursive: true });
-  await writeFile(".token-profiler/runs/demo/events.jsonl", "");
+  const rootDir = join(homedir(), ".token-profiler");
+  const demoRunDir = join(rootDir, "runs", "demo");
+  const profiler = new (TokenProfiler as any)({ runId: "demo", rootDir });
+  await mkdir(demoRunDir, { recursive: true });
+  await writeFile(join(demoRunDir, "events.jsonl"), "");
 
   const system = "You are a coding agent. Be concise, careful, and useful.";
   const repoMap = ["src/auth.js", "src/server.js", "src/db.js"].join("\n");
@@ -72,7 +74,7 @@ export async function runDemo(): Promise<void> {
     content: buildLog
   });
 
-  console.log("Wrote demo events to .token-profiler/runs/demo/events.jsonl");
+  console.log(`Wrote demo events to ${join(demoRunDir, "events.jsonl")}`);
 }
 
 
@@ -110,7 +112,7 @@ export async function runWatch(args: string[]): Promise<void> {
   const known = new Map<string, string>();
 
   console.log(`Watching ${targets.map((target) => relative(root, target) || ".").join(", ")}`);
-  console.log(`Writing events to .token-profiler/runs/${runId}/events.jsonl`);
+  console.log(`Writing events to ${join(homedir(), ".token-profiler", "runs", runId, "events.jsonl")}`);
 
   const scan = async (): Promise<void> => {
     const files = await listFiles(targets, root);

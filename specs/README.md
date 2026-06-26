@@ -1,4 +1,4 @@
-# Token Efficiency Tracker Specs
+# Token Profiler Specs
 
 This directory contains the product roadmap as Spec Kit feature specifications.
 The specs are ordered by dependency and intended implementation sequence.

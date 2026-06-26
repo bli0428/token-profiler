@@ -1,5 +1,5 @@
 const PROVIDER_ID = "token-profiler";
-const MARKER = "# Managed by token-efficiency; use 'token-efficiency codex disable' to restore.";
+const MARKER = "# Managed by token-profiler; use 'token-profiler codex disable' to restore.";
 
 export function enableCodexProxyConfig(config, proxyUrl, now = new Date()) {
   if (new RegExp(`^\\[model_providers\\.${PROVIDER_ID}\\]\\s*$`, "m").test(config)) {

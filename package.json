@@ -1,10 +1,10 @@
 {
-  "name": "token-efficiency-tracker",
+  "name": "token-profiler",
   "version": "0.1.0",
   "description": "Context exposure profiler for agent prompts.",
   "type": "module",
   "bin": {
-    "token-efficiency": "./src/cli.js"
+    "token-profiler": "./src/cli.js"
   },
   "scripts": {
     "test": "node --import tsx --test",

@@ -16,7 +16,7 @@ Create a metadata-only demo run:
 
 ```bash
 node src/cli.js demo
-node src/cli.js summarize .token-profiler/runs/demo
+node src/cli.js summarize ~/.token-profiler/runs/demo
 ```
 
 After implementation, verify storage modes with focused tests:
@@ -38,8 +38,7 @@ Local artifact attribution is estimated based on local tokenizer counts.
 Inspect an event file:
 
 ```bash
-sed -n '1,5p' .token-profiler/runs/demo/events.jsonl
+sed -n '1,5p' ~/.token-profiler/runs/demo/events.jsonl
 ```
 
 Metadata-only events should include `storage_mode: "metadata"` and should not include `content` or `preview`.
-

@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { ARTIFACT_TYPES, createArtifactEvent } from "./core/events/index.ts";
 import { JsonlEventStore } from "./core/store/index.ts";
 import { countTokens } from "./tokenizer.js";
@@ -9,7 +11,7 @@ export { ARTIFACT_TYPES };
 export class TokenProfiler {
   constructor({
     runId = randomUUID(),
-    rootDir = ".token-profiler",
+    rootDir = join(homedir(), ".token-profiler"),
     tokenCounter = countTokens,
     tokenizerName = "o200k_base",
     store = new JsonlEventStore({ rootDir, runId }),

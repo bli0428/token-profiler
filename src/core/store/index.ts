@@ -1,4 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
 export class JsonlEventStore {
@@ -7,7 +8,7 @@ export class JsonlEventStore {
   runDir: string;
   eventsPath: string;
 
-  constructor({ rootDir = ".token-profiler", runId }: { rootDir?: string; runId: string }) {
+  constructor({ rootDir = join(homedir(), ".token-profiler"), runId }: { rootDir?: string; runId: string }) {
     if (!runId) {
       throw new Error("JsonlEventStore requires a runId.");
     }

@@ -2,7 +2,7 @@ export function formatSummary(summary) {
   const { totals } = summary;
   const lines = [];
 
-  lines.push("Token Efficiency Report");
+  lines.push("Token Profiler Report");
   lines.push("");
   lines.push(`Total Exposure:      ${formatNumber(totals.total_exposure)}`);
   lines.push(`Unique Exposure:     ${formatNumber(totals.unique_exposure)}`);

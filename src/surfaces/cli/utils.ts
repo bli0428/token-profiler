@@ -119,11 +119,11 @@ export function optionString(value: string | boolean | undefined, fallback: stri
 }
 
 export function printHelp(): void {
-  console.log(`Token Efficiency Tracker
+  console.log(`Token Profiler
 
 Commands:
   demo
-    Write sample events to .token-profiler/runs/demo/events.jsonl
+    Write sample events to ~/.token-profiler/runs/demo/events.jsonl
 
   record --run <id> --request <id> --type <type> --name <name> (--content <path> | --text <text>)
     Record one artifact inclusion.

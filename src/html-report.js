@@ -13,7 +13,7 @@ function renderHtml(summary) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Token Efficiency Report</title>
+  <title>Token Profiler Report</title>
   <style>
     :root {
       color-scheme: light;
@@ -141,7 +141,7 @@ function renderHtml(summary) {
 </head>
 <body>
   <main>
-    <h1>Token Efficiency Report</h1>
+    <h1>Token Profiler Report</h1>
     <p class="subtle">Context exposure, replay, and request composition from recorded prompt artifacts.</p>
 
     <section class="metrics">

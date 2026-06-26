@@ -1,4 +1,4 @@
-# Token Efficiency Tracker
+# Token Profiler
 
 A small MVP for measuring what an agent sends to a model.
 
@@ -17,8 +17,8 @@ Local artifact attribution is estimated based on local tokenizer counts.
 ```bash
 npm test
 npm run demo
-node src/cli.js summarize .token-profiler/runs/demo
-node src/cli.js html .token-profiler/runs/demo --out .token-profiler/runs/demo/report.html
+node src/cli.js summarize ~/.token-profiler/runs/demo
+node src/cli.js html ~/.token-profiler/runs/demo --out ~/.token-profiler/runs/demo/report.html
 ```
 
 ## Agent Integration
@@ -79,7 +79,7 @@ Then summarize:
 
 ```bash
 node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js summarize \
-  .token-profiler/runs/secretary-session-001
+  ~/.token-profiler/runs/secretary-session-001
 ```
 
 For exact prompt exposure, attach the `TokenProfiler` API to code that assembles prompts or calls the OpenAI API.
@@ -154,7 +154,7 @@ Generate a report from the proxy run:
 
 ```bash
 node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js summarize \
-  ~/.token-efficiency/runs/codex-live
+  ~/.token-profiler/runs/codex-live
 ```
 
 Enable routing in the user-level Codex configuration:
@@ -197,7 +197,7 @@ This is useful for thread-level and request-level usage, but it still does not a
 
 ## Event Shape
 
-Events are stored as JSONL in `.token-profiler/runs/<run_id>/events.jsonl`.
+Events are stored as JSONL in `~/.token-profiler/runs/<run_id>/events.jsonl`.
 
 ```json
 {

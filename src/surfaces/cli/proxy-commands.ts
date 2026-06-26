@@ -41,7 +41,7 @@ export async function runProxy(args: string[]): Promise<void> {
     throw new Error("--auth must be chatgpt or api.");
   }
   const runId = typeof options.run === "string" ? sanitizeSessionId(options.run) : null;
-  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-efficiency")));
+  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
   const upstream = optionString(options.upstream, authMode === "chatgpt"
     ? "https://chatgpt.com/backend-api/codex"
     : "https://api.openai.com");
@@ -235,7 +235,7 @@ export async function runCodexConfig(args: string[]): Promise<void> {
 
   const options = parseOptions(optionArgs);
   const configPath = resolve(optionString(options.config, join(homedir(), ".codex", "config.toml")));
-  const statePath = `${configPath}.token-efficiency-state.json`;
+  const statePath = `${configPath}.token-profiler-state.json`;
 
   if (action === "enable") {
     const authMode = optionString(options.auth, "chatgpt");
@@ -300,7 +300,7 @@ async function runCodexThroughProxy(args: string[]): Promise<void> {
   }
 
   const runId = sanitizeSessionId(optionString(options.run, createSessionId()));
-  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-efficiency")));
+  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
   const statePath = join(rootDir, "proxy-state.json");
   const upstream = authMode === "chatgpt"
     ? "https://chatgpt.com/backend-api/codex"

@@ -21,7 +21,7 @@ type SessionRow = {
 
 export async function runSessions(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-efficiency")));
+  const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
   const codexHome = resolve(optionString(options["codex-home"], join(homedir(), ".codex")));
   const runsDir = join(rootDir, "runs");
   const entries = await readdir(runsDir, { withFileTypes: true }).catch((error) => {
@@ -69,7 +69,7 @@ function formatCodexSessionLabel(codex: SessionRow["codex"]): string {
 
 export async function runSummarize(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const events = await readCanonicalEventsFromRunDir(runDir);
   const summary = aggregateEvents(events);
 
@@ -84,7 +84,7 @@ export async function runSummarize(args: string[]): Promise<void> {
 
 export async function runLegibility(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const events = await readCanonicalEventsFromRunDir(runDir);
   const summary = aggregateEvents(events);
 
@@ -96,7 +96,7 @@ export async function runLegibility(args: string[]): Promise<void> {
 
 export async function runExplain(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const artifact = optionString(options.artifact, "") || positionalArgs(args).find((arg: string) => arg !== runDir);
   if (!artifact) {
     throw new Error("Use: explain [run_dir] --artifact <artifact-name-or-id>");
@@ -110,7 +110,7 @@ export async function runExplain(args: string[]): Promise<void> {
 
 export async function runHtml(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? ".token-profiler/runs/demo";
+  const runDir = args.find((arg: string) => !arg.startsWith("--")) ?? join(homedir(), ".token-profiler", "runs", "demo");
   const out = optionString(options.out, `${runDir}/report.html`);
   const events = await readCanonicalEventsFromRunDir(runDir);
   const summary = aggregateEvents(events);

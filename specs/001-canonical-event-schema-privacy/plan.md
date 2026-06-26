@@ -14,7 +14,7 @@ Introduce a canonical event layer and explicit privacy-mode policy for captured 
 
 **Primary Dependencies**: Current runtime dependencies plus a schema validator to be selected during implementation. Candidate: Zod if the project moves to TypeScript or remains JS with runtime validation.
 
-**Storage**: Existing JSONL event files under `.token-profiler/` and `~/.token-efficiency/runs/`. Do not migrate to SQLite in this feature.
+**Storage**: JSONL event files under `~/.token-profiler/runs/`. Existing repo-local `./.token-profiler/` files are legacy input only and must go through the legacy import adapter if needed. Do not migrate to SQLite in this feature.
 
 **Testing**: `node --test`
 
