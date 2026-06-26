@@ -4,7 +4,7 @@
 
 **Prerequisites**: `spec.md`, `plan.md`, `docs/architecture.md`
 
-**Tests**: Required for import boundaries, legacy quarantine, and unchanged CLI/report behavior.
+**Tests**: Required for import boundaries, canonical-only reads, and unchanged CLI/report behavior.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -29,12 +29,12 @@
 
 ---
 
-## Phase 3: Ingest And Legacy Boundary Migration
+## Phase 3: Ingest And Canonical Boundary Migration
 
-- [X] T009 [US2] Move legacy MVP import into an ingest-owned legacy boundary
+- [X] T009 [US2] Keep artifact report reads canonical-only with no older MVP importer
 - [X] T010 [US2] Move Codex proxy capture into `src/ingest/codex-proxy/`
-- [X] T011 [US2] Preserve top-level proxy and legacy-import compatibility exports
-- [X] T012 [US2] Add tests proving legacy event-field fallback is quarantined to the legacy importer
+- [X] T011 [US2] Preserve top-level proxy compatibility exports
+- [X] T012 [US2] Add tests proving older MVP artifact fields are rejected by canonical readers
 
 ---
 

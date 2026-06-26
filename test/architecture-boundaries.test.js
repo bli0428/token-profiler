@@ -17,21 +17,17 @@ test("analysis modules do not import provider-specific ingest or surface code", 
   }
 });
 
-test("legacy event-field fallback is quarantined in the legacy importer", async () => {
+test("canonical readers do not accept older MVP artifact token fields", async () => {
   const files = await listJavaScriptFiles(SRC_ROOT);
-  const allowed = new Set([
-    "src/ingest/legacy-import/index.js"
-  ]);
 
   for (const file of files) {
     const normalized = relative(".", file);
-    if (allowed.has(normalized)) continue;
 
     const source = await readFile(file, "utf8");
     assert.doesNotMatch(
       source,
       /(?:event|record)\.token_count|local_token_count\s*\?\?/,
-      `${normalized} must not accept legacy token_count fields directly`
+      `${normalized} must not accept older MVP token_count fields directly`
     );
   }
 });
@@ -40,7 +36,6 @@ test("top-level compatibility modules remain thin re-exports", async () => {
   const wrappers = [
     "src/aggregate.js",
     "src/events.js",
-    "src/legacy-import.js",
     "src/legibility.js",
     "src/privacy.js",
     "src/proxy.js",

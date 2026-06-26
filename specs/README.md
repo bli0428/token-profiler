@@ -37,7 +37,7 @@ Ingestors -> Canonical Store -> Analyzers -> Surfaces
 - **Ingestors**: Codex proxy, Codex log import, Claude telemetry import, OpenAI
   proxy, and manual JSONL import.
 - **Canonical Store**: typed events, artifact records, request records, usage
-  records, trace/span records, privacy policy, and legacy import boundaries.
+  records, trace/span records, and privacy policy.
 - **Analyzers**: exposure, cache attribution, replay/persistence, legibility,
   task grouping, and context composition.
 - **Surfaces**: CLI reports, local dashboard, JSON export, and optional

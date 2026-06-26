@@ -3,7 +3,6 @@ export { aggregateEvents } from "./analysis/aggregate.ts";
 export { enrichProfilerSessions, readCodexSessionMetadata } from "./codex-sessions.js";
 export { createArtifactEvent, createRequestUsageEvent, validateEvent } from "./core/events/index.ts";
 export { createHtmlReport } from "./html-report.js";
-export { importLegacyEvent, importLegacyEvents } from "./ingest/legacy-import/index.ts";
 export { applyStorageMode, createContentPreview, normalizeStorageMode } from "./core/privacy/index.ts";
 export { countTokens, estimateTokens } from "./tokenizer.js";
 export { JsonlEventStore } from "./core/store/index.ts";

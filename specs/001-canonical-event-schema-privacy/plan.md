@@ -6,7 +6,7 @@
 
 ## Summary
 
-Introduce a canonical event layer and explicit privacy-mode policy for captured records. New writers emit the new event contract only. Existing MVP files are supported through a separate legacy import adapter. This plan keeps JSONL storage while adding event constructors, validation tests, retention-mode fields, preview/raw handling, and clear documentation that local artifact attribution is estimated based on local tokenizer counts.
+Introduce a canonical event layer and explicit privacy-mode policy for captured records. Writers emit the canonical event contract only, and readers reject older MVP artifact field names. This plan keeps JSONL storage while adding event constructors, validation tests, retention-mode fields, preview/raw handling, and clear documentation that local artifact attribution is estimated based on local tokenizer counts.
 
 ## Technical Context
 
@@ -14,7 +14,7 @@ Introduce a canonical event layer and explicit privacy-mode policy for captured 
 
 **Primary Dependencies**: Current runtime dependencies plus a schema validator to be selected during implementation. Candidate: Zod if the project moves to TypeScript or remains JS with runtime validation.
 
-**Storage**: JSONL event files under `~/.token-profiler/runs/`. Existing repo-local `./.token-profiler/` files are legacy input only and must go through the legacy import adapter if needed. Do not migrate to SQLite in this feature.
+**Storage**: JSONL event files under `~/.token-profiler/runs/`. Older repo-local MVP event files are not part of the current supported read path. Do not migrate to SQLite in this feature.
 
 **Testing**: `node --test`
 
@@ -24,7 +24,7 @@ Introduce a canonical event layer and explicit privacy-mode policy for captured 
 
 **Performance Goals**: Validation and privacy policy application should not materially affect streaming proxy latency. Event writes remain append-only.
 
-**Constraints**: Metadata-only remains default. Raw content storage must require explicit opt-in. Existing MVP event files must be handled by the legacy import adapter, not by weakening the new event contract.
+**Constraints**: Metadata-only remains default. Raw content storage must require explicit opt-in. Readers and analyzers must not weaken the canonical event contract to accept older MVP artifact fields.
 
 **Scale/Scope**: Current sessions of 100-200 model requests and tens of thousands of artifact events should remain practical.
 
@@ -49,8 +49,7 @@ specs/001-canonical-event-schema-privacy/
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/
-│   ├── event-records.md
-│   └── legacy-mvp-import.md
+│   └── event-records.md
 ├── checklists/
 │   └── requirements.md
 └── tasks.md
@@ -64,7 +63,6 @@ src/
 ├── privacy.js             # retention policy and preview/raw handling
 ├── profiler.js            # uses canonical constructors
 ├── proxy.js               # source extraction, no direct event shape ownership
-├── legacy-import.js       # converts older MVP events into canonical events
 ├── aggregate.js           # reads canonical events only
 └── store.js               # JSONL storage remains append/read only
 
@@ -76,7 +74,7 @@ test/
 └── aggregate.test.js
 ```
 
-**Structure Decision**: Keep the single-package Node project. Add small modules for event construction, privacy policy, and legacy import rather than growing `profiler.js`, `proxy.js`, or `aggregate.js`.
+**Structure Decision**: Keep the single-package Node project. Add small modules for event construction and privacy policy rather than growing `profiler.js`, `proxy.js`, or `aggregate.js`.
 
 ## Complexity Tracking
 

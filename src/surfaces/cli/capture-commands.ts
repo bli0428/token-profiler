@@ -1,21 +1,10 @@
 import { spawn } from "node:child_process";
-import { closeSync, existsSync, openSync, statSync } from "node:fs";
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { statSync } from "node:fs";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
-import { aggregateEvents } from "../../analysis/aggregate.ts";
-import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../codex-config.js";
-import { enrichProfilerSessions, readCodexSessionMetadata } from "../../codex-sessions.js";
-import { createHtmlReport } from "../../html-report.js";
+import { join, relative, resolve } from "node:path";
 import { createRequestUsageEvent } from "../../core/events/index.ts";
-import { formatArtifactDetail, formatLegibilityReport } from "../../analysis/legibility.ts";
-import { importLegacyEvents } from "../../ingest/legacy-import/index.ts";
-import { normalizeStorageMode } from "../../core/privacy/index.ts";
 import { TokenProfiler } from "../../profiler.js";
-import { createProfilerProxy } from "../../ingest/codex-proxy/index.ts";
-import { formatSummary } from "../../report.js";
-import { createSessionId, SessionRouter, sanitizeSessionId } from "../../session-router.js";
-import { readEventsFromRunDir } from "../../core/store/index.ts";
 
 import { listFiles, optionString, parseOptions, positionalArgs, required } from "./utils.ts";
 

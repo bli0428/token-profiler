@@ -1,7 +1,6 @@
 import { existsSync, statSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import { join, relative } from "node:path";
-import { importLegacyEvents } from "../../ingest/legacy-import/index.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
 
 export type CliOptions = Record<string, string | boolean>;
@@ -54,7 +53,7 @@ export function positionalArgs(args: string[]): string[] {
 }
 
 export async function readCanonicalEventsFromRunDir(runDir: string): Promise<unknown[]> {
-  return importLegacyEvents(await readEventsFromRunDir(runDir));
+  return readEventsFromRunDir(runDir);
 }
 
 export async function listFiles(targets: string[], root: string): Promise<string[]> {

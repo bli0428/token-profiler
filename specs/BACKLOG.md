@@ -24,7 +24,6 @@ compile-time types are not enough.
 - Add a discriminator for canonical metadata kind so analyzers and UI can read
   structured metadata without provider-specific assumptions.
 - Derive or align TypeScript types with runtime schemas.
-- Keep legacy import quarantined from canonical readers.
 - Keep provider-specific payload types quarantined inside ingest adapters.
 - Validate canonical records at write/read boundaries.
 - Keep local artifact attribution documentation unchanged.

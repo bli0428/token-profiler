@@ -136,7 +136,7 @@ test("preserves command, patch, and unknown metadata variants", () => {
   assert.deepEqual(patch.metadata.touched_files, ["src/app.js"]);
 });
 
-test("new contract aggregate rejects unsupported legacy artifact records", () => {
+test("new contract aggregate rejects unsupported older MVP artifact records", () => {
   assert.throws(
     () => aggregateEvents([
       {

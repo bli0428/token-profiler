@@ -31,8 +31,9 @@ this spec unless a later task explicitly scopes that work.
 
 **Project Type**: Local CLI/proxy library with report generation.
 
-**Constraints**: Public CLI commands should remain stable. Legacy import remains
-separate from the new canonical event contract.
+**Constraints**: Public CLI commands should remain stable. Readers and analyzers
+remain canonical-only; provider-specific imports convert into canonical records
+before analysis.
 
 ## Architecture Target
 

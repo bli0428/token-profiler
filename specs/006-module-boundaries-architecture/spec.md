@@ -76,7 +76,7 @@ and reports continue to work.
 ### Edge Cases
 
 - Existing command names and imports may be used by external scripts.
-- Current JSONL runs must remain readable.
+- Current canonical JSONL runs must remain readable.
 - Some migration slices may touch large files that are already over the
   responsibility guideline.
 - Documentation must not imply that future SQLite migration is required before
@@ -94,8 +94,8 @@ and reports continue to work.
 - **FR-004**: System MUST provide a migration path from the current MVP source
   tree to clearer ownership areas.
 - **FR-005**: System MUST preserve existing CLI behavior during migration.
-- **FR-006**: System MUST keep legacy record handling separate from the new
-  canonical record contract.
+- **FR-006**: System MUST keep artifact readers canonical-only and reject older
+  MVP artifact field names.
 
 ### Key Entities
 

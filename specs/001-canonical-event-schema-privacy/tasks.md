@@ -2,9 +2,9 @@
 
 **Input**: Design documents from `/specs/001-canonical-event-schema-privacy/`
 
-**Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/event-records.md`, `contracts/legacy-mvp-import.md`
+**Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/event-records.md`
 
-**Tests**: Required for event construction, privacy modes, legacy import, and report documentation.
+**Tests**: Required for event construction, privacy modes, canonical-only reads, and report documentation.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -34,16 +34,16 @@
 
 ---
 
-## Phase 2A: Legacy MVP Import Boundary
+## Phase 2A: Canonical-Only Read Boundary
 
-**Goal**: Existing MVP files remain usable without weakening the new contract.
+**Goal**: Readers and analyzers reject older MVP artifact fields instead of weakening the canonical contract.
 
-**Independent Test**: A legacy fixture imports into new event records before analysis.
+**Independent Test**: A non-canonical artifact record fails validation before analysis.
 
-- [X] T010 [P] Add legacy MVP fixtures in `test/fixtures/legacy-events/`
-- [X] T011 Add `src/legacy-import.js` to map legacy artifact events into new artifact events
-- [X] T012 Add tests proving missing `event_kind`, `token_count`, and missing `storage_mode` are handled only by the legacy importer
-- [X] T013 Update CLI/read path to route legacy files through the importer before analysis, keeping legacy acceptance out of new event readers
+- [X] T010 [P] Add tests proving older MVP artifact fields are rejected by canonical validation
+- [X] T011 Keep CLI/report reads canonical-only with no older MVP artifact importer
+- [X] T012 Remove older MVP fixtures and compatibility exports
+- [X] T013 Keep Codex rollout usage import separate from artifact event schema compatibility
 
 ---
 

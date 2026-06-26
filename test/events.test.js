@@ -44,7 +44,7 @@ test("validates usage events from provider usage", () => {
   assert.equal(validateEvent(event), event);
 });
 
-test("rejects legacy artifact fields in the new contract", () => {
+test("rejects older MVP artifact fields in the new contract", () => {
   assert.throws(
     () => validateEvent({
       schema_version: 1,
