@@ -3,10 +3,10 @@ import { closeSync, openSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../codex-config.js";
 import { normalizeStorageMode } from "../../core/privacy/index.ts";
+import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../ingest/codex-proxy/config.ts";
 import { createProfilerProxy } from "../../ingest/codex-proxy/index.ts";
-import { createSessionId, SessionRouter, sanitizeSessionId } from "../../session-router.js";
+import { createSessionId, SessionRouter, sanitizeSessionId } from "../../ingest/codex-proxy/session-router.ts";
 
 import { optionString, parseOptions } from "./utils.ts";
 

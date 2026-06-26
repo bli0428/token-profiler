@@ -1,4 +1,4 @@
-import { sha256 } from "../../hash.js";
+import { sha256 } from "../hash/index.ts";
 import { applyStorageMode, STORAGE_MODES } from "../privacy/index.ts";
 import type { ArtifactEvent, CanonicalEvent, RequestUsageEvent } from "./types.ts";
 

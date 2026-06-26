@@ -3,8 +3,8 @@ import { statSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, relative, resolve } from "node:path";
-import { createRequestUsageEvent } from "../../core/events/index.ts";
-import { TokenProfiler } from "../../profiler.js";
+import { TokenProfiler } from "../../core/capture/index.ts";
+import { importCodexRolloutUsage } from "../../ingest/codex-log-import/index.ts";
 
 import { listFiles, optionString, parseOptions, positionalArgs, required } from "./utils.ts";
 
@@ -231,34 +231,7 @@ export async function runCodexImport(args: string[]): Promise<void> {
   }
 
   const runId = required(options, "run");
-  const profiler = new (TokenProfiler as any)({ runId });
-  const raw = await readFile(resolve(rolloutPath), "utf8");
-  const lines = raw.split("\n").filter(Boolean);
-  let imported = 0;
-
-  for (const line of lines) {
-    const entry: any = JSON.parse(line);
-
-    if (entry.type !== "event_msg" || entry.payload?.type !== "token_count") {
-      continue;
-    }
-
-    const usage = entry.payload.info?.last_token_usage;
-
-    if (!usage) {
-      continue;
-    }
-
-    imported += 1;
-
-    await profiler.store.append(createRequestUsageEvent({
-      runId,
-      requestId: `codex_request_${String(imported).padStart(4, "0")}`,
-      responseId: entry.payload.info?.id,
-      usage,
-      timestamp: entry.timestamp ?? new Date().toISOString()
-    }));
-  }
+  const { imported } = await importCodexRolloutUsage({ rolloutPath, runId });
 
   console.log(`Imported ${imported} Codex token usage events.`);
 }

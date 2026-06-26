@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, rm, utimes, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { enrichProfilerSessions, readCodexSessionMetadata } from "../src/codex-sessions.js";
+import { enrichProfilerSessions, importCodexRolloutUsage, readCodexSessionMetadata } from "../src/codex-sessions.js";
 
 test("enriches profiler sessions from Codex session index by direct UUID", async () => {
   const codexHome = await mkdtemp(join(tmpdir(), "codex-session-index-test-"));
@@ -30,6 +30,51 @@ test("enriches profiler sessions from Codex session index by direct UUID", async
     assert.equal(session.codex.match, "id");
   } finally {
     await rm(codexHome, { recursive: true, force: true });
+  }
+});
+
+test("imports Codex rollout token usage and skips unsupported entries", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "codex-import-test-"));
+  const rolloutPath = join(rootDir, "rollout.jsonl");
+
+  try {
+    await writeFile(
+      rolloutPath,
+      [
+        JSON.stringify({
+          type: "event_msg",
+          timestamp: "2026-06-26T00:00:00.000Z",
+          payload: {
+            type: "token_count",
+            info: {
+              id: "resp_1",
+              last_token_usage: {
+                input_tokens: 100,
+                input_tokens_details: { cached_tokens: 40 },
+                output_tokens: 10,
+                total_tokens: 110
+              }
+            }
+          }
+        }),
+        JSON.stringify({ type: "event_msg", payload: { type: "user_message", message: "ignored" } }),
+        "{not json"
+      ].join("\n")
+    );
+
+    const result = await importCodexRolloutUsage({ rolloutPath, runId: "imported", rootDir });
+    assert.deepEqual(result, { imported: 1, skipped: 2 });
+
+    const events = (await readFile(join(rootDir, "runs", "imported", "events.jsonl"), "utf8"))
+      .trim()
+      .split("\n")
+      .map(JSON.parse);
+    assert.equal(events.length, 1);
+    assert.equal(events[0].event_kind, "request_usage");
+    assert.equal(events[0].response_id, "resp_1");
+    assert.equal(events[0].cached_input_tokens, 40);
+  } finally {
+    await rm(rootDir, { recursive: true, force: true });
   }
 });
 
