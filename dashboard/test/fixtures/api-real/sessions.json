@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T01:41:27.788Z",
+  "data": {
+    "sessions": [
+      {
+        "run_id": "codex-cache-da1ec74b3a82b48a",
+        "label": "codex-cache-da1ec74b3a82b48a",
+        "updated_at": "2026-06-27T01:41:26.082Z",
+        "request_count": 13,
+        "artifact_count": 358,
+        "input_tokens": 563810,
+        "cached_input_tokens": 424832,
+        "uncached_input_tokens": 138978,
+        "output_tokens": 1076,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-422b6d6817907b09",
+        "label": "codex-cache-422b6d6817907b09",
+        "updated_at": "2026-06-27T01:41:21.356Z",
+        "request_count": 57,
+        "artifact_count": 302,
+        "input_tokens": 5474189,
+        "cached_input_tokens": 5118592,
+        "uncached_input_tokens": 355597,
+        "output_tokens": 41026,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-9906b655adce8b87",
+        "label": "codex-cache-9906b655adce8b87",
+        "updated_at": "2026-06-27T01:29:04.043Z",
+        "request_count": 148,
+        "artifact_count": 811,
+        "input_tokens": 15830802,
+        "cached_input_tokens": 14717056,
+        "uncached_input_tokens": 1113746,
+        "output_tokens": 87540,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-36be87a82f2c0214",
+        "label": "codex-cache-36be87a82f2c0214",
+        "updated_at": "2026-06-27T01:21:28.702Z",
+        "request_count": 1,
+        "artifact_count": 20,
+        "input_tokens": 9513,
+        "cached_input_tokens": 5120,
+        "uncached_input_tokens": 4393,
+        "output_tokens": 69,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-6f0a12058ede1d91",
+        "label": "codex-cache-6f0a12058ede1d91",
+        "updated_at": "2026-06-26T21:28:20.622Z",
+        "request_count": 11,
+        "artifact_count": 90,
+        "input_tokens": 366228,
+        "cached_input_tokens": 322176,
+        "uncached_input_tokens": 44052,
+        "output_tokens": 12651,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-34b4a154ed533359",
+        "label": "codex-cache-34b4a154ed533359",
+        "updated_at": "2026-06-26T21:28:13.140Z",
+        "request_count": 6,
+        "artifact_count": 63,
+        "input_tokens": 179615,
+        "cached_input_tokens": 138496,
+        "uncached_input_tokens": 41119,
+        "output_tokens": 11798,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-8657755234a84715",
+        "label": "codex-cache-8657755234a84715",
+        "updated_at": "2026-06-26T21:28:06.395Z",
+        "request_count": 9,
+        "artifact_count": 74,
+        "input_tokens": 282462,
+        "cached_input_tokens": 234368,
+        "uncached_input_tokens": 48094,
+        "output_tokens": 10462,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-c148d34e88f75382",
+        "label": "codex-cache-c148d34e88f75382",
+        "updated_at": "2026-06-26T21:28:05.703Z",
+        "request_count": 8,
+        "artifact_count": 67,
+        "input_tokens": 244153,
+        "cached_input_tokens": 190976,
+        "uncached_input_tokens": 53177,
+        "output_tokens": 11653,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-95aed83357e78bac",
+        "label": "codex-cache-95aed83357e78bac",
+        "updated_at": "2026-06-26T21:24:58.651Z",
+        "request_count": 1,
+        "artifact_count": 20,
+        "input_tokens": 9816,
+        "cached_input_tokens": 5120,
+        "uncached_input_tokens": 4696,
+        "output_tokens": 85,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-b1900d51fb052f92",
+        "label": "codex-cache-b1900d51fb052f92",
+        "updated_at": "2026-06-26T21:24:58.651Z",
+        "request_count": 1,
+        "artifact_count": 20,
+        "input_tokens": 9791,
+        "cached_input_tokens": 5120,
+        "uncached_input_tokens": 4671,
+        "output_tokens": 90,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-0ef4c0ad950aa9a6",
+        "label": "codex-cache-0ef4c0ad950aa9a6",
+        "updated_at": "2026-06-26T21:24:58.149Z",
+        "request_count": 1,
+        "artifact_count": 20,
+        "input_tokens": 9798,
+        "cached_input_tokens": 5120,
+        "uncached_input_tokens": 4678,
+        "output_tokens": 63,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-21335cebb16632a3",
+        "label": "codex-cache-21335cebb16632a3",
+        "updated_at": "2026-06-26T21:24:58.142Z",
+        "request_count": 1,
+        "artifact_count": 20,
+        "input_tokens": 9788,
+        "cached_input_tokens": 5120,
+        "uncached_input_tokens": 4668,
+        "output_tokens": 72,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-13d2380b76d13744",
+        "label": "codex-cache-13d2380b76d13744",
+        "updated_at": "2026-06-26T21:20:57.322Z",
+        "request_count": 68,
+        "artifact_count": 386,
+        "input_tokens": 5579269,
+        "cached_input_tokens": 5286016,
+        "uncached_input_tokens": 293253,
+        "output_tokens": 32852,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-19a75a079e22a7a4",
+        "label": "codex-cache-19a75a079e22a7a4",
+        "updated_at": "2026-06-26T21:11:36.234Z",
+        "request_count": 6,
+        "artifact_count": 295,
+        "input_tokens": 224475,
+        "cached_input_tokens": 175872,
+        "uncached_input_tokens": 48603,
+        "output_tokens": 425,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-46f6636458ab279a",
+        "label": "codex-cache-46f6636458ab279a",
+        "updated_at": "2026-06-26T20:24:57.205Z",
+        "request_count": 1,
+        "artifact_count": 20,
+        "input_tokens": 9464,
+        "cached_input_tokens": 5120,
+        "uncached_input_tokens": 4344,
+        "output_tokens": 89,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-a40bcddf218be480",
+        "label": "codex-cache-a40bcddf218be480",
+        "updated_at": "2026-06-26T20:23:42.104Z",
+        "request_count": 1,
+        "artifact_count": 20,
+        "input_tokens": 9435,
+        "cached_input_tokens": 5120,
+        "uncached_input_tokens": 4315,
+        "output_tokens": 66,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-0d487983aaaee36d",
+        "label": "codex-cache-0d487983aaaee36d",
+        "updated_at": "2026-06-26T20:21:08.709Z",
+        "request_count": 34,
+        "artifact_count": 671,
+        "input_tokens": 5827386,
+        "cached_input_tokens": 5302400,
+        "uncached_input_tokens": 524986,
+        "output_tokens": 26483,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "codex-cache-fd6d35170da2730e",
+        "label": "codex-cache-fd6d35170da2730e",
+        "updated_at": "2026-06-26T19:16:49.155Z",
+        "request_count": 1,
+        "artifact_count": 82,
+        "input_tokens": 18267,
+        "cached_input_tokens": 7040,
+        "uncached_input_tokens": 11227,
+        "output_tokens": 87,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      },
+      {
+        "run_id": "demo",
+        "label": "demo",
+        "updated_at": "2026-06-26T18:18:28.701Z",
+        "request_count": 3,
+        "artifact_count": 4,
+        "input_tokens": 0,
+        "cached_input_tokens": 0,
+        "uncached_input_tokens": 0,
+        "output_tokens": 0,
+        "availability": {
+          "status": "complete"
+        },
+        "caveats": []
+      }
+    ]
+  },
+  "caveats": []
+}

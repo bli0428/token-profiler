@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T01:41:27.131Z",
+  "data": {
+    "service": "token-profiler-dashboard-api",
+    "ready": true,
+    "read_only": true,
+    "local_only": true,
+    "data_root_label": ".token-profiler",
+    "schema_version": 1,
+    "capabilities": {
+      "sessions": true,
+      "run_view": true,
+      "artifact_detail": true,
+      "refresh": "request"
+    }
+  },
+  "caveats": []
+}

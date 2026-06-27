@@ -19,6 +19,13 @@ Items that are desired but not yet executable specs live in
 | `003-analyzer-pipeline` | Modular analyzers for exposure, cache, replay, and attribution docs | 001, 006 |
 | `004-legibility-task-explorer` | Human-readable artifact and task/story grouping | 001, 002, 003, 006 |
 | `005-local-dashboard` | Local page for exploring metrics and artifacts | 001, 003, 004, 006 |
+| `007-dashboard-api-surface` | Local read-only HTTP API contract for dashboard clients | 001, 003, 004, 006 |
+| `008-dashboard-frontend-app` | Isolated top-level dashboard frontend app | 007 |
+| `009-dashboard-surface-cleanup` | Cleanup of the current static dashboard surface | 007, 008 |
+| `010-dashboard-contract-drift-guards` | Superseded by expanded 008; retained as API-real fixture audit reference | 007, 008 |
+| `011-dashboard-shell-state-architecture` | Superseded by expanded 008; retained as shell/state architecture audit reference | 008 |
+| `012-dashboard-style-system` | Superseded by expanded 008; retained as style-system audit reference | 008 |
+| `013-dashboard-package-boundaries` | Superseded by expanded 008; retained as package-boundary audit reference | 008 |
 
 ## Product Direction
 

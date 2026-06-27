@@ -1,0 +1,39 @@
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.artifact-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+}
+
+.artifact-table th,
+.artifact-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.artifact-table th {
+  background: var(--color-surface-muted);
+  color: var(--color-muted);
+  font-size: 0.82rem;
+}
+
+.artifact-table tr.is-selected {
+  background: color-mix(in srgb, var(--color-accent) 10%, white);
+}
+
+.artifact-table button {
+  padding: 0;
+  color: var(--color-accent-strong);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-weight: 700;
+}

@@ -82,6 +82,8 @@ type SessionsResponse = ApiEnvelope<{
 Rules:
 
 - Default limit is 20.
+- `session.run_id` is the routable local run identifier for `GET /api/runs/:runId`.
+- `session.canonical_run_id`, when present, is the analyzer/canonical run identifier and is display or diagnostic metadata only.
 - Sessions sort by update time descending, then run ID ascending.
 - Unreadable sessions may appear with `availability.status = "unavailable"` and a caveat.
 - Session payloads should avoid absolute paths unless explicitly retained as a local-only diagnostic field.
@@ -101,6 +103,8 @@ type RunResponse = ApiEnvelope<DashboardApiRun>;
 Rules:
 
 - `runId` is resolved under the configured local profiler runs directory.
+- The response `data.run_id` matches the routable identifier used in the URL.
+- The response may include `data.canonical_run_id` when analyzer data reports a different canonical run identifier.
 - Responses are generated from current local data on request.
 - Malformed or unsupported run data returns a structured error.
 - Hidden raw content is excluded from the entire response, including embedded detail records and search fields.

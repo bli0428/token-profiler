@@ -1,0 +1,37 @@
+.sessions-pane {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+}
+
+.sessions-pane h2 {
+  margin: 0 0 var(--space-3);
+  font-size: 1rem;
+}
+
+.session-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.session-row {
+  display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-3);
+  text-align: left;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.session-row.is-selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.session-title {
+  font-weight: 700;
+}

@@ -1,0 +1,20 @@
+:root {
+  --color-page: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef2f5;
+  --color-border: #cbd5df;
+  --color-text: #17202a;
+  --color-muted: #637083;
+  --color-accent: #186a8f;
+  --color-accent-strong: #104d6c;
+  --color-warning: #9a6200;
+  --color-danger: #aa2d2d;
+  --color-info: #286a4f;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --radius: 8px;
+  --shadow: 0 8px 24px rgb(23 32 42 / 8%);
+}

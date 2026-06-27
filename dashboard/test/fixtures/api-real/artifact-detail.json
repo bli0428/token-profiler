@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-06-27T01:41:27.838Z",
+  "data": {
+    "artifact_id": "USER_MESSAGE:message:user:6:16",
+    "title": "User message",
+    "identity": {
+      "artifact_name": "message:user:6:16",
+      "stable_short_id": "ageuser616",
+      "display_category": "user_message",
+      "request_ids": [
+        "proxy_494af628-4cca-4913-a4c1-648773a708e6",
+        "proxy_f889e5b0-ebf8-4fcd-9251-9bd2352e17b3",
+        "proxy_89a6d6d1-7b96-4e40-95f0-0c1c3fd4aeac",
+        "proxy_700e62c0-0e2a-42ea-8d45-0158cbce27e1",
+        "proxy_65641230-9ee6-4080-bcb2-4e68ab4cf57f",
+        "proxy_5aaea90d-e368-45d8-b5fe-e742d26d891d",
+        "proxy_e6a62ddd-7c97-4afe-bc4f-c486e6876df1",
+        "proxy_5a472cdf-4ff2-4c09-9c41-594bdc457de5",
+        "proxy_0c6b1006-50ec-4905-abdd-8ac238533b46",
+        "proxy_b22d7250-b642-47ba-87df-0f5f7c32be11",
+        "proxy_5591dbcb-6215-4b9a-b570-dc7c99555d15",
+        "proxy_85eac056-3d62-4e62-a40a-59df5f2c933c"
+      ]
+    },
+    "metrics": {
+      "total_exposure": 19704,
+      "repeated_exposure": 18062,
+      "inclusion_count": 12,
+      "distinct_hash_count": 1,
+      "estimated_cached_input_tokens": 13786.961615341392,
+      "estimated_uncached_input_tokens": 4727.344822541534,
+      "attribution_state": "estimated",
+      "first_seen_at": "2026-06-27T01:31:24.050Z",
+      "last_seen_at": "2026-06-27T01:41:21.443Z"
+    },
+    "metadata_sections": [
+      {
+        "title": "Identity",
+        "rows": [
+          {
+            "label": "Artifact ID",
+            "value": "USER_MESSAGE:message:user:6:16",
+            "visibility": "visible"
+          },
+          {
+            "label": "Short ID",
+            "value": "ageuser616",
+            "visibility": "visible"
+          },
+          {
+            "label": "Category",
+            "value": "user_message",
+            "visibility": "visible"
+          },
+          {
+            "label": "Artifact Name",
+            "value": "message:user:6:16",
+            "visibility": "visible"
+          }
+        ]
+      }
+    ],
+    "tool_links": [],
+    "task_group_ids": [
+      "task:256c19fe9f:df5f2c933c"
+    ],
+    "privacy": {
+      "storage_mode": "metadata",
+      "raw_content_available": false,
+      "raw_content_revealed": false,
+      "preview_fields": [],
+      "hidden_fields": [
+        "message_content",
+        "raw_content"
+      ],
+      "unavailable_fields": [],
+      "caveats": [
+        {
+          "code": "privacy_hidden",
+          "severity": "info",
+          "message": "Raw content is hidden by the artifact storage mode.",
+          "applies_to": {
+            "analyzer_id": "legibility",
+            "artifact_id": "USER_MESSAGE:message:user:6:16"
+          }
+        }
+      ]
+    },
+    "caveats": [
+      {
+        "code": "privacy_hidden",
+        "severity": "info",
+        "message": "Raw content is hidden by the artifact storage mode.",
+        "applies_to": {
+          "analyzer_id": "legibility",
+          "artifact_id": "USER_MESSAGE:message:user:6:16"
+        }
+      },
+      {
+        "code": "local_artifact_attribution_estimate",
+        "severity": "info",
+        "message": "Artifact-level attribution is estimated from local tokenization. Provider-reported request totals remain authoritative when present.",
+        "applies_to": {
+          "analyzer_id": "legibility"
+        }
+      }
+    ]
+  },
+  "caveats": [
+    {
+      "code": "privacy_hidden",
+      "severity": "info",
+      "message": "Raw content is hidden by the artifact storage mode.",
+      "applies_to": {
+        "analyzer_id": "legibility",
+        "artifact_id": "USER_MESSAGE:message:user:6:16"
+      }
+    },
+    {
+      "code": "local_artifact_attribution_estimate",
+      "severity": "info",
+      "message": "Artifact-level attribution is estimated from local tokenization. Provider-reported request totals remain authoritative when present.",
+      "applies_to": {
+        "analyzer_id": "legibility"
+      }
+    }
+  ]
+}

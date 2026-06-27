@@ -1,0 +1,74 @@
+.state-panel {
+  max-width: 720px;
+  padding: var(--space-5);
+  margin: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.state-panel h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 1.15rem;
+}
+
+.state-panel p {
+  margin: 0 0 var(--space-4);
+  color: var(--color-muted);
+}
+
+.state-panel-error {
+  border-color: color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+}
+
+.caveat-list {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
+  margin: var(--space-3) 0;
+  list-style: none;
+}
+
+.state {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: var(--radius);
+  background: var(--color-surface-muted);
+}
+
+.state-warning {
+  color: var(--color-warning);
+}
+
+.state-error {
+  color: var(--color-danger);
+}
+
+.state-info,
+.privacy-info {
+  color: var(--color-info);
+}
+
+.privacy,
+.availability {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.privacy-warning,
+.availability-partial,
+.availability-stale {
+  color: var(--color-warning);
+}
+
+.privacy-danger,
+.availability-unavailable {
+  color: var(--color-danger);
+}

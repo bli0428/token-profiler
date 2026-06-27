@@ -7,7 +7,7 @@
     "token-profiler": "./src/cli.js"
   },
   "scripts": {
-    "test": "node --import tsx --test",
+    "test": "node --import tsx --test test/*.test.js",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "demo": "node src/cli.js demo",
