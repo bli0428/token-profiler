@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/008-dashboard-frontend-app/plan.md
+at specs/009-dashboard-surface-cleanup/plan.md
 <!-- SPECKIT END -->
 
 ## Architecture Direction

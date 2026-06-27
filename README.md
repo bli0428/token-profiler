@@ -18,23 +18,20 @@ Local artifact attribution is estimated based on local tokenizer counts.
 npm test
 npm run demo
 node src/cli.js summarize ~/.token-profiler/runs/demo
-node src/cli.js html ~/.token-profiler/runs/demo --out ~/.token-profiler/runs/demo/report.html
 ```
 
-The `html` command writes a local, read-only dashboard for one run. It uses the
-same analyzer results as `summarize`, including cache attribution, readable
-artifact labels, task groups, privacy state, and caveats:
+The interactive dashboard is a separate local app backed by the read-only
+dashboard API. Start the API from the repository root:
 
 ```bash
-node src/cli.js html ~/.token-profiler/runs/codex-live \
-  --out ~/.token-profiler/runs/codex-live/dashboard.html
+node src/cli.js dashboard-api serve --port 8788 --origin http://127.0.0.1:5173
 ```
 
-To browse recent local runs without reading the run directory by hand, generate
-a static session index:
+Then start the frontend from `dashboard/`:
 
 ```bash
-node src/cli.js dashboard --out ~/.token-profiler/dashboard.html
+cd dashboard
+VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
 ## Agent Integration
@@ -174,11 +171,11 @@ boundaries are available. Task groups roll up exposure, replay, usage, top
 artifacts, and grouping confidence. Metadata-only runs use safe fallback labels
 and never require raw prompt or tool-output content.
 
-The local dashboard consumes those same analyzer outputs. It provides overview
-metric cards, artifact filtering, task-group navigation, artifact details, and
-privacy indicators without parsing provider payloads or recalculating analyzer
-metrics in the browser. Hidden raw content is not embedded in the dashboard
-payload.
+The local dashboard API and isolated frontend consume those same analyzer
+outputs. They provide overview metric cards, artifact filtering, task-group
+navigation, artifact details, and privacy indicators without parsing provider
+payloads or recalculating analyzer metrics in the browser. Hidden raw content is
+not embedded in dashboard API payloads.
 
 Start it in the background:
 

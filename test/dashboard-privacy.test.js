@@ -1,15 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createDashboardViewModel } from "../src/surfaces/dashboard/model.ts";
-import { renderDashboardHtml } from "../src/surfaces/dashboard/render.ts";
 import { dashboardSummary, metadataOnlyLeakSummary } from "./helpers/dashboard-fixtures.js";
 
-test("metadata-only dashboard excludes hidden preview text from model search and HTML", () => {
+test("metadata-only dashboard model excludes hidden preview text from safe client data", () => {
   const model = createDashboardViewModel(metadataOnlyLeakSummary());
-  const html = renderDashboardHtml(model);
 
   assert.equal(JSON.stringify(model).includes("SECRET_DO_NOT_LEAK"), false);
-  assert.equal(html.includes("SECRET_DO_NOT_LEAK"), false);
   assert.equal(model.artifacts[0].preview_state, "hidden");
 });
 
@@ -25,8 +22,12 @@ test("dashboard distinguishes hidden and unavailable detail fields", () => {
 
 test("preview and raw-available states are represented without raw reveal by default", () => {
   const model = createDashboardViewModel(dashboardSummary());
-  const html = renderDashboardHtml(model);
+  const states = [
+    model.privacy.preview_state,
+    ...model.artifacts.map((artifact) => artifact.preview_state),
+    ...Object.values(model.artifact_details).map((detail) => detail.privacy.preview_state)
+  ];
 
-  assert.match(html, /hidden|preview|raw_available/);
-  assert.equal(html.includes("data-raw-content hidden"), false);
+  assert.ok(states.some((state) => ["hidden", "preview", "raw_available"].includes(state)));
+  assert.equal(JSON.stringify(model).includes("data-raw-content"), false);
 });

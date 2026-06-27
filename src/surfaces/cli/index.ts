@@ -2,7 +2,7 @@
 import { runCodexImport, runCommand, runDemo, runRecord, runWatch } from "./capture-commands.ts";
 import { runDashboardApi } from "./dashboard-api-commands.ts";
 import { runCodexConfig, runProxy } from "./proxy-commands.ts";
-import { runDashboard, runExplain, runHtml, runLegibility, runSessions, runSummarize } from "./report-commands.ts";
+import { runExplain, runLegibility, runSessions, runSummarize } from "./report-commands.ts";
 import { printHelp } from "./utils.ts";
 
 const [, , command = "help", ...args] = process.argv;
@@ -28,10 +28,6 @@ try {
     await runLegibility(args);
   } else if (command === "explain") {
     await runExplain(args);
-  } else if (command === "html") {
-    await runHtml(args);
-  } else if (command === "dashboard") {
-    await runDashboard(args);
   } else if (command === "dashboard-api") {
     await runDashboardApi(args);
   } else if (command === "sessions") {

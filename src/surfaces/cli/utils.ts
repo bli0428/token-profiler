@@ -155,14 +155,8 @@ Commands:
   explain [run_dir] --artifact <artifact-name-or-id>
     Show details and first inclusions for one artifact.
 
-  html [run_dir] [--out <path>]
-    Write a static local dashboard for one run.
-
-  dashboard [--limit <count>] [--data-dir <path>] [--out <path>]
-    Write a static local dashboard session index.
-
   dashboard-api serve [--port <port>] [--host <host>] [--data-dir <path>] [--origin <origin>]
-    Start a local read-only dashboard HTTP API.
+    Start the local read-only dashboard HTTP API for the isolated dashboard app.
 
   sessions [--limit <count>] [--data-dir <path>] [--codex-home <path>] [--no-codex]
     List recently captured sessions, enriched with Codex thread titles when available.

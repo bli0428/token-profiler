@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, readdir } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 
@@ -48,6 +48,12 @@ test("dashboard API contract types do not depend on sibling surface DTOs", async
     /from\s+["'](?:\.\.\/(?!\.\.\/)|[^"']*src\/surfaces\/(?!dashboard-api\/))[^"']*["']/,
     "dashboard API DTOs must be owned by the API contract, not sibling surface modules"
   );
+});
+
+test("static string-rendered dashboard surface is retired", async () => {
+  await assert.rejects(access(join(SRC_ROOT, "surfaces", "dashboard", "assets.ts")));
+  await assert.rejects(access(join(SRC_ROOT, "surfaces", "dashboard", "render.ts")));
+  await assert.rejects(access(join(SRC_ROOT, "surfaces", "html-report.ts")));
 });
 
 async function listJavaScriptFiles(root) {

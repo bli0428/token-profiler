@@ -3,7 +3,6 @@ export { aggregateEvents } from "./analysis/aggregate.ts";
 export { analyzeEvents, exportAnalysisResult } from "./analysis/pipeline.ts";
 export { enrichProfilerSessions, importCodexRolloutUsage, readCodexSessionMetadata } from "./adapters/codex/log-import/index.ts";
 export { createArtifactEvent, createRequestUsageEvent, validateEvent } from "./core/events/index.ts";
-export { createHtmlReport } from "./surfaces/html-report.ts";
 export { applyStorageMode, createContentPreview, normalizeStorageMode } from "./core/privacy/index.ts";
 export { countTokens, estimateTokens } from "./core/tokenization/index.ts";
 export { JsonlEventStore } from "./core/store/index.ts";
