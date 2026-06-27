@@ -8,7 +8,7 @@ describe("style boundary", () => {
     for (const file of listFiles(join(process.cwd(), "src")).filter((path) => !path.includes("/src/test/"))) {
       if (!/\.(ts|tsx|css)$/.test(file)) continue;
       const text = readFileSync(file, "utf8");
-      if (text.includes("../src/surfaces") || text.includes("/src/surfaces/dashboard")) {
+      if (text.includes("../src/surfaces") || text.includes("/src/surfaces")) {
         offenders.push(relative(process.cwd(), file));
       }
     }

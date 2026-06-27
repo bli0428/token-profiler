@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createDashboardViewModel, dashboardOverview } from "../src/surfaces/dashboard/model.ts";
+import { createDashboardViewModel, dashboardOverview } from "../src/surfaces/dashboard-api/view-model.ts";
 import { dashboardSummary } from "./helpers/dashboard-fixtures.js";
 
 test("dashboard overview mirrors analyzer totals", () => {

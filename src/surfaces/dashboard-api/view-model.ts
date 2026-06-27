@@ -8,18 +8,18 @@ import type {
 import type { JsonObject } from "../../core/events/types.ts";
 import { dashboardPrivacyState, metadataRow, safeSearchText } from "./privacy.ts";
 import type {
-  DashboardArtifactDetail,
-  DashboardArtifactRow,
-  DashboardCaveat,
-  DashboardRunOverview,
-  DashboardSession,
-  DashboardTaskGroup,
+  DashboardViewArtifactDetail,
+  DashboardViewArtifactRow,
+  DashboardViewCaveat,
+  DashboardViewRunOverview,
+  DashboardViewSession,
+  DashboardViewTaskGroup,
   DashboardViewModel
-} from "./types.ts";
+} from "./view-model-types.ts";
 
 export function createDashboardViewModel(
   summary: RunAnalysisSummary,
-  options: { session?: DashboardSession; runDir?: string } = {}
+  options: { session?: DashboardViewSession; runDir?: string } = {}
 ): DashboardViewModel {
   const taskGroups = dashboardTaskGroups(summary.task_groups ?? [], summary);
   const taskIdsByArtifact = mapTaskIdsByArtifact(taskGroups);
@@ -65,10 +65,10 @@ export function createDashboardViewModel(
 
 export function dashboardOverview(
   summary: RunAnalysisSummary,
-  artifacts: DashboardArtifactRow[],
-  caveats: DashboardCaveat[],
-  taskGroup?: DashboardTaskGroup
-): DashboardRunOverview {
+  artifacts: DashboardViewArtifactRow[],
+  caveats: DashboardViewCaveat[],
+  taskGroup?: DashboardViewTaskGroup
+): DashboardViewRunOverview {
   if (taskGroup) {
     return {
       scope: "task_group",
@@ -112,8 +112,8 @@ export function dashboardOverview(
 function dashboardArtifactRows(
   summary: RunAnalysisSummary,
   taskIdsByArtifact: Map<string, string[]>
-): DashboardArtifactRow[] {
-  const readableById = new Map((summary.legibility?.rows ?? []).map((row) => [row.artifact_id, row]));
+): DashboardViewArtifactRow[] {
+  const readableById = new Map((summary.legibility?.rows ?? []).map((row: ReadableArtifact) => [row.artifact_id, row]));
 
   return summary.artifacts.map((aggregate) => {
     const readable = readableById.get(aggregate.artifact_id);
@@ -158,7 +158,7 @@ function dashboardArtifactRows(
 function dashboardArtifactDetails(
   details: ArtifactDetail[],
   taskIdsByArtifact: Map<string, string[]>
-): DashboardArtifactDetail[] {
+): DashboardViewArtifactDetail[] {
   return details.map((detail) => {
     const privacy = dashboardPrivacyState({
       storageMode: detail.privacy.storage_mode,
@@ -238,7 +238,7 @@ function dashboardArtifactDetails(
   });
 }
 
-function dashboardTaskGroups(groups: TaskGroup[], summary: RunAnalysisSummary): DashboardTaskGroup[] {
+function dashboardTaskGroups(groups: TaskGroup[], summary: RunAnalysisSummary): DashboardViewTaskGroup[] {
   return groups.map((group) => ({
     task_group_id: group.task_group_id,
     display_name: group.display_name,
@@ -271,7 +271,7 @@ function dashboardTaskGroups(groups: TaskGroup[], summary: RunAnalysisSummary): 
   });
 }
 
-function mapTaskIdsByArtifact(groups: DashboardTaskGroup[]): Map<string, string[]> {
+function mapTaskIdsByArtifact(groups: DashboardViewTaskGroup[]): Map<string, string[]> {
   const map = new Map<string, string[]>();
   for (const group of groups) {
     for (const artifactId of group.artifact_ids) {
@@ -283,7 +283,7 @@ function mapTaskIdsByArtifact(groups: DashboardTaskGroup[]): Map<string, string[
   return map;
 }
 
-function compareDashboardRows(a: DashboardArtifactRow, b: DashboardArtifactRow): number {
+function compareDashboardRows(a: DashboardViewArtifactRow, b: DashboardViewArtifactRow): number {
   return (b.estimated_uncached_input_tokens ?? 0) - (a.estimated_uncached_input_tokens ?? 0)
     || b.total_exposure - a.total_exposure
     || b.repeated_exposure - a.repeated_exposure
@@ -300,7 +300,7 @@ function attributionCoverage(summary: RunAnalysisSummary): number | "partial" | 
   return Math.min(1, attributed / input);
 }
 
-function dominantStorageMode(rows: DashboardArtifactRow[]): string {
+function dominantStorageMode(rows: DashboardViewArtifactRow[]): string {
   if (rows.some((row) => row.preview_state === "raw_available")) return "raw";
   if (rows.some((row) => row.preview_state === "preview")) return "preview";
   return "metadata";

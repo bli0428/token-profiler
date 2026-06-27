@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import test from "node:test";
 import { tmpdir } from "node:os";
-import { createDashboardSessionIndex } from "../src/surfaces/dashboard/sessions.ts";
+import { createDashboardSessionIndex } from "../src/surfaces/dashboard-api/sessions.ts";
 import { artifact, usage } from "./helpers/analyzer-fixtures.js";
 
 test("dashboard session index sorts recent runs and summarizes metrics", async () => {
@@ -20,6 +20,21 @@ test("dashboard session index sorts recent runs and summarizes metrics", async (
   assert.equal(index.sessions[0].run_id, "run_test");
   assert.equal(index.sessions[0].artifact_count, 1);
   assert.equal(index.sessions.length, 20);
+});
+
+test("dashboard session index prefers resolved session title for labels", async () => {
+  const root = join(tmpdir(), `token-profiler-dashboard-title-${Date.now()}`);
+  await writeRun(root, "codex-019ef64d-7666-7ba3-a9d6-ac0fe4cd2341", [
+    artifact("req_1", "FILE:title", "FILE", "title.ts", "h-title", 2, 0, 2),
+    usage("req_1", 2, 0)
+  ]);
+
+  const index = await createDashboardSessionIndex(root, {
+    sessionTitleLookup: async (sessions) => new Map(sessions.map((session) => [session.run_id, "Improve dashboard labels"]))
+  });
+
+  assert.equal(index.sessions[0].label, "Improve dashboard labels");
+  assert.equal(index.sessions[0].run_id, "run_test");
 });
 
 test("dashboard session index marks unreadable runs", async () => {

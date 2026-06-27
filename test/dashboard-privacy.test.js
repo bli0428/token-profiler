@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createDashboardViewModel } from "../src/surfaces/dashboard/model.ts";
+import { createDashboardViewModel } from "../src/surfaces/dashboard-api/view-model.ts";
 import { dashboardSummary, metadataOnlyLeakSummary } from "./helpers/dashboard-fixtures.js";
 
 test("metadata-only dashboard model excludes hidden preview text from safe client data", () => {

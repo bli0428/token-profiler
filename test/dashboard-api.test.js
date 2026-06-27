@@ -15,6 +15,7 @@ test("dashboard API status advertises local read-only contract", async () => {
   assert.equal(response.body.data.read_only, true);
   assert.equal(response.body.data.local_only, true);
   assert.equal(response.body.data.capabilities.refresh, "request");
+  assert.equal(response.headers["access-control-allow-origin"], "http://127.0.0.1:5173");
 });
 
 test("dashboard API sessions return safe recent summaries", async () => {
@@ -30,6 +31,24 @@ test("dashboard API sessions return safe recent summaries", async () => {
   assert.equal(response.body.data.sessions[0].canonical_run_id, "run_test");
   assert.equal(response.body.data.sessions[0].artifact_count, 1);
   assert.equal("run_dir" in response.body.data.sessions[0], false);
+});
+
+test("dashboard API labels cache-key sessions with resolved session titles", async () => {
+  const root = tempRoot("title");
+  const runId = "codex-cache-9906b655adce8b87";
+  await writeRun(root, runId, [
+    artifact("req_1", "FILE:cache", "FILE", "cache.ts", "h-cache", 3, 0, 3),
+    usage("req_1", 3, 0)
+  ]);
+
+  const response = await handleDashboardApiRequest("GET", "/api/sessions", {
+    rootDir: root,
+    sessionTitleLookup: async () => new Map([[runId, "Clean up dashboard surface"]])
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.data.sessions[0].run_id, runId);
+  assert.equal(response.body.data.sessions[0].label, "Clean up dashboard surface");
 });
 
 test("dashboard API session run_id is routable to the run endpoint", async () => {

@@ -17,8 +17,13 @@ test("analysis modules do not import provider-specific adapter, ingest, or surfa
   }
 });
 
-test("dashboard surface modules do not import provider-specific adapter code", async () => {
-  const files = await listJavaScriptFiles(join(SRC_ROOT, "surfaces", "dashboard"));
+test("dashboard API projection modules do not import provider-specific adapter code", async () => {
+  const files = [
+    join(SRC_ROOT, "surfaces", "dashboard-api", "view-model.ts"),
+    join(SRC_ROOT, "surfaces", "dashboard-api", "privacy.ts"),
+    join(SRC_ROOT, "surfaces", "dashboard-api", "sessions.ts"),
+    join(SRC_ROOT, "surfaces", "dashboard-api", "view-model-types.ts")
+  ];
   for (const file of files) {
     const source = await readFile(file, "utf8");
     assert.doesNotMatch(
@@ -51,6 +56,7 @@ test("dashboard API contract types do not depend on sibling surface DTOs", async
 });
 
 test("static string-rendered dashboard surface is retired", async () => {
+  await assert.rejects(access(join(SRC_ROOT, "surfaces", "dashboard")));
   await assert.rejects(access(join(SRC_ROOT, "surfaces", "dashboard", "assets.ts")));
   await assert.rejects(access(join(SRC_ROOT, "surfaces", "dashboard", "render.ts")));
   await assert.rejects(access(join(SRC_ROOT, "surfaces", "html-report.ts")));

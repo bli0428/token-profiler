@@ -5,9 +5,9 @@ import type {
   ToolCallLink
 } from "../../analysis/types.ts";
 
-export type DashboardCaveat = AnalysisCaveat;
+export type DashboardViewCaveat = AnalysisCaveat;
 
-export type DashboardSession = {
+export type DashboardViewSession = {
   run_id: string;
   run_dir: string;
   label?: string;
@@ -19,20 +19,20 @@ export type DashboardSession = {
   uncached_input_tokens?: number | undefined;
   output_tokens?: number | undefined;
   availability: AnalyzerAvailability;
-  caveats: DashboardCaveat[];
+  caveats: DashboardViewCaveat[];
 };
 
-export type DashboardPrivacyState = {
+export type DashboardViewPrivacyState = {
   storage_mode: string;
   raw_content_available: boolean;
   raw_content_revealed: boolean;
   preview_fields: string[];
   hidden_fields: string[];
   unavailable_fields: string[];
-  caveats: DashboardCaveat[];
+  caveats: DashboardViewCaveat[];
 };
 
-export type DashboardRunOverview = {
+export type DashboardViewRunOverview = {
   scope: "run" | "task_group";
   scope_id?: string | undefined;
   scope_label: string;
@@ -48,10 +48,10 @@ export type DashboardRunOverview = {
   context_efficiency?: number | undefined;
   attribution_coverage?: number | "partial" | "unavailable" | undefined;
   availability: AnalyzerAvailability;
-  caveats: DashboardCaveat[];
+  caveats: DashboardViewCaveat[];
 };
 
-export type DashboardArtifactRow = {
+export type DashboardViewArtifactRow = {
   artifact_id: string;
   stable_short_id: string;
   display_name: string;
@@ -67,10 +67,10 @@ export type DashboardArtifactRow = {
   preview_state: PreviewState;
   detail_available: boolean;
   search_text: string;
-  caveats: DashboardCaveat[];
+  caveats: DashboardViewCaveat[];
 };
 
-export type DashboardMetadataSection = {
+export type DashboardViewMetadataSection = {
   title: string;
   rows: Array<{
     label: string;
@@ -79,7 +79,7 @@ export type DashboardMetadataSection = {
   }>;
 };
 
-export type DashboardArtifactDetail = {
+export type DashboardViewArtifactDetail = {
   artifact_id: string;
   title: string;
   identity: {
@@ -89,19 +89,19 @@ export type DashboardArtifactDetail = {
     request_ids: string[];
   };
   metrics: Record<string, number | string | boolean | undefined>;
-  metadata_sections: DashboardMetadataSection[];
+  metadata_sections: DashboardViewMetadataSection[];
   tool_links: ToolCallLink[];
   task_group_ids: string[];
-  privacy: DashboardPrivacyState;
+  privacy: DashboardViewPrivacyState;
   content?: {
     preview?: string | undefined;
     raw?: string | undefined;
     raw_reveal_required: boolean;
   };
-  caveats: DashboardCaveat[];
+  caveats: DashboardViewCaveat[];
 };
 
-export type DashboardTaskGroup = {
+export type DashboardViewTaskGroup = {
   task_group_id: string;
   display_name: string;
   label_source: string;
@@ -119,11 +119,11 @@ export type DashboardTaskGroup = {
     total_exposure: number;
     repeated_exposure: number;
   };
-  privacy: DashboardPrivacyState;
-  caveats: DashboardCaveat[];
+  privacy: DashboardViewPrivacyState;
+  caveats: DashboardViewCaveat[];
 };
 
-export type DashboardFilterOptions = {
+export type DashboardViewFilterOptions = {
   categories: string[];
   task_groups: Array<{ task_group_id: string; display_name: string }>;
   default_sort: "estimated_uncached" | "total_exposure" | "repeated_exposure" | "inclusion_count";
@@ -134,19 +134,19 @@ export type DashboardViewModel = {
   schema_version: 1;
   run_id?: string | undefined;
   generated_at: string;
-  session?: DashboardSession;
-  overview: DashboardRunOverview;
-  artifacts: DashboardArtifactRow[];
-  artifact_details: Record<string, DashboardArtifactDetail>;
-  task_groups: DashboardTaskGroup[];
-  filters: DashboardFilterOptions;
-  privacy: DashboardPrivacyState;
-  caveats: DashboardCaveat[];
+  session?: DashboardViewSession;
+  overview: DashboardViewRunOverview;
+  artifacts: DashboardViewArtifactRow[];
+  artifact_details: Record<string, DashboardViewArtifactDetail>;
+  task_groups: DashboardViewTaskGroup[];
+  filters: DashboardViewFilterOptions;
+  privacy: DashboardViewPrivacyState;
+  caveats: DashboardViewCaveat[];
 };
 
-export type DashboardSessionIndex = {
+export type DashboardViewSessionIndex = {
   schema_version: 1;
   generated_at: string;
-  sessions: DashboardSession[];
-  caveats: DashboardCaveat[];
+  sessions: DashboardViewSession[];
+  caveats: DashboardViewCaveat[];
 };

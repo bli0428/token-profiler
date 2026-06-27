@@ -155,7 +155,7 @@ Commands:
   explain [run_dir] --artifact <artifact-name-or-id>
     Show details and first inclusions for one artifact.
 
-  dashboard-api serve [--port <port>] [--host <host>] [--data-dir <path>] [--origin <origin>]
+  dashboard-api serve [--port <port>] [--host <host>] [--data-dir <path>] [--origin <origin>] [--codex-home <path>] [--no-codex]
     Start the local read-only dashboard HTTP API for the isolated dashboard app.
 
   sessions [--limit <count>] [--data-dir <path>] [--codex-home <path>] [--no-codex]

@@ -1,17 +1,24 @@
 import { statSync } from "node:fs";
 import { readdir } from "node:fs/promises";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
-import type { DashboardSession, DashboardSessionIndex } from "./types.ts";
+import type { DashboardViewSession, DashboardViewSessionIndex } from "./view-model-types.ts";
 
-export async function createDashboardSessionIndex(rootDir: string, { limit = 20 }: { limit?: number } = {}): Promise<DashboardSessionIndex> {
+export type DashboardSessionTitleLookup = (
+  sessions: Array<{ run_id: string; updated_at: Date }>
+) => Promise<Map<string, string>>;
+
+export async function createDashboardSessionIndex(
+  rootDir: string,
+  { limit = 20, sessionTitleLookup }: { limit?: number; sessionTitleLookup?: DashboardSessionTitleLookup | undefined } = {}
+): Promise<DashboardViewSessionIndex> {
   const runsDir = join(rootDir, "runs");
   const entries = await readdir(runsDir, { withFileTypes: true }).catch((error) => {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;
   });
-  const sessions: DashboardSession[] = [];
+  const sessions: DashboardViewSession[] = [];
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
@@ -21,10 +28,11 @@ export async function createDashboardSessionIndex(rootDir: string, { limit = 20 
 
     try {
       const summary = analyzeEvents(await readEventsFromRunDir(runDir));
+      const runId = summary.run_id ?? entry.name;
       sessions.push({
-        run_id: summary.run_id ?? entry.name,
+        run_id: runId,
         run_dir: runDir,
-        label: summary.run_id ?? entry.name,
+        label: runId,
         updated_at: stat.mtime.toISOString(),
         request_count: summary.requests.length,
         artifact_count: summary.artifacts.length,
@@ -54,6 +62,8 @@ export async function createDashboardSessionIndex(rootDir: string, { limit = 20 
     }
   }
 
+  await applySessionTitles(sessions, sessionTitleLookup);
+
   sessions.sort((a, b) =>
     String(b.updated_at ?? "").localeCompare(String(a.updated_at ?? ""))
     || a.run_id.localeCompare(b.run_id)
@@ -70,4 +80,30 @@ export async function createDashboardSessionIndex(rootDir: string, { limit = 20 
 function numberValue(value: unknown): number | undefined {
   const number = Number(value);
   return Number.isFinite(number) ? number : undefined;
+}
+
+async function applySessionTitles(
+  sessions: DashboardViewSession[],
+  sessionTitleLookup: DashboardSessionTitleLookup | undefined
+): Promise<void> {
+  if (!sessionTitleLookup || sessions.length === 0) return;
+
+  try {
+    const titlesByRunId = await sessionTitleLookup(
+      sessions
+        .filter((session) => session.updated_at)
+        .map((session) => ({
+          run_id: basename(session.run_dir),
+          updated_at: new Date(String(session.updated_at))
+        }))
+    );
+
+    for (const session of sessions) {
+      session.label = titlesByRunId.get(basename(session.run_dir)) ?? session.label ?? session.run_id;
+    }
+  } catch {
+    for (const session of sessions) {
+      session.label = session.label ?? session.run_id;
+    }
+  }
 }

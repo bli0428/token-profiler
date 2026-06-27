@@ -6,8 +6,8 @@ Represents the modules, commands, tests, and docs involved in the old dashboard 
 
 **Fields**:
 
-- `retainedModelModules`: `src/surfaces/dashboard/model.ts`, `privacy.ts`, `sessions.ts`, and `types.ts`.
-- `removedRendererModules`: `src/surfaces/dashboard/assets.ts`, `render.ts`, and `src/surfaces/html-report.ts`.
+- `retainedModelModules`: `src/surfaces/dashboard-api/view-model.ts`, `privacy.ts`, `sessions.ts`, and `view-model-types.ts`.
+- `removedRendererModules`: all of `src/surfaces/dashboard/` and `src/surfaces/html-report.ts`.
 - `removedCliCommands`: old static `html` and `dashboard` command dispatch.
 - `retainedCliCommands`: `dashboard-api serve`, `summarize`, `legibility`, `explain`, `sessions`, proxy, capture, and import commands.
 - `updatedDocs`: README and CLI help text.

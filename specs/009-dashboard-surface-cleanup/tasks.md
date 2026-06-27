@@ -14,7 +14,7 @@
 
 - [X] T001 Verify spec 008 dashboard package exists with dashboard/src, dashboard/package.json, and dashboard/README.md
 - [X] T002 Inventory live static dashboard imports in src/, test/, and README.md
-- [X] T003 Confirm dashboard API still imports dashboard-safe model/session code only through src/surfaces/dashboard/model.ts and src/surfaces/dashboard/sessions.ts
+- [X] T003 Confirm dashboard API imports dashboard-safe model/session code from API-owned modules
 
 ---
 
@@ -54,7 +54,7 @@
 
 ### Tests for User Story 2
 
-- [X] T011 [P] [US2] Keep dashboard model and session tests focused on src/surfaces/dashboard/model.ts, privacy.ts, sessions.ts, and types.ts
+- [X] T011 [P] [US2] Keep dashboard model and session tests focused on src/surfaces/dashboard-api/view-model.ts, privacy.ts, sessions.ts, and view-model-types.ts
 - [X] T012 [P] [US2] Keep dashboard API privacy tests proving hidden raw content is excluded from API responses
 
 ### Implementation for User Story 2

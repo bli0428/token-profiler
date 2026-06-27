@@ -1,5 +1,5 @@
 import type { AnalysisCaveat, PreviewState } from "../../analysis/types.ts";
-import type { DashboardPrivacyState } from "./types.ts";
+import type { DashboardViewPrivacyState } from "./view-model-types.ts";
 
 const SENSITIVE_PATTERNS = [
   /raw/i,
@@ -25,7 +25,7 @@ export function dashboardPrivacyState({
   unavailableFields?: string[];
   caveats?: AnalysisCaveat[];
   rawRevealed?: boolean;
-}): DashboardPrivacyState {
+}): DashboardViewPrivacyState {
   const normalizedMode = storageMode || "metadata";
   const hidden = unique([
     ...hiddenFields,
@@ -42,14 +42,14 @@ export function dashboardPrivacyState({
   };
 }
 
-export function safeDisplayText(value: unknown, privacy: DashboardPrivacyState, field = "value"): string | undefined {
+export function safeDisplayText(value: unknown, privacy: DashboardViewPrivacyState, field = "value"): string | undefined {
   if (value === undefined || value === null) return undefined;
   if (privacy.hidden_fields.includes(field) || shouldHideField(field, privacy)) return undefined;
   const text = String(value);
   return text.length > 0 ? text : undefined;
 }
 
-export function safeSearchText(values: Array<unknown>, privacy: DashboardPrivacyState): string {
+export function safeSearchText(values: Array<unknown>, privacy: DashboardViewPrivacyState): string {
   if (privacy.storage_mode === "metadata") {
     return values
       .filter((value): value is string => typeof value === "string")
@@ -69,7 +69,7 @@ export function safeSearchText(values: Array<unknown>, privacy: DashboardPrivacy
 export function metadataRow(
   label: string,
   value: unknown,
-  privacy: DashboardPrivacyState,
+  privacy: DashboardViewPrivacyState,
   field = label.toLowerCase().replace(/\s+/g, "_")
 ) {
   if (privacy.hidden_fields.includes(field) || shouldHideField(field, privacy)) {
@@ -81,7 +81,7 @@ export function metadataRow(
   return { label, value: text, visibility: "visible" as const };
 }
 
-function shouldHideField(field: string, privacy: DashboardPrivacyState): boolean {
+function shouldHideField(field: string, privacy: DashboardViewPrivacyState): boolean {
   if (privacy.storage_mode !== "metadata") return false;
   return SENSITIVE_PATTERNS.some((pattern) => pattern.test(field));
 }

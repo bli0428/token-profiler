@@ -2,12 +2,14 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { handleDashboardApiRequest } from "./routes.ts";
+import type { DashboardSessionTitleLookup } from "./sessions.ts";
 
 export type DashboardApiServerOptions = {
   rootDir?: string | undefined;
   host?: string | undefined;
   port?: number | undefined;
   origin?: string | undefined;
+  sessionTitleLookup?: DashboardSessionTitleLookup | undefined;
   log?: (message: string) => void;
 };
 
@@ -19,7 +21,8 @@ export async function startDashboardApiServer(options: DashboardApiServerOptions
   const server = createServer(async (request: IncomingMessage, response: ServerResponse) => {
     const result = await handleDashboardApiRequest(request.method ?? "GET", request.url ?? "/", {
       rootDir,
-      origin: options.origin
+      origin: options.origin,
+      sessionTitleLookup: options.sessionTitleLookup
     });
 
     response.writeHead(result.status, result.headers);

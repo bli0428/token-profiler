@@ -2,8 +2,8 @@ import { stat } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
-import { createDashboardViewModel } from "../dashboard/model.ts";
-import { createDashboardSessionIndex } from "../dashboard/sessions.ts";
+import { createDashboardSessionIndex, type DashboardSessionTitleLookup } from "./sessions.ts";
+import { createDashboardViewModel } from "./view-model.ts";
 import { DashboardApiRouteError } from "./errors.ts";
 import {
   DASHBOARD_API_SCHEMA_VERSION,
@@ -38,7 +38,7 @@ export function createStatusResponse(rootDir: string): DashboardApiStatus {
 
 export async function createSessionsResponse(
   rootDir: string,
-  options: { limit?: number } = {}
+  options: { limit?: number; sessionTitleLookup?: DashboardSessionTitleLookup | undefined } = {}
 ): Promise<{ sessions: DashboardApiSession[] }> {
   const index = await createDashboardSessionIndex(rootDir, options);
   return {

@@ -6,7 +6,7 @@
 
 ## Summary
 
-Retire the old string-rendered static dashboard surface now that the dashboard API and isolated `dashboard/` frontend exist. Preserve dashboard-safe model/session transformation code that the API still uses, but remove embedded browser asset/rendering modules, old static HTML report exports, and stale CLI/documentation paths that tell users to generate dashboard HTML files.
+Retire the old string-rendered static dashboard surface now that the dashboard API and isolated `dashboard/` frontend exist. Move dashboard-safe model/session transformation code into the dashboard API surface, remove embedded browser asset/rendering modules, old static HTML report exports, and stale CLI/documentation paths that tell users to generate dashboard HTML files.
 
 This cleanup keeps the supported dashboard workflow local-first and read-only: start `dashboard-api serve`, then run the isolated dashboard app. Non-dashboard CLI report workflows remain intact.
 
@@ -26,7 +26,7 @@ This cleanup keeps the supported dashboard workflow local-first and read-only: s
 
 **Performance Goals**: No new runtime performance target. Existing API and dashboard app validation remain the performance guardrails.
 
-**Constraints**: Do not remove dashboard-safe model, privacy, session, or type code still used by the dashboard API. Do not make root code import `dashboard/src`. Do not change capture, adapters, canonical store, analyzer behavior, or dashboard API response contracts. Preserve privacy no-leak guarantees and attribution caveats.
+**Constraints**: Keep dashboard-safe model, privacy, session, and type behavior still used by the dashboard API under `src/surfaces/dashboard-api/`. Do not make root code import `dashboard/src`. Do not change capture, adapters, canonical store, analyzer behavior, or dashboard API response contracts. Preserve privacy no-leak guarantees and attribution caveats.
 
 **Scale/Scope**: Remove static string-rendering surface modules and stale CLI/documentation workflows. Keep `dashboard-api serve`, analyzer/CLI textual reports, dashboard API tests, and isolated dashboard package intact.
 
@@ -38,7 +38,7 @@ This cleanup keeps the supported dashboard workflow local-first and read-only: s
 - **Architecture boundaries**: Pass if root source does not import frontend code and static rendering modules are removed without touching adapters/store/analyzers.
 - **Explainability over raw numbers**: Pass. Dashboard API/app still expose caveats, artifacts, task groups, and details.
 - **Documentation separation**: Pass. Technical cleanup details live in plan/contracts/tasks.
-- **Code organization**: Pass if retained dashboard-safe model code remains separate from API and CLI orchestration.
+- **Code organization**: Pass if retained dashboard-safe projection code is owned by the API surface and remains separate from CLI orchestration.
 
 ## Project Structure
 
@@ -68,12 +68,8 @@ src/
 │   │   ├── index.ts                 # remove old html/dashboard command dispatch
 │   │   ├── report-commands.ts       # remove static dashboard command handlers
 │   │   └── utils.ts                 # update help text to API/app workflow
-│   ├── dashboard/
-│   │   ├── model.ts                 # retained: dashboard-safe model for API
-│   │   ├── privacy.ts               # retained: privacy display/model policy
-│   │   ├── sessions.ts              # retained: session summaries for API
-│   │   └── types.ts                 # retained: dashboard-safe model types
-│   ├── dashboard-api/               # retained
+│   ├── dashboard/                   # removed after projection code moves to dashboard-api
+│   ├── dashboard-api/               # retained; owns API and dashboard-safe projections
 │   └── html-report.ts               # removed
 test/
 ├── dashboard-api*.test.js           # retained
@@ -86,13 +82,13 @@ test/
 README.md                           # update dashboard workflow docs
 ```
 
-**Structure Decision**: Treat `src/surfaces/dashboard/` as the retained dashboard-safe model package for now because the API depends on it. Retire only the string-rendered browser surface: `assets.ts`, `render.ts`, `html-report.ts`, old CLI commands, and tests/docs that validate static HTML files as the supported dashboard.
+**Structure Decision**: Treat `src/surfaces/dashboard-api/` as the owner of dashboard-safe projection/session code. Retire the whole old `src/surfaces/dashboard/` directory after moving `model.ts`, `privacy.ts`, `sessions.ts`, and internal view-model types into API-owned modules. Retire the string-rendered browser surface: `assets.ts`, `render.ts`, `html-report.ts`, old CLI commands, and tests/docs that validate static HTML files as the supported dashboard.
 
 ## Architectural Pass
 
 Implementation should avoid these shortcuts:
 
-- Do not delete `model.ts`, `privacy.ts`, `sessions.ts`, or `types.ts` while `dashboard-api` imports them.
+- Do not delete dashboard projection/session behavior; move it into `dashboard-api` before deleting `src/surfaces/dashboard/`.
 - Do not move dashboard-safe model code into the top-level `dashboard/` frontend package.
 - Do not preserve obsolete static renderer modules as compatibility shims.
 - Do not leave CLI help advertising static dashboard HTML generation as the supported dashboard workflow.
@@ -115,7 +111,7 @@ See [data-model.md](./data-model.md), [contracts/dashboard-surface-cleanup.md](.
 - **Architecture boundaries**: Pass. No root source imports the isolated dashboard frontend.
 - **Explainability over raw numbers**: Pass. API/app remain the supported explanatory dashboard path.
 - **Documentation separation**: Pass. User-facing README receives workflow guidance; cleanup mechanics stay here.
-- **Code organization**: Pass. Static rendering modules are removed instead of kept as stale compatibility wrappers.
+- **Code organization**: Pass. Static rendering modules are removed instead of kept as stale compatibility wrappers, and dashboard-safe projection code is owned by the API surface that consumes it.
 
 ## Complexity Tracking
 

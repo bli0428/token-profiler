@@ -6,10 +6,12 @@ import {
   createStatusResponse
 } from "./responses.ts";
 import type { DashboardApiResponse } from "./types.ts";
+import type { DashboardSessionTitleLookup } from "./sessions.ts";
 
 export type DashboardApiRouteOptions = {
   rootDir: string;
   origin?: string | undefined;
+  sessionTitleLookup?: DashboardSessionTitleLookup | undefined;
 };
 
 export async function handleDashboardApiRequest(
@@ -43,7 +45,10 @@ export async function handleDashboardApiRequest(
       const limit = parseLimit(url.searchParams.get("limit"));
       return {
         status: 200,
-        body: envelope(await createSessionsResponse(options.rootDir, limit === undefined ? {} : { limit })),
+        body: envelope(await createSessionsResponse(options.rootDir, {
+          ...(limit === undefined ? {} : { limit }),
+          ...(options.sessionTitleLookup === undefined ? {} : { sessionTitleLookup: options.sessionTitleLookup })
+        })),
         headers
       };
     }
@@ -81,7 +86,7 @@ function parseLimit(value: string | null): number | undefined {
 function responseHeaders(origin: string | undefined): Record<string, string> {
   return {
     "content-type": "application/json; charset=utf-8",
-    "access-control-allow-origin": origin ?? "http://127.0.0.1",
+    "access-control-allow-origin": origin ?? "http://127.0.0.1:5173",
     "access-control-allow-methods": "GET, OPTIONS",
     "access-control-allow-headers": "content-type"
   };

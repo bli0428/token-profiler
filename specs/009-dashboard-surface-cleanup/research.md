@@ -1,13 +1,13 @@
 # Research: Current Dashboard Surface Cleanup
 
-## Decision: Preserve dashboard-safe model/session code
+## Decision: Move dashboard-safe model/session code into the API surface
 
-**Rationale**: The dashboard API still imports `createDashboardViewModel` and `createDashboardSessionIndex`. Those modules adapt analyzer outputs into privacy-safe dashboard records and are not themselves the obsolete string-rendered browser surface.
+**Rationale**: The dashboard API still needs `createDashboardViewModel` and `createDashboardSessionIndex`, but those modules adapt analyzer outputs into privacy-safe API-facing records and are not a standalone dashboard surface. Owning them under `src/surfaces/dashboard-api/` removes the misleading `src/surfaces/dashboard/` package without duplicating behavior.
 
 **Alternatives considered**:
 
-- Delete all of `src/surfaces/dashboard/`: rejected because it would break the dashboard API and discard useful privacy-safe mapping.
-- Move model code into `dashboard-api/`: possible later, but unnecessary for this cleanup and would expand blast radius.
+- Delete all of `src/surfaces/dashboard/` without moving behavior: rejected because it would break the dashboard API and discard useful privacy-safe mapping.
+- Keep model code under `src/surfaces/dashboard/`: rejected because it preserves a misleading surface boundary after the React app and API split.
 
 ## Decision: Remove embedded static browser renderer modules
 

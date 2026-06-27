@@ -12,15 +12,15 @@ VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.
 
 The root package owns the local read-only API. The `dashboard/` package owns the browser app.
 
-## Retained Root Dashboard Surface
+## Retained Dashboard API Projection
 
-The root source may retain dashboard-safe model modules used by the API:
+The root source retains dashboard-safe projection modules under the API surface:
 
 ```text
-src/surfaces/dashboard/model.ts
-src/surfaces/dashboard/privacy.ts
-src/surfaces/dashboard/sessions.ts
-src/surfaces/dashboard/types.ts
+src/surfaces/dashboard-api/view-model.ts
+src/surfaces/dashboard-api/privacy.ts
+src/surfaces/dashboard-api/sessions.ts
+src/surfaces/dashboard-api/view-model-types.ts
 ```
 
 Rules:
@@ -36,6 +36,7 @@ The following are not supported after cleanup:
 ```text
 src/surfaces/dashboard/assets.ts
 src/surfaces/dashboard/render.ts
+src/surfaces/dashboard/
 src/surfaces/html-report.ts
 token-profiler html ...
 token-profiler dashboard ...
