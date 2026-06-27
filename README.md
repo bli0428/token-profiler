@@ -34,6 +34,14 @@ cd dashboard
 VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
+Refresh dashboard API-real contract fixtures from `dashboard/` after starting
+the API with safe fixture data:
+
+```bash
+npm run fixtures:capture -- --api http://127.0.0.1:8788 --run-id <run-id> --artifact-id <artifact-id>
+npm run test:contracts
+```
+
 ## Agent Integration
 
 ```js

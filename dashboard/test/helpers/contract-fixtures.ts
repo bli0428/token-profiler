@@ -8,12 +8,43 @@ import type {
   SessionsResponse,
   StatusResponse
 } from "../../src/api/types";
+import source from "../fixtures/api-real/source.json";
 import status from "../fixtures/api-real/status.json";
 import sessions from "../fixtures/api-real/sessions.json";
 import run from "../fixtures/api-real/run.json";
 import artifactDetail from "../fixtures/api-real/artifact-detail.json";
 
+export type ApiRealFixtureSource = {
+  api_origin: string;
+  captured_at: string;
+  capture_tool: string;
+  endpoints: Record<string, { method: string; path: string; file: string }>;
+  normalization: {
+    json: string;
+    volatile_fields: string[];
+  };
+  requested: {
+    sessions_limit: number;
+    run_id: string | null;
+    artifact_id: string | null;
+  };
+  selected: {
+    run_id: string;
+    run_selection: string;
+    artifact_id: string;
+    artifact_selection: string;
+  };
+  validation: {
+    api_ready: boolean;
+    local_only: boolean;
+    read_only: boolean;
+    supported_schema_version: number;
+    hidden_raw_content_scan: string;
+  };
+};
+
 export const apiRealFixtures = {
+  source: source as ApiRealFixtureSource,
   status: status as unknown as StatusResponse,
   sessions: sessions as unknown as SessionsResponse,
   run: run as unknown as RunResponse,
@@ -68,5 +99,58 @@ export function assertArtifactDetailData(data: DashboardArtifactDetail) {
   expect(Array.isArray(data.metadata_sections)).toBe(true);
   if (!data.privacy.raw_content_available) {
     expect(data.content?.raw).toBeUndefined();
+  }
+}
+
+export function assertSourceMetadata(sourceMetadata: ApiRealFixtureSource) {
+  expect(sourceMetadata.capture_tool).toBe("dashboard/scripts/capture-api-fixtures.ts");
+  expect(sourceMetadata.api_origin).toMatch(/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/);
+  expect(Date.parse(sourceMetadata.captured_at)).not.toBeNaN();
+  expect(sourceMetadata.requested.sessions_limit).toBe(20);
+  expect(sourceMetadata.validation).toEqual(
+    expect.objectContaining({
+      api_ready: true,
+      local_only: true,
+      read_only: true,
+      supported_schema_version: 1
+    })
+  );
+  expect(sourceMetadata.normalization.volatile_fields).toEqual(expect.arrayContaining([expect.stringContaining("generated_at")]));
+  expect(sourceMetadata.endpoints).toEqual(
+    expect.objectContaining({
+      status: expect.objectContaining({ method: "GET", path: "/api/status", file: "status.json" }),
+      sessions: expect.objectContaining({ method: "GET", path: "/api/sessions?limit=20", file: "sessions.json" }),
+      run: expect.objectContaining({ method: "GET", file: "run.json" }),
+      artifact_detail: expect.objectContaining({ method: "GET", file: "artifact-detail.json" })
+    })
+  );
+}
+
+export function assertBaselineRelationships(fixtures = apiRealFixtures) {
+  expect(fixtures.run.data.run_id).toBe(fixtures.source.selected.run_id);
+  expect(fixtures.artifactDetail.data.artifact_id).toBe(fixtures.source.selected.artifact_id);
+  expect(fixtures.run.data.artifacts.some((artifact) => artifact.artifact_id === fixtures.artifactDetail.data.artifact_id)).toBe(true);
+  expect(fixtures.source.endpoints.run.path).toBe(`/api/runs/${encodeURIComponent(fixtures.source.selected.run_id)}`);
+  expect(fixtures.source.endpoints.artifact_detail.path).toBe(
+    `/api/runs/${encodeURIComponent(fixtures.source.selected.run_id)}/artifacts/${encodeURIComponent(fixtures.source.selected.artifact_id)}`
+  );
+}
+
+export function assertNoGeneratedRawContent(value: unknown) {
+  const offenders: string[] = [];
+  collectRawContentStrings(value, "$", offenders);
+  expect(offenders).toEqual([]);
+}
+
+function collectRawContentStrings(value: unknown, path: string, offenders: string[]) {
+  if (!value || typeof value !== "object") return;
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => collectRawContentStrings(item, `${path}[${index}]`, offenders));
+    return;
+  }
+  for (const [key, nested] of Object.entries(value)) {
+    const nestedPath = `${path}.${key}`;
+    if (key === "raw" && typeof nested === "string" && nested.length > 0) offenders.push(nestedPath);
+    collectRawContentStrings(nested, nestedPath, offenders);
   }
 }

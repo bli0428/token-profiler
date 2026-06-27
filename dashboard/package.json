@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:contracts": "vitest run src/test/contract-fixtures.test.ts src/test/api-client.test.ts",
+    "test:contracts": "vitest run src/test/contract-fixtures.test.ts src/test/api-client.test.ts src/test/privacy-fixture-safety.test.ts",
     "test:boundaries": "vitest run src/test/import-boundary.test.ts src/test/package-boundary.test.ts",
     "test:styles": "vitest run src/test/style-boundary.test.ts",
     "fixtures:capture": "tsx scripts/capture-api-fixtures.ts"

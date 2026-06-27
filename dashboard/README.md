@@ -68,8 +68,19 @@ API-real baseline fixtures live in `test/fixtures/api-real/` and are validated b
 Capture fresh API-real fixtures over HTTP only:
 
 ```bash
-npm run fixtures:capture -- --api http://127.0.0.1:8788 --run <run-id> --artifact <artifact-id>
+npm run fixtures:capture -- --api http://127.0.0.1:8788 --run-id <run-id> --artifact-id <artifact-id>
 ```
+
+The capture command fails unless the API reports ready, local-only, read-only schema version 1 responses. It writes `source.json` beside the baseline fixtures with the selected run/artifact IDs, endpoint paths, validation results, and volatile-field notes. If `--run-id` or `--artifact-id` is omitted, the command selects the first session run and first detail-available artifact and records that selection policy in `source.json`.
+
+Review fixture refreshes before committing:
+
+```bash
+git diff -- test/fixtures/api-real
+npm run test:contracts
+```
+
+Meaningful diffs should be endpoint shape, caveat, privacy, schema, or field changes. Timestamp churn is expected only in API `generated_at` fields and `source.json` capture metadata.
 
 ## Isolation Rules
 

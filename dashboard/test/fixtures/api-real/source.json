@@ -1,0 +1,52 @@
+{
+  "api_origin": "http://127.0.0.1:8788",
+  "capture_tool": "dashboard/scripts/capture-api-fixtures.ts",
+  "captured_at": "2026-06-27T01:41:27.000Z",
+  "endpoints": {
+    "artifact_detail": {
+      "file": "artifact-detail.json",
+      "method": "GET",
+      "path": "/api/runs/codex-cache-da1ec74b3a82b48a/artifacts/USER_MESSAGE%3Amessage%3Auser%3A6%3A16"
+    },
+    "run": {
+      "file": "run.json",
+      "method": "GET",
+      "path": "/api/runs/codex-cache-da1ec74b3a82b48a"
+    },
+    "sessions": {
+      "file": "sessions.json",
+      "method": "GET",
+      "path": "/api/sessions?limit=20"
+    },
+    "status": {
+      "file": "status.json",
+      "method": "GET",
+      "path": "/api/status"
+    }
+  },
+  "normalization": {
+    "json": "Objects are written with stable sorted keys and two-space indentation.",
+    "volatile_fields": [
+      "generated_at is preserved in API payloads",
+      "captured_at is recorded in this source metadata file"
+    ]
+  },
+  "requested": {
+    "artifact_id": "USER_MESSAGE:message:user:6:16",
+    "run_id": "codex-cache-da1ec74b3a82b48a",
+    "sessions_limit": 20
+  },
+  "selected": {
+    "artifact_id": "USER_MESSAGE:message:user:6:16",
+    "artifact_selection": "explicit",
+    "run_id": "codex-cache-da1ec74b3a82b48a",
+    "run_selection": "explicit"
+  },
+  "validation": {
+    "api_ready": true,
+    "hidden_raw_content_scan": "No generated baseline fixture contains a string content.raw value.",
+    "local_only": true,
+    "read_only": true,
+    "supported_schema_version": 1
+  }
+}

@@ -14,13 +14,13 @@
 
 **Purpose**: Confirm prerequisite features are complete and audit the fixture locations established by spec 008.
 
-- [ ] T001 Verify spec 007 dashboard API implementation and tests are complete by reviewing specs/007-dashboard-api-surface/tasks.md and package.json before starting this feature
-- [ ] T002 Verify spec 008 isolated dashboard frontend implementation and tests are complete by reviewing specs/008-dashboard-frontend-app/tasks.md and dashboard/package.json before starting this feature
-- [ ] T003 Verify dashboard/test/fixtures/api-real/ exists for generated API-real baseline fixtures
-- [ ] T004 Verify dashboard/test/fixtures/edge-fixtures.ts and dashboard/test/fixtures/large-run-fixture.ts exist for curated edge fixtures
+- [X] T001 Verify spec 007 dashboard API implementation and tests are complete by reviewing specs/007-dashboard-api-surface/tasks.md and package.json before starting this feature
+- [X] T002 Verify spec 008 isolated dashboard frontend implementation and tests are complete by reviewing specs/008-dashboard-frontend-app/tasks.md and dashboard/package.json before starting this feature
+- [X] T003 Verify dashboard/test/fixtures/api-real/ exists for generated API-real baseline fixtures
+- [X] T004 Verify dashboard/test/fixtures/edge-fixtures.ts and dashboard/test/fixtures/large-run-fixture.ts exist for curated edge fixtures
 - [ ] T005 [P] Create dashboard/src/test/contract-drift.test.ts for baseline fixture consumer tests
 - [ ] T006 [P] Create dashboard/src/test/contract-edge-fixtures.test.ts for edge fixture consumer tests
-- [ ] T007 [P] Create dashboard/src/test/privacy-fixture-safety.test.ts for raw-content leak checks
+- [X] T007 [P] Create dashboard/src/test/privacy-fixture-safety.test.ts for raw-content leak checks
 
 ---
 
@@ -30,18 +30,18 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T008 Define deterministic API-real fixture file names and source metadata shape in dashboard/test/fixtures/api-real/source.json
-- [ ] T009 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/status over HTTP only
-- [ ] T010 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/sessions?limit=20 over HTTP only
-- [ ] T011 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/runs/:runId over HTTP only
-- [ ] T012 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/runs/:runId/artifacts/:artifactId over HTTP only
-- [ ] T013 Verify dashboard/package.json owns the fixtures:capture npm script
-- [ ] T014 Verify dashboard/scripts/capture-api-fixtures.ts validates generated fixture schema-version and readiness
-- [ ] T015 Verify dashboard/scripts/capture-api-fixtures.ts validates generated fixtures for hidden raw-content safety
-- [ ] T016 Verify dashboard/scripts/capture-api-fixtures.ts normalizes or documents volatile metadata handling
-- [ ] T017 [P] Verify dashboard-owned JSON fixture loading helper exists in dashboard/test/helpers/contract-fixtures.ts
-- [ ] T018 [P] Add dashboard-owned fixture parse assertions using duplicated API types in dashboard/src/test/contract-drift.test.ts
-- [ ] T019 Document fixture generation and validation commands in dashboard/README.md
+- [X] T008 Define deterministic API-real fixture file names and source metadata shape in dashboard/test/fixtures/api-real/source.json
+- [X] T009 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/status over HTTP only
+- [X] T010 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/sessions?limit=20 over HTTP only
+- [X] T011 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/runs/:runId over HTTP only
+- [X] T012 Verify dashboard/scripts/capture-api-fixtures.ts captures GET /api/runs/:runId/artifacts/:artifactId over HTTP only
+- [X] T013 Verify dashboard/package.json owns the fixtures:capture npm script
+- [X] T014 Verify dashboard/scripts/capture-api-fixtures.ts validates generated fixture schema-version and readiness
+- [X] T015 Verify dashboard/scripts/capture-api-fixtures.ts validates generated fixtures for hidden raw-content safety
+- [X] T016 Verify dashboard/scripts/capture-api-fixtures.ts normalizes or documents volatile metadata handling
+- [X] T017 [P] Verify dashboard-owned JSON fixture loading helper exists in dashboard/test/helpers/contract-fixtures.ts
+- [X] T018 [P] Add dashboard-owned fixture parse assertions using duplicated API types in dashboard/src/test/contract-drift.test.ts
+- [X] T019 Document fixture generation and validation commands in dashboard/README.md
 
 **Checkpoint**: Baseline fixture generation and dashboard-side fixture loading are ready.
 
@@ -55,20 +55,20 @@
 
 ### Tests for User Story 1
 
-- [ ] T020 [P] [US1] Add status baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
-- [ ] T021 [P] [US1] Add sessions baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
-- [ ] T022 [P] [US1] Add run baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
-- [ ] T023 [P] [US1] Add artifact detail baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
+- [X] T020 [P] [US1] Add status baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
+- [X] T021 [P] [US1] Add sessions baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
+- [X] T022 [P] [US1] Add run baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
+- [X] T023 [P] [US1] Add artifact detail baseline fixture assertions in dashboard/src/test/contract-drift.test.ts
 - [ ] T024 [P] [US1] Add unsupported or missing schema-version failure assertions in dashboard/src/test/contract-drift.test.ts
 
 ### Implementation for User Story 1
 
-- [ ] T025 [US1] Generate dashboard/test/fixtures/api-real/status.json from actual GET /api/status response
-- [ ] T026 [US1] Generate dashboard/test/fixtures/api-real/sessions.json from actual GET /api/sessions?limit=20 response
-- [ ] T027 [US1] Generate dashboard/test/fixtures/api-real/run.json from actual GET /api/runs/:runId response
-- [ ] T028 [US1] Generate dashboard/test/fixtures/api-real/artifact-detail.json from actual GET /api/runs/:runId/artifacts/:artifactId response
-- [ ] T029 [US1] Generate dashboard/test/fixtures/api-real/source.json with safe fixture run metadata and normalization notes
-- [ ] T030 [US1] Wire contract-drift tests into dashboard/package.json test workflow
+- [X] T025 [US1] Generate dashboard/test/fixtures/api-real/status.json from actual GET /api/status response
+- [X] T026 [US1] Generate dashboard/test/fixtures/api-real/sessions.json from actual GET /api/sessions?limit=20 response
+- [X] T027 [US1] Generate dashboard/test/fixtures/api-real/run.json from actual GET /api/runs/:runId response
+- [X] T028 [US1] Generate dashboard/test/fixtures/api-real/artifact-detail.json from actual GET /api/runs/:runId/artifacts/:artifactId response
+- [X] T029 [US1] Generate dashboard/test/fixtures/api-real/source.json with safe fixture run metadata and normalization notes
+- [X] T030 [US1] Wire contract-drift tests into dashboard/package.json test workflow
 
 **Checkpoint**: User Story 1 detects real API/frontend contract drift and is the MVP.
 
@@ -88,7 +88,7 @@
 - [ ] T034 [P] [US2] Add partial and stale run caveat assertions in dashboard/src/test/contract-edge-fixtures.test.ts
 - [ ] T035 [P] [US2] Add metadata-only and hidden content rendering assertions in dashboard/src/test/contract-edge-fixtures.test.ts
 - [ ] T036 [P] [US2] Add large run shape assertions for at least 1,000 artifact rows in dashboard/src/test/contract-edge-fixtures.test.ts
-- [ ] T037 [P] [US2] Add raw prompt, command output, patch, file-content, and message-body absence assertions in dashboard/src/test/privacy-fixture-safety.test.ts
+- [X] T037 [P] [US2] Add raw prompt, command output, patch, file-content, and message-body absence assertions in dashboard/src/test/privacy-fixture-safety.test.ts
 
 ### Implementation for User Story 2
 
@@ -102,7 +102,7 @@
 - [ ] T045 [US2] Add hidden content detail edge case to dashboard/test/fixtures/edge-fixtures.ts
 - [ ] T046 [US2] Add unsupported version edge case to dashboard/test/fixtures/edge-fixtures.ts
 - [ ] T047 [US2] Add large-run edge fixture generator in dashboard/test/fixtures/large-run-fixture.ts
-- [ ] T048 [US2] Wire edge fixture and privacy safety tests into dashboard/package.json test workflow
+- [X] T048 [US2] Wire edge fixture and privacy safety tests into dashboard/package.json test workflow
 
 **Checkpoint**: User Story 2 protects privacy and non-happy-path contract behavior.
 
@@ -116,16 +116,16 @@
 
 ### Tests for User Story 3
 
-- [ ] T049 [P] [US3] Add deterministic fixture formatting test in dashboard/src/test/contract-drift.test.ts
-- [ ] T050 [P] [US3] Add source metadata validation test in dashboard/src/test/contract-drift.test.ts
-- [ ] T051 [P] [US3] Add volatile-field normalization assertions in dashboard/src/test/contract-drift.test.ts
+- [X] T049 [P] [US3] Add deterministic fixture formatting test in dashboard/src/test/contract-drift.test.ts
+- [X] T050 [P] [US3] Add source metadata validation test in dashboard/src/test/contract-drift.test.ts
+- [X] T051 [P] [US3] Add volatile-field normalization assertions in dashboard/src/test/contract-drift.test.ts
 
 ### Implementation for User Story 3
 
-- [ ] T052 [US3] Add fixture refresh instructions and review checklist to dashboard/README.md
-- [ ] T053 [US3] Add root quick command documentation for fixture regeneration in README.md
-- [ ] T054 [US3] Ensure dashboard/scripts/capture-api-fixtures.ts writes stable sorted JSON keys
-- [ ] T055 [US3] Ensure dashboard/scripts/capture-api-fixtures.ts reports changed endpoint files after writing fixtures
+- [X] T052 [US3] Add fixture refresh instructions and review checklist to dashboard/README.md
+- [X] T053 [US3] Add root quick command documentation for fixture regeneration in README.md
+- [X] T054 [US3] Ensure dashboard/scripts/capture-api-fixtures.ts writes stable sorted JSON keys
+- [X] T055 [US3] Ensure dashboard/scripts/capture-api-fixtures.ts reports changed endpoint files after writing fixtures
 
 **Checkpoint**: User Story 3 makes fixture refreshes intentional and reviewable.
 
@@ -135,14 +135,14 @@
 
 **Purpose**: Final validation and documentation checks across API generation and dashboard consumption.
 
-- [ ] T056 [P] Run dashboard import-boundary test from dashboard/package.json
-- [ ] T057 [P] Run dashboard contract drift tests from dashboard/package.json
-- [ ] T058 [P] Run dashboard edge fixture and privacy safety tests from dashboard/package.json
-- [ ] T059 Run dashboard typecheck, tests, and build commands defined in dashboard/package.json
+- [X] T056 [P] Run dashboard import-boundary test from dashboard/package.json
+- [X] T057 [P] Run dashboard contract drift tests from dashboard/package.json
+- [X] T058 [P] Run dashboard edge fixture and privacy safety tests from dashboard/package.json
+- [X] T059 Run dashboard typecheck, tests, and build commands defined in dashboard/package.json
 - [ ] T060 Run dashboard fixtures:capture command defined in dashboard/package.json against safe fixture data
-- [ ] T061 Run root test commands defined in package.json
-- [ ] T062 Verify no dashboard/src/test/ or dashboard/src/ file imports root src/
-- [ ] T063 Verify generated dashboard/test/fixtures/api-real/ and dashboard/test/fixtures/ fixtures contain no private hidden raw content
+- [X] T061 Run root test commands defined in package.json
+- [X] T062 Verify no dashboard/src/test/ or dashboard/src/ file imports root src/
+- [X] T063 Verify generated dashboard/test/fixtures/api-real/ and dashboard/test/fixtures/ fixtures contain no private hidden raw content
 
 ---
 
