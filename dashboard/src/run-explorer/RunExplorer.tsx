@@ -1,5 +1,4 @@
 import type { ArtifactDetailResponse, DashboardRun } from "../api/types";
-import { CaveatList } from "../components/CaveatList";
 import type { DashboardViewState } from "../state/view-state";
 import { filterAndSortArtifacts } from "../utils/run-filters";
 import { ArtifactDetailPanel } from "./ArtifactDetailPanel";
@@ -24,7 +23,6 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
     <section className="run-explorer" aria-label="Run explorer">
       <div className="run-main">
         <RunOverview overview={run.overview} lastUpdatedAt={lastUpdatedAt} />
-        <CaveatList caveats={[...run.caveats, ...detail?.caveats ?? []]} />
         <TaskGroups
           taskGroups={run.task_groups}
           selectedTaskGroupId={viewState.selectedTaskGroupId}
