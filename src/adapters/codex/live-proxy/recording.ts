@@ -7,7 +7,7 @@
  */
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
 import { createRequestUsageEvent } from "../../../core/events/index.ts";
-import { extractResponsesArtifacts } from "./artifacts.ts";
+import { extractResponsesArtifacts, toCaptureRecord } from "./artifacts/index.ts";
 
 /**
  * Parses an encoded request body and records any extracted artifacts.
@@ -56,19 +56,23 @@ export async function recordPayloadArtifacts({
   const artifacts = extractResponsesArtifacts(payload);
   let tokenCursor = 0;
   for (const [artifactIndex, artifact] of artifacts.entries()) {
-    const tokenCount = profiler.tokenCounter(String(artifact.content ?? ""));
+    const record = toCaptureRecord(artifact);
+    const tokenCount = profiler.tokenCounter(String(record.content ?? ""));
     const tokenStart = tokenCursor;
     const tokenEnd = tokenStart + tokenCount;
     tokenCursor = tokenEnd;
 
     await profiler.recordAsync({
       requestId,
-      ...artifact,
+      artifactType: record.artifactType,
+      artifactName: record.artifactName,
+      artifactId: record.artifactId,
+      content: record.content,
       artifactIndex,
       tokenStart,
       tokenEnd,
       metadata: {
-        ...artifact.metadata,
+        ...record.metadata,
         model: typeof payload.model === "string" ? payload.model : undefined,
         request_path: requestPath,
         session_source: sessionSource

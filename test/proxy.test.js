@@ -137,6 +137,22 @@ test("extracts readable metadata for embedded exec custom calls", () => {
   assert.match(artifacts[0].artifactName, /exec: node -e/);
 });
 
+test("extracts unsupported input items as explicit unknown artifacts", () => {
+  const artifacts = extractResponsesArtifacts({
+    input: [
+      {
+        type: "future_input",
+        text: "shape we do not understand yet"
+      }
+    ]
+  });
+
+  assert.equal(artifacts[0].kind, "unknown_input");
+  assert.equal(artifacts[0].metadata.content_kind, "unknown_input");
+  assert.equal(artifacts[0].metadata.provider_type, "future_input");
+  assert.deepEqual(artifacts[0].metadata.observed_keys, ["text", "type"]);
+});
+
 test("joins upstream and incoming paths without duplicating a shared base", () => {
   assert.equal(
     buildUpstreamUrl("https://api.openai.com/v1", "/responses?stream=true").toString(),

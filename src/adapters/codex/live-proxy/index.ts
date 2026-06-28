@@ -5,7 +5,7 @@
  * individual implementation files when wiring the adapter into commands or
  * tests.
  */
-export { extractResponsesArtifacts } from "./artifacts.ts";
+export { extractResponsesArtifacts } from "./artifacts/index.ts";
 export { buildUpstreamUrl } from "./transport.ts";
 export { createProfilerProxy } from "./server.ts";
 export { disableCodexProxyConfig, enableCodexProxyConfig } from "./config.ts";
