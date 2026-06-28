@@ -1,3 +1,10 @@
+/**
+ * Codex CLI configuration helpers for enabling and disabling the live proxy.
+ *
+ * These functions work on config text supplied by the caller. They do not read
+ * or write files directly, which keeps filesystem ownership with the command
+ * layer that invokes them.
+ */
 const PROVIDER_ID = "token-profiler";
 const MARKER = "# Managed by token-profiler; use 'token-profiler codex disable' to restore.";
 
@@ -7,6 +14,15 @@ type CodexProxyState = {
   provider_block?: string;
 };
 
+/**
+ * Adds a managed Token Profiler model provider to a Codex config document.
+ *
+ * @param config - Existing Codex config file contents.
+ * @param proxyUrl - Base URL for the local proxy, written into the provider block.
+ * @param now - Clock value used for the returned enable-state timestamp.
+ * @returns Updated config text and a state object that can later restore the prior provider setting.
+ * @throws When the managed provider block already exists, because overwriting it could lose user edits.
+ */
 export function enableCodexProxyConfig(config: string, proxyUrl: string, now = new Date()) {
   if (new RegExp(`^\\[model_providers\\.${PROVIDER_ID}\\]\\s*$`, "m").test(config)) {
     throw new Error(`Codex provider ${PROVIDER_ID} already exists; refusing to overwrite it.`);
@@ -42,6 +58,14 @@ export function enableCodexProxyConfig(config: string, proxyUrl: string, now = n
   };
 }
 
+/**
+ * Removes the managed Token Profiler provider from a Codex config document.
+ *
+ * @param config - Current Codex config file contents.
+ * @param state - State returned by `enableCodexProxyConfig` when the proxy was enabled.
+ * @returns Config text with the previous model provider restored, or with the inserted provider line removed.
+ * @throws When the managed provider line or provider block no longer matches the saved state.
+ */
 export function disableCodexProxyConfig(config: string, state: CodexProxyState): string {
   if (!state?.managed_line || !config.includes(state.managed_line)) {
     throw new Error("Codex proxy setting changed after enable; refusing to overwrite it.");

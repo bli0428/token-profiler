@@ -1,6 +1,10 @@
 import type {
   AnalysisCaveat,
   AnalyzerAvailability,
+  ProviderRequestUsage,
+  RequestCacheAttributionSummary,
+  RequestUsageAvailability,
+  SessionIdentityMapping,
   PreviewState,
   ToolCallLink
 } from "../../analysis/types.ts";
@@ -11,6 +15,7 @@ export type DashboardViewSession = {
   run_id: string;
   run_dir: string;
   label?: string;
+  identity: SessionIdentityMapping;
   updated_at?: string | undefined;
   request_count?: number | undefined;
   artifact_count?: number | undefined;
@@ -19,6 +24,50 @@ export type DashboardViewSession = {
   uncached_input_tokens?: number | undefined;
   output_tokens?: number | undefined;
   availability: AnalyzerAvailability;
+  caveats: DashboardViewCaveat[];
+};
+
+export type DashboardViewRequestAccounting = {
+  availability: AnalyzerAvailability;
+  summary: {
+    request_count: number;
+    usage_reported_count: number;
+    usage_incomplete_count: number;
+    artifact_inclusion_count: number;
+    highest_total_request_id?: string | undefined;
+    highest_uncached_request_id?: string | undefined;
+  };
+  rows: DashboardViewRequestAccountingRow[];
+  caveats: DashboardViewCaveat[];
+};
+
+export type DashboardViewRequestAccountingRow = {
+  request_id: string;
+  timestamp?: string | undefined;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage | undefined;
+  artifact_count: number;
+  total_local_artifact_tokens: number;
+  cache_attribution?: RequestCacheAttributionSummary | undefined;
+  artifact_inclusions: DashboardViewRequestArtifactInclusion[];
+  caveats: DashboardViewCaveat[];
+};
+
+export type DashboardViewRequestArtifactInclusion = {
+  artifact_id: string;
+  stable_short_id: string;
+  artifact_type: string;
+  display_name: string;
+  display_category: string;
+  request_order: number;
+  local_token_count: number;
+  token_start?: number | undefined;
+  token_end?: number | undefined;
+  estimated_cached_input_tokens?: number | undefined;
+  estimated_uncached_input_tokens?: number | undefined;
+  attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
+  privacy: DashboardViewPrivacyState;
   caveats: DashboardViewCaveat[];
 };
 
@@ -136,6 +185,7 @@ export type DashboardViewModel = {
   generated_at: string;
   session?: DashboardViewSession;
   overview: DashboardViewRunOverview;
+  requests: DashboardViewRequestAccounting;
   artifacts: DashboardViewArtifactRow[];
   artifact_details: Record<string, DashboardViewArtifactDetail>;
   task_groups: DashboardViewTaskGroup[];

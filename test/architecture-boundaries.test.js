@@ -55,6 +55,18 @@ test("dashboard API contract types do not depend on sibling surface DTOs", async
   );
 });
 
+test("request accounting is produced outside the browser dashboard package", async () => {
+  const dashboardFiles = await listJavaScriptFiles("dashboard/src");
+  for (const file of dashboardFiles) {
+    const source = await readFile(file, "utf8");
+    assert.doesNotMatch(
+      source,
+      /from\s+["'][^"']*(?:src\/analysis|analysis\/request-accounting|request-accounting\.ts)[^"']*["']/,
+      `${file} must consume request accounting from the API instead of recomputing it`
+    );
+  }
+});
+
 test("static string-rendered dashboard surface is retired", async () => {
   await assert.rejects(access(join(SRC_ROOT, "surfaces", "dashboard")));
   await assert.rejects(access(join(SRC_ROOT, "surfaces", "dashboard", "assets.ts")));

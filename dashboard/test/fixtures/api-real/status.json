@@ -12,7 +12,8 @@
       "sessions": true,
       "run_view": true,
       "artifact_detail": true,
-      "refresh": "request"
+      "refresh": "request",
+      "request_accounting": true
     }
   },
   "caveats": []

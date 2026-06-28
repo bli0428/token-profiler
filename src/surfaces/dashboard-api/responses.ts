@@ -12,6 +12,9 @@ import {
   type DashboardApiFilterOptions,
   type DashboardApiMetadataSection,
   type DashboardApiPrivacyState,
+  type DashboardApiRequestAccounting,
+  type DashboardApiRequestAccountingRow,
+  type DashboardApiRequestArtifactInclusion,
   type DashboardApiRun,
   type DashboardApiRunOverview,
   type DashboardApiSession,
@@ -31,6 +34,7 @@ export function createStatusResponse(rootDir: string): DashboardApiStatus {
       sessions: true,
       run_view: true,
       artifact_detail: true,
+      request_accounting: true,
       refresh: "request"
     }
   };
@@ -105,6 +109,16 @@ function toApiSession(session: DashboardSessionSource): DashboardApiSession {
     run_id: routableRunId,
     ...(session.run_id !== routableRunId ? { canonical_run_id: session.run_id } : {}),
     ...(session.label !== undefined ? { label: session.label } : {}),
+    identity: {
+      route_run_id: routableRunId,
+      ...(session.identity.canonical_run_id !== undefined ? { canonical_run_id: session.identity.canonical_run_id } : {}),
+      ...(session.identity.codex_session_id !== undefined ? { codex_session_id: session.identity.codex_session_id } : {}),
+      ...(session.identity.codex_conversation_id !== undefined ? { codex_conversation_id: session.identity.codex_conversation_id } : {}),
+      ...(session.identity.codex_label !== undefined ? { codex_label: session.identity.codex_label } : {}),
+      mapping_confidence: session.identity.mapping_confidence,
+      mapping_source: session.identity.mapping_source,
+      limitations: [...session.identity.limitations]
+    },
     ...(session.updated_at !== undefined ? { updated_at: session.updated_at } : {}),
     ...(session.request_count !== undefined ? { request_count: session.request_count } : {}),
     ...(session.artifact_count !== undefined ? { artifact_count: session.artifact_count } : {}),
@@ -124,6 +138,7 @@ function toApiRun(view: DashboardViewSource, runId: string): DashboardApiRun {
     run_id: runId,
     ...(view.run_id && view.run_id !== runId ? { canonical_run_id: view.run_id } : {}),
     overview: toApiOverview(view.overview),
+    requests: toApiRequestAccounting(view.requests),
     artifacts: view.artifacts.map(toApiArtifactRow),
     artifact_details: Object.fromEntries(
       Object.entries(view.artifact_details).map(([artifactId, detail]) => [artifactId, toApiArtifactDetail(detail)])
@@ -132,6 +147,63 @@ function toApiRun(view: DashboardViewSource, runId: string): DashboardApiRun {
     filters: toApiFilters(view.filters),
     privacy: toApiPrivacy(view.privacy),
     caveats: view.caveats
+  };
+}
+
+function toApiRequestAccounting(requests: DashboardViewSource["requests"]): DashboardApiRequestAccounting {
+  return {
+    availability: requests.availability,
+    summary: {
+      request_count: requests.summary.request_count,
+      usage_reported_count: requests.summary.usage_reported_count,
+      usage_incomplete_count: requests.summary.usage_incomplete_count,
+      artifact_inclusion_count: requests.summary.artifact_inclusion_count,
+      ...(requests.summary.highest_total_request_id !== undefined ? { highest_total_request_id: requests.summary.highest_total_request_id } : {}),
+      ...(requests.summary.highest_uncached_request_id !== undefined ? { highest_uncached_request_id: requests.summary.highest_uncached_request_id } : {})
+    },
+    rows: requests.rows.map(toApiRequestAccountingRow),
+    caveats: [...requests.caveats]
+  };
+}
+
+function toApiRequestAccountingRow(row: DashboardViewSource["requests"]["rows"][number]): DashboardApiRequestAccountingRow {
+  return {
+    request_id: row.request_id,
+    ...(row.timestamp !== undefined ? { timestamp: row.timestamp } : {}),
+    chronology_index: row.chronology_index,
+    availability: {
+      status: row.availability.status,
+      usage_status: row.availability.usage_status,
+      attribution_status: row.availability.attribution_status,
+      missing_facts: [...row.availability.missing_facts],
+      limitations: [...row.availability.limitations],
+      ...(row.availability.reason !== undefined ? { reason: row.availability.reason } : {})
+    },
+    ...(row.usage !== undefined ? { usage: { ...row.usage } } : {}),
+    artifact_count: row.artifact_count,
+    total_local_artifact_tokens: row.total_local_artifact_tokens,
+    ...(row.cache_attribution !== undefined ? { cache_attribution: { ...row.cache_attribution } } : {}),
+    artifact_inclusions: row.artifact_inclusions.map(toApiRequestArtifactInclusion),
+    caveats: [...row.caveats]
+  };
+}
+
+function toApiRequestArtifactInclusion(inclusion: DashboardViewSource["requests"]["rows"][number]["artifact_inclusions"][number]): DashboardApiRequestArtifactInclusion {
+  return {
+    artifact_id: inclusion.artifact_id,
+    stable_short_id: inclusion.stable_short_id,
+    artifact_type: inclusion.artifact_type,
+    display_name: inclusion.display_name,
+    display_category: inclusion.display_category,
+    request_order: inclusion.request_order,
+    local_token_count: inclusion.local_token_count,
+    ...(inclusion.token_start !== undefined ? { token_start: inclusion.token_start } : {}),
+    ...(inclusion.token_end !== undefined ? { token_end: inclusion.token_end } : {}),
+    ...(inclusion.estimated_cached_input_tokens !== undefined ? { estimated_cached_input_tokens: inclusion.estimated_cached_input_tokens } : {}),
+    ...(inclusion.estimated_uncached_input_tokens !== undefined ? { estimated_uncached_input_tokens: inclusion.estimated_uncached_input_tokens } : {}),
+    attribution_state: inclusion.attribution_state,
+    privacy: toApiPrivacy(inclusion.privacy),
+    caveats: [...inclusion.caveats]
   };
 }
 

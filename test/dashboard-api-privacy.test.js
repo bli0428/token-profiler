@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { handleDashboardApiRequest } from "../src/surfaces/dashboard-api/routes.ts";
 import { metadataOnlyLeakSummary } from "./helpers/dashboard-fixtures.js";
+import { metadataOnlyRequestAccountingEvents } from "./helpers/request-accounting-fixtures.js";
 
 test("metadata-only dashboard API responses do not leak hidden raw content", async () => {
   const root = join(tmpdir(), `token-profiler-dashboard-api-privacy-${Date.now()}`);
@@ -19,6 +20,19 @@ test("metadata-only dashboard API responses do not leak hidden raw content", asy
   assert.equal(serialized.includes("SECRET_DO_NOT_LEAK"), false);
   assert.equal(serialized.includes("Hidden by privacy mode"), true);
   assert.equal(runResponse.body.data.privacy.hidden_fields.includes("raw_content"), true);
+});
+
+test("metadata-only request accounting does not leak hidden content", async () => {
+  const root = join(tmpdir(), `token-profiler-dashboard-api-request-privacy-${Date.now()}`);
+  await writeRun(root, "secret-request", metadataOnlyRequestAccountingEvents());
+
+  const runResponse = await handleDashboardApiRequest("GET", "/api/runs/secret-request", { rootDir: root });
+  const serialized = JSON.stringify(runResponse.body.data.requests);
+
+  assert.equal(runResponse.status, 200);
+  assert.equal(serialized.includes("SECRET_DO_NOT_LEAK"), false);
+  assert.equal(serialized.includes("print secret"), false);
+  assert.equal(runResponse.body.data.requests.rows[0].artifact_inclusions[0].privacy.hidden_fields.includes("raw_content"), true);
 });
 
 function rawSecretEvents() {

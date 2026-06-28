@@ -1,6 +1,9 @@
 import type {
   AnalysisCaveat,
   AnalyzerAvailability,
+  ProviderRequestUsage,
+  RequestCacheAttributionSummary,
+  RequestUsageAvailability,
   PreviewState,
   ToolCallLink
 } from "../../analysis/types.ts";
@@ -43,14 +46,27 @@ export type DashboardApiStatus = {
     sessions: true;
     run_view: true;
     artifact_detail: true;
+    request_accounting: true;
     refresh: "request";
   };
+};
+
+export type DashboardApiSessionIdentityMapping = {
+  route_run_id: string;
+  canonical_run_id?: string | undefined;
+  codex_session_id?: string | undefined;
+  codex_conversation_id?: string | undefined;
+  codex_label?: string | undefined;
+  mapping_confidence: "one_to_one" | "probable" | "best_effort" | "unknown";
+  mapping_source: "direct_session_id" | "cache_key" | "wrapper_header" | "rollout_time_index" | "fallback_fingerprint" | "unavailable";
+  limitations: string[];
 };
 
 export type DashboardApiSession = {
   run_id: string;
   canonical_run_id?: string | undefined;
   label?: string | undefined;
+  identity: DashboardApiSessionIdentityMapping;
   updated_at?: string | undefined;
   request_count?: number | undefined;
   artifact_count?: number | undefined;
@@ -66,10 +82,55 @@ export type DashboardApiRun = {
   run_id: string;
   canonical_run_id?: string | undefined;
   overview: DashboardApiRunOverview;
+  requests: DashboardApiRequestAccounting;
   artifacts: DashboardApiArtifactRow[];
   artifact_details: Record<string, DashboardApiArtifactDetail>;
   task_groups: DashboardApiTaskGroup[];
   filters: DashboardApiFilterOptions;
+  privacy: DashboardApiPrivacyState;
+  caveats: DashboardApiCaveat[];
+};
+
+export type DashboardApiRequestAccounting = {
+  availability: AnalyzerAvailability;
+  summary: {
+    request_count: number;
+    usage_reported_count: number;
+    usage_incomplete_count: number;
+    artifact_inclusion_count: number;
+    highest_total_request_id?: string | undefined;
+    highest_uncached_request_id?: string | undefined;
+  };
+  rows: DashboardApiRequestAccountingRow[];
+  caveats: DashboardApiCaveat[];
+};
+
+export type DashboardApiRequestAccountingRow = {
+  request_id: string;
+  timestamp?: string | undefined;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage | undefined;
+  artifact_count: number;
+  total_local_artifact_tokens: number;
+  cache_attribution?: RequestCacheAttributionSummary | undefined;
+  artifact_inclusions: DashboardApiRequestArtifactInclusion[];
+  caveats: DashboardApiCaveat[];
+};
+
+export type DashboardApiRequestArtifactInclusion = {
+  artifact_id: string;
+  stable_short_id: string;
+  artifact_type: string;
+  display_name: string;
+  display_category: string;
+  request_order: number;
+  local_token_count: number;
+  token_start?: number | undefined;
+  token_end?: number | undefined;
+  estimated_cached_input_tokens?: number | undefined;
+  estimated_uncached_input_tokens?: number | undefined;
+  attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
   privacy: DashboardApiPrivacyState;
   caveats: DashboardApiCaveat[];
 };

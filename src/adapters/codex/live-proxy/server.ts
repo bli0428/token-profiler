@@ -1,8 +1,28 @@
+/**
+ * Local HTTP proxy server that records Codex request artifacts and usage events.
+ *
+ * This adapter observes provider-specific request and response shapes, converts
+ * them into canonical profiler records, and forwards traffic to the upstream
+ * Responses API endpoint.
+ */
 import http from "node:http";
 import { randomUUID } from "node:crypto";
 import { parseRequestPayload, recordPayloadArtifacts, recordUsageEvent } from "./recording.ts";
 import { forwardRequest, readRequestBody } from "./transport.ts";
 
+/**
+ * Creates the live profiler proxy server and lifecycle controls.
+ *
+ * @param profiler - Optional single-run profiler used when no session router is supplied or resolved.
+ * @param sessionRouter - Optional router that maps Codex requests and responses to per-session profilers.
+ * @param upstream - Upstream HTTP or HTTPS base URL that receives proxied requests.
+ * @param host - Host interface for the local proxy listener.
+ * @param port - TCP port for the local proxy listener.
+ * @param maxBodyBytes - Maximum encoded or decoded request body size accepted for profiling.
+ * @param logger - Logger used for proxy and upstream failures.
+ * @returns Object containing the raw `server`, host/port, and async `listen` and `close` lifecycle methods.
+ * @throws When neither `profiler` nor `sessionRouter` is provided, or when `upstream` is not HTTP(S).
+ */
 export function createProfilerProxy({
   profiler,
   sessionRouter,
@@ -108,6 +128,13 @@ export function createProfilerProxy({
   };
 }
 
+/**
+ * Tracks an asynchronous observation task until it settles.
+ *
+ * @param pending - Set that owns outstanding observation promises for shutdown coordination.
+ * @param task - Async profiler observation to run.
+ * @returns The promise produced for the observation task.
+ */
 function queueObservation(pending: Set<Promise<void>>, task: () => Promise<void>) {
   const promise = Promise.resolve().then(task).finally(() => pending.delete(promise));
   pending.add(promise);

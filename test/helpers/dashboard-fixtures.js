@@ -1,5 +1,6 @@
 import { analyzeEvents } from "../../src/analysis/pipeline.ts";
 import { artifact, usage } from "./analyzer-fixtures.js";
+import { metadataOnlyRequestAccountingEvents } from "./request-accounting-fixtures.js";
 
 export function dashboardSummary() {
   return analyzeEvents([
@@ -59,4 +60,8 @@ export function metadataOnlyLeakSummary() {
     },
     usage("req_1", 20, 0, 1)
   ]);
+}
+
+export function metadataOnlyRequestAccountingSummary() {
+  return analyzeEvents(metadataOnlyRequestAccountingEvents());
 }

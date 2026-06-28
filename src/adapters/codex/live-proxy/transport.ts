@@ -1,3 +1,9 @@
+/**
+ * HTTP transport utilities for the Codex live proxy.
+ *
+ * The functions in this module forward requests to the configured upstream and
+ * observe completed Responses API payloads without changing the proxied body.
+ */
 import http from "node:http";
 import https from "node:https";
 
@@ -12,6 +18,13 @@ const HOP_BY_HOP_HEADERS = new Set([
   "upgrade"
 ]);
 
+/**
+ * Builds the upstream URL for an incoming proxied request.
+ *
+ * @param upstream - Configured upstream origin or base URL.
+ * @param incomingPath - Request URL path and query received by the local proxy.
+ * @returns Absolute upstream URL with the incoming path and query applied.
+ */
 export function buildUpstreamUrl(upstream: string | URL, incomingPath: string): URL {
   const target = new URL(upstream);
   const incoming = new URL(incomingPath, "http://localhost");
@@ -23,7 +36,14 @@ export function buildUpstreamUrl(upstream: string | URL, incomingPath: string): 
   return target;
 }
 
-
+/**
+ * Reads and bounds the full request body from a Node HTTP request.
+ *
+ * @param request - Incoming request stream to consume.
+ * @param maxBodyBytes - Maximum encoded body size accepted before the request is rejected.
+ * @returns Promise resolving to the concatenated request body buffer.
+ * @throws An error with code `BODY_TOO_LARGE` when the encoded body exceeds `maxBodyBytes`.
+ */
 export function readRequestBody(request: any, maxBodyBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
@@ -45,6 +65,17 @@ export function readRequestBody(request: any, maxBodyBytes: number): Promise<Buf
   });
 }
 
+/**
+ * Forwards an incoming request to the configured upstream and streams the response back.
+ *
+ * @param request - Incoming proxy request whose method, URL, and headers are forwarded.
+ * @param response - Server response stream that receives the upstream response.
+ * @param body - Already-read request body to send upstream.
+ * @param upstreamUrl - Configured upstream base URL.
+ * @param logger - Logger used for upstream connection failures.
+ * @param onCompleted - Optional observer called with `{ responseId, usage }` for completed Responses API events.
+ * @returns Nothing. The function completes by ending or destroying `response`.
+ */
 export function forwardRequest({ request, response, body, upstreamUrl, logger, onCompleted }: any) {
   const target = buildUpstreamUrl(upstreamUrl, request.url);
   const transport = target.protocol === "https:" ? https : http;
@@ -82,6 +113,13 @@ export function forwardRequest({ request, response, body, upstreamUrl, logger, o
   upstreamRequest.end(body);
 }
 
+/**
+ * Creates a response observer that extracts completed response usage from JSON or SSE responses.
+ *
+ * @param headers - Upstream response headers. Currently accepted for future content-aware parsing.
+ * @param onCompleted - Callback invoked once per completed response id with usage details.
+ * @returns Observer with `push` and `finish` methods, or `null` when no callback was provided.
+ */
 function createResponseObserver(headers: any, onCompleted: any) {
   if (!onCompleted) return null;
 
@@ -154,6 +192,12 @@ function createResponseObserver(headers: any, onCompleted: any) {
   };
 }
 
+/**
+ * Removes hop-by-hop HTTP headers before forwarding a request or response.
+ *
+ * @param headers - Header object from an incoming or upstream message.
+ * @returns A new header object containing only end-to-end headers.
+ */
 function filterHeaders(headers: Record<string, any>) {
   return Object.fromEntries(
     Object.entries(headers).filter(([name]) => !HOP_BY_HOP_HEADERS.has(name.toLowerCase()))

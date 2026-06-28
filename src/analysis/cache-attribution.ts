@@ -137,7 +137,7 @@ export function analyzeCacheAttribution(
  * normalized token range is intersected with that boundary to estimate cached
  * tokens; the remainder of the range is estimated uncached.
  */
-function attributeRequestCache(request: RequestSummary, usage: NonNullable<RequestSummary["usage"]>) {
+export function attributeRequestCache(request: RequestSummary, usage: NonNullable<RequestSummary["usage"]>) {
   const artifacts: Array<{ artifact_id: string; cached: number; uncached: number; total: number }> = [];
   let cached = 0;
   let uncached = 0;

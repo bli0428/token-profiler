@@ -11,6 +11,9 @@ import type {
   DashboardViewArtifactDetail,
   DashboardViewArtifactRow,
   DashboardViewCaveat,
+  DashboardViewRequestAccounting,
+  DashboardViewRequestAccountingRow,
+  DashboardViewRequestArtifactInclusion,
   DashboardViewRunOverview,
   DashboardViewSession,
   DashboardViewTaskGroup,
@@ -46,6 +49,7 @@ export function createDashboardViewModel(
     generated_at: summary.generated_at,
     ...(options.session ? { session: options.session } : {}),
     overview: dashboardOverview(summary, artifacts, caveats),
+    requests: dashboardRequestAccounting(summary),
     artifacts,
     artifact_details: Object.fromEntries(details.map((detail) => [detail.artifact_id, detail])),
     task_groups: taskGroups,
@@ -60,6 +64,80 @@ export function createDashboardViewModel(
     },
     privacy,
     caveats
+  };
+}
+
+function dashboardRequestAccounting(summary: RunAnalysisSummary): DashboardViewRequestAccounting {
+  const accounting = summary.request_accounting;
+  if (!accounting) {
+    return {
+      availability: { status: "unavailable", reason: "Request accounting is unavailable.", missing_facts: ["request_accounting"] },
+      summary: {
+        request_count: 0,
+        usage_reported_count: 0,
+        usage_incomplete_count: 0,
+        artifact_inclusion_count: 0
+      },
+      rows: [],
+      caveats: []
+    };
+  }
+
+  return {
+    availability: accounting.availability,
+    summary: {
+      request_count: accounting.summary.request_count,
+      usage_reported_count: accounting.summary.usage_reported_count,
+      usage_incomplete_count: accounting.summary.usage_incomplete_count,
+      artifact_inclusion_count: accounting.summary.artifact_inclusion_count,
+      ...(accounting.summary.highest_total_request_id !== undefined ? { highest_total_request_id: accounting.summary.highest_total_request_id } : {}),
+      ...(accounting.summary.highest_uncached_request_id !== undefined ? { highest_uncached_request_id: accounting.summary.highest_uncached_request_id } : {})
+    },
+    rows: accounting.rows.map((row): DashboardViewRequestAccountingRow => ({
+      request_id: row.request_id,
+      ...(row.timestamp !== undefined ? { timestamp: row.timestamp } : {}),
+      chronology_index: row.chronology_index,
+      availability: {
+        status: row.availability.status,
+        usage_status: row.availability.usage_status,
+        attribution_status: row.availability.attribution_status,
+        missing_facts: [...row.availability.missing_facts],
+        limitations: [...row.availability.limitations],
+        ...(row.availability.reason !== undefined ? { reason: row.availability.reason } : {})
+      },
+      ...(row.usage !== undefined ? { usage: { ...row.usage } } : {}),
+      artifact_count: row.artifact_count,
+      total_local_artifact_tokens: row.total_local_artifact_tokens,
+      ...(row.cache_attribution !== undefined ? { cache_attribution: { ...row.cache_attribution } } : {}),
+      artifact_inclusions: row.artifact_inclusions.map(toDashboardRequestArtifactInclusion),
+      caveats: uniqueCaveats(row.caveats)
+    })),
+    caveats: uniqueCaveats(accounting.caveats)
+  };
+}
+
+function toDashboardRequestArtifactInclusion(inclusion: import("../../analysis/types.ts").RequestArtifactInclusion): DashboardViewRequestArtifactInclusion {
+  const privacy = dashboardPrivacyState({
+    storageMode: inclusion.privacy.storage_mode,
+    previewState: inclusion.privacy.preview_state,
+    hiddenFields: inclusion.privacy.hidden_fields,
+    caveats: inclusion.caveats.filter((caveat) => caveat.code.includes("privacy"))
+  });
+  return {
+    artifact_id: inclusion.artifact_id,
+    stable_short_id: inclusion.stable_short_id,
+    artifact_type: inclusion.artifact_type,
+    display_name: inclusion.display_name,
+    display_category: inclusion.display_category,
+    request_order: inclusion.request_order,
+    local_token_count: inclusion.local_token_count,
+    ...(inclusion.token_start !== undefined ? { token_start: inclusion.token_start } : {}),
+    ...(inclusion.token_end !== undefined ? { token_end: inclusion.token_end } : {}),
+    ...(inclusion.estimated_cached_input_tokens !== undefined ? { estimated_cached_input_tokens: inclusion.estimated_cached_input_tokens } : {}),
+    ...(inclusion.estimated_uncached_input_tokens !== undefined ? { estimated_uncached_input_tokens: inclusion.estimated_uncached_input_tokens } : {}),
+    attribution_state: inclusion.attribution_state,
+    privacy,
+    caveats: uniqueCaveats(inclusion.caveats)
   };
 }
 

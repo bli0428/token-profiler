@@ -46,6 +46,96 @@ export type AnalyzerRow = Record<string, unknown>;
 
 export type PreviewState = "hidden" | "unavailable" | "preview" | "raw_available";
 
+export type RequestUsageAvailability = {
+  status: "complete" | "partial" | "unavailable";
+  usage_status: "reported" | "missing" | "incomplete";
+  attribution_status: "complete" | "partial" | "unavailable" | "not_applicable";
+  missing_facts: string[];
+  limitations: string[];
+  reason?: string | undefined;
+};
+
+export type ProviderRequestUsage = {
+  input_tokens: number;
+  cached_input_tokens: number;
+  uncached_input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  response_id?: string | undefined;
+  source: "provider_reported";
+};
+
+export type RequestCacheAttributionSummary = {
+  estimated_cached_input_tokens?: number | undefined;
+  estimated_uncached_input_tokens?: number | undefined;
+  estimated_cache_attributed_tokens?: number | undefined;
+  estimated_cache_hit_ratio?: number | undefined;
+  attribution_coverage?: number | "partial" | "unavailable" | undefined;
+  attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
+};
+
+export type RequestArtifactInclusion = {
+  artifact_id: string;
+  stable_short_id: string;
+  artifact_type: string;
+  display_name: string;
+  display_category: string;
+  request_order: number;
+  local_token_count: number;
+  token_start?: number | undefined;
+  token_end?: number | undefined;
+  estimated_cached_input_tokens?: number | undefined;
+  estimated_uncached_input_tokens?: number | undefined;
+  attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
+  privacy: {
+    storage_mode: string;
+    preview_state: PreviewState;
+    hidden_fields: string[];
+  };
+  caveats: AnalysisCaveat[];
+};
+
+export type RequestAccountingRow = {
+  request_id: string;
+  timestamp?: string | undefined;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage | undefined;
+  artifact_count: number;
+  total_local_artifact_tokens: number;
+  cache_attribution?: RequestCacheAttributionSummary | undefined;
+  artifact_inclusions: RequestArtifactInclusion[];
+  caveats: AnalysisCaveat[];
+};
+
+export type RequestAccountingResult = {
+  analyzer_id: "request-accounting";
+  schema_version: 1;
+  availability: AnalyzerAvailability;
+  summary: {
+    request_count: number;
+    usage_reported_count: number;
+    usage_incomplete_count: number;
+    artifact_inclusion_count: number;
+    highest_total_request_id?: string | undefined;
+    highest_uncached_request_id?: string | undefined;
+  };
+  metrics: Record<string, number | string | boolean | null>;
+  rows: RequestAccountingRow[];
+  caveats: AnalysisCaveat[];
+};
+
+export type SessionIdentityMapping = {
+  route_run_id: string;
+  canonical_run_id?: string | undefined;
+  codex_session_id?: string | undefined;
+  codex_conversation_id?: string | undefined;
+  codex_label?: string | undefined;
+  mapping_confidence: "one_to_one" | "probable" | "best_effort" | "unknown";
+  mapping_source: "direct_session_id" | "cache_key" | "wrapper_header" | "rollout_time_index" | "fallback_fingerprint" | "unavailable";
+  limitations: string[];
+};
+
 export type DisplayCategory =
   | "command"
   | "command_output"
@@ -207,6 +297,7 @@ export type RunAnalysisSummary = AggregateSummary & {
   caveats: AnalysisCaveat[];
   legibility?: LegibilityAnalysisResult;
   task_groups?: TaskGroup[];
+  request_accounting?: RequestAccountingResult;
 };
 
 /**

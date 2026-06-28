@@ -16,7 +16,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-da1ec74b3a82b48a",
+          "codex_label": "codex-cache-da1ec74b3a82b48a",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-422b6d6817907b09",
@@ -31,7 +40,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-422b6d6817907b09",
+          "codex_label": "codex-cache-422b6d6817907b09",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-9906b655adce8b87",
@@ -46,7 +64,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-9906b655adce8b87",
+          "codex_label": "codex-cache-9906b655adce8b87",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-36be87a82f2c0214",
@@ -61,7 +88,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-36be87a82f2c0214",
+          "codex_label": "codex-cache-36be87a82f2c0214",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-6f0a12058ede1d91",
@@ -76,7 +112,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-6f0a12058ede1d91",
+          "codex_label": "codex-cache-6f0a12058ede1d91",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-34b4a154ed533359",
@@ -91,7 +136,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-34b4a154ed533359",
+          "codex_label": "codex-cache-34b4a154ed533359",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-8657755234a84715",
@@ -106,7 +160,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-8657755234a84715",
+          "codex_label": "codex-cache-8657755234a84715",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-c148d34e88f75382",
@@ -121,7 +184,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-c148d34e88f75382",
+          "codex_label": "codex-cache-c148d34e88f75382",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-95aed83357e78bac",
@@ -136,7 +208,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-95aed83357e78bac",
+          "codex_label": "codex-cache-95aed83357e78bac",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-b1900d51fb052f92",
@@ -151,7 +232,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-b1900d51fb052f92",
+          "codex_label": "codex-cache-b1900d51fb052f92",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-0ef4c0ad950aa9a6",
@@ -166,7 +256,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-0ef4c0ad950aa9a6",
+          "codex_label": "codex-cache-0ef4c0ad950aa9a6",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-21335cebb16632a3",
@@ -181,7 +280,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-21335cebb16632a3",
+          "codex_label": "codex-cache-21335cebb16632a3",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-13d2380b76d13744",
@@ -196,7 +304,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-13d2380b76d13744",
+          "codex_label": "codex-cache-13d2380b76d13744",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-19a75a079e22a7a4",
@@ -211,7 +328,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-19a75a079e22a7a4",
+          "codex_label": "codex-cache-19a75a079e22a7a4",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-46f6636458ab279a",
@@ -226,7 +352,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-46f6636458ab279a",
+          "codex_label": "codex-cache-46f6636458ab279a",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-a40bcddf218be480",
@@ -241,7 +376,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-a40bcddf218be480",
+          "codex_label": "codex-cache-a40bcddf218be480",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-0d487983aaaee36d",
@@ -256,7 +400,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-0d487983aaaee36d",
+          "codex_label": "codex-cache-0d487983aaaee36d",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "codex-cache-fd6d35170da2730e",
@@ -271,7 +424,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "codex-cache-fd6d35170da2730e",
+          "codex_label": "codex-cache-fd6d35170da2730e",
+          "mapping_confidence": "probable",
+          "mapping_source": "cache_key",
+          "limitations": [
+            "Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."
+          ]
+        }
       },
       {
         "run_id": "demo",
@@ -286,7 +448,16 @@
         "availability": {
           "status": "complete"
         },
-        "caveats": []
+        "caveats": [],
+        "identity": {
+          "route_run_id": "demo",
+          "codex_label": "demo",
+          "mapping_confidence": "unknown",
+          "mapping_source": "unavailable",
+          "limitations": [
+            "No Codex session identity was available for this local run."
+          ]
+        }
       }
     ]
   },

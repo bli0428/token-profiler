@@ -4,6 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { enrichProfilerSessions, importCodexRolloutUsage, readCodexSessionMetadata } from "../src/adapters/codex/log-import/index.ts";
+import { createDashboardSessionIndex } from "../src/surfaces/dashboard-api/sessions.ts";
+import { artifact, usage } from "./helpers/analyzer-fixtures.js";
 
 test("enriches profiler sessions from Codex session index by direct UUID", async () => {
   const codexHome = await mkdtemp(join(tmpdir(), "codex-session-index-test-"));
@@ -132,3 +134,43 @@ test("enriches profiler sessions from nearby Codex rollout timing", async () => 
     await rm(codexHome, { recursive: true, force: true });
   }
 });
+
+test("dashboard sessions expose direct and fallback Codex identity confidence", async () => {
+  const root = await mkdtemp(join(tmpdir(), "codex-dashboard-identity-test-"));
+
+  try {
+    await writeRun(root, "codex-019ef64d-7666-7ba3-a9d6-ac0fe4cd2341", [
+      artifact("req_1", "FILE:direct", "FILE", "direct.ts", "h-direct", 2, 0, 2),
+      usage("req_1", 2, 0)
+    ]);
+    await writeRun(root, "codex-cache-9906b655adce8b87", [
+      artifact("req_1", "FILE:cache", "FILE", "cache.ts", "h-cache", 3, 0, 3),
+      usage("req_1", 3, 0)
+    ]);
+
+    const index = await createDashboardSessionIndex(root, {
+      sessionTitleLookup: async () => new Map([
+        ["codex-019ef64d-7666-7ba3-a9d6-ac0fe4cd2341", "Track prompt exposure"],
+        ["codex-cache-9906b655adce8b87", "Cache-key capture"]
+      ])
+    });
+
+    const direct = index.sessions.find((session) => session.run_dir.endsWith("codex-019ef64d-7666-7ba3-a9d6-ac0fe4cd2341"));
+    assert.equal(direct.identity.codex_session_id, "019ef64d-7666-7ba3-a9d6-ac0fe4cd2341");
+    assert.equal(direct.identity.mapping_confidence, "one_to_one");
+    assert.equal(direct.identity.codex_label, "Track prompt exposure");
+
+    const cache = index.sessions.find((session) => session.run_dir.endsWith("codex-cache-9906b655adce8b87"));
+    assert.equal(cache.identity.mapping_confidence, "probable");
+    assert.equal(cache.identity.mapping_source, "cache_key");
+    assert.equal(cache.identity.limitations.length > 0, true);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+async function writeRun(root, runId, events) {
+  const runDir = join(root, "runs", runId);
+  await mkdir(runDir, { recursive: true });
+  await writeFile(join(runDir, "events.jsonl"), `${events.map((event) => JSON.stringify(event)).join("\n")}\n`);
+}

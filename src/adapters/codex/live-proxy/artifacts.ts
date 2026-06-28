@@ -1,3 +1,10 @@
+/**
+ * Responses API artifact extraction for Codex live proxy requests.
+ *
+ * This module is the provider-specific boundary for request payload inspection:
+ * it turns Codex/Responses request shapes into artifact descriptors that the
+ * profiler can persist as canonical records.
+ */
 type ProviderItem = Record<string, any>;
 type ArtifactDescriptor = {
   artifactType: string;
@@ -7,6 +14,12 @@ type ArtifactDescriptor = {
 };
 type ExtractedArtifact = ArtifactDescriptor & { content: string };
 
+/**
+ * Extracts profileable artifacts from a Responses API request payload.
+ *
+ * @param payload - Parsed provider request payload.
+ * @returns Ordered artifacts for instructions, tool definitions, input messages, tool calls, and tool outputs.
+ */
 export function extractResponsesArtifacts(payload: ProviderItem): ExtractedArtifact[] {
   const artifacts: ExtractedArtifact[] = [];
 
@@ -126,6 +139,14 @@ export function extractResponsesArtifacts(payload: ProviderItem): ExtractedArtif
   return artifacts;
 }
 
+/**
+ * Builds an artifact descriptor for a message content part.
+ *
+ * @param role - Message role from the provider payload.
+ * @param index - Zero-based input item index.
+ * @param partIndex - Zero-based message content part index.
+ * @returns Artifact descriptor with role-based artifact type, name, and id.
+ */
 function messageDescriptor(role: string, index: number, partIndex: number): ArtifactDescriptor {
   const artifactType = role === "system" || role === "developer"
     ? "SYSTEM_PROMPT"
@@ -140,6 +161,12 @@ function messageDescriptor(role: string, index: number, partIndex: number): Arti
   };
 }
 
+/**
+ * Classifies tool output into the nearest canonical artifact type.
+ *
+ * @param toolName - Provider tool name or unknown value.
+ * @returns Artifact type string used by the profiler.
+ */
 function classifyToolOutput(toolName: unknown): string {
   const name = String(toolName).toLowerCase();
   if (name.includes("search")) return "SEARCH_RESULT";
@@ -148,12 +175,28 @@ function classifyToolOutput(toolName: unknown): string {
   return "TOOL_OUTPUT";
 }
 
+/**
+ * Adds a stringified content artifact when a value is present and non-empty.
+ *
+ * @param artifacts - Mutable artifact list to append to.
+ * @param value - Provider value to stringify as artifact content.
+ * @param descriptor - Artifact identity and metadata fields to attach.
+ * @returns Nothing.
+ */
 function addTextValue(artifacts: ExtractedArtifact[], value: unknown, descriptor: ArtifactDescriptor): void {
   if (value === undefined || value === null) return;
   const content = typeof value === "string" ? value : JSON.stringify(value);
   if (content.length > 0) artifacts.push({ ...descriptor, content });
 }
 
+/**
+ * Describes a standard Responses API function call for artifact metadata.
+ *
+ * @param toolName - Name of the called tool.
+ * @param callId - Provider call id used to link call and output items.
+ * @param input - Function arguments, usually a JSON string.
+ * @returns Artifact display name and compact metadata for the function call.
+ */
 function describeFunctionCall({
   toolName,
   callId,
@@ -177,6 +220,14 @@ function describeFunctionCall({
   };
 }
 
+/**
+ * Describes a custom tool call for artifact metadata.
+ *
+ * @param toolName - Name of the custom tool.
+ * @param callId - Provider call id used to link call and output items.
+ * @param input - Custom tool input text or object.
+ * @returns Artifact display name and compact metadata for patches, commands, or generic custom calls.
+ */
 function describeCustomToolCall({
   toolName,
   callId,
@@ -212,6 +263,15 @@ function describeCustomToolCall({
   };
 }
 
+/**
+ * Describes a tool output and links it back to call metadata when available.
+ *
+ * @param toolName - Name of the tool that produced the output.
+ * @param callId - Provider call id used to link call and output items.
+ * @param output - Provider output value.
+ * @param callMetadata - Metadata previously derived from the matching call item.
+ * @returns Artifact display name and compact metadata for the tool output.
+ */
 function describeToolOutput({
   toolName,
   callId,
@@ -244,6 +304,12 @@ function describeToolOutput({
   };
 }
 
+/**
+ * Builds metadata for a provider call item.
+ *
+ * @param call - Function or custom tool call item from the provider payload.
+ * @returns Compact metadata derived from the call shape.
+ */
 function describeCallMetadata(call: ProviderItem) {
   const toolName = call.name ?? "unknown";
   return call.type === "custom_tool_call"
@@ -251,6 +317,12 @@ function describeCallMetadata(call: ProviderItem) {
     : describeFunctionCall({ toolName, callId: call.call_id, input: call.arguments }).metadata;
 }
 
+/**
+ * Summarizes an apply-patch style payload.
+ *
+ * @param text - Patch text to scan for add, update, and delete file markers.
+ * @returns File list, operation counts, and a compact display summary.
+ */
 function summarizePatch(text: string) {
   const files: string[] = [];
   let adds = 0;
@@ -295,6 +367,12 @@ function summarizePatch(text: string) {
   };
 }
 
+/**
+ * Extracts an embedded exec command from a custom tool payload.
+ *
+ * @param text - Custom tool payload text.
+ * @returns Command and optional working directory, or `null` when no command field exists.
+ */
 function extractExecCommand(text: string): { command: string; workdir?: string } | null {
   const command = extractQuotedField(text, "cmd");
   if (!command) return null;
@@ -302,6 +380,13 @@ function extractExecCommand(text: string): { command: string; workdir?: string }
   return workdir ? { command, workdir } : { command };
 }
 
+/**
+ * Extracts the earliest quoted value for a named field.
+ *
+ * @param text - Source text to scan.
+ * @param key - Field key to find with either `key:` or JSON-style `"key":` syntax.
+ * @returns Unescaped quoted field value, or `undefined` when absent.
+ */
 function extractQuotedField(text: string, key: string): string | undefined {
   const candidates = [
     findQuotedField(text, `${key}:`),
@@ -311,6 +396,13 @@ function extractQuotedField(text: string, key: string): string | undefined {
   return candidates[0]?.value;
 }
 
+/**
+ * Finds a quoted value after a specific field marker.
+ *
+ * @param text - Source text to scan.
+ * @param marker - Exact marker to locate before the quoted value.
+ * @returns Marker index and unescaped value, or `null` when the marker/value is not found.
+ */
 function findQuotedField(text: string, marker: string): { index: number; value: string } | null {
   const markerIndex = text.indexOf(marker);
   if (markerIndex === -1) return null;
@@ -345,6 +437,12 @@ function findQuotedField(text: string, marker: string): { index: number; value: 
   return null;
 }
 
+/**
+ * Normalizes a provider tool output value into text for inspection and previews.
+ *
+ * @param output - Output value from a tool result item.
+ * @returns String output, concatenated text parts, or JSON for structured values.
+ */
 function normalizeToolOutput(output: unknown): string {
   if (typeof output === "string") return output;
   if (Array.isArray(output)) {
@@ -353,6 +451,12 @@ function normalizeToolOutput(output: unknown): string {
   return JSON.stringify(output ?? "");
 }
 
+/**
+ * Selects a compact preview line from tool output text.
+ *
+ * @param text - Tool output text.
+ * @returns Truncated first meaningful output line, or `undefined` for empty output.
+ */
 function firstContentLine(text: string): string | undefined {
   const lines = String(text).split("\n").map((line) => line.trim()).filter(Boolean);
   const outputIndex = lines.findIndex((line) => line === "Output:");
@@ -360,6 +464,12 @@ function firstContentLine(text: string): string | undefined {
   return candidate ? truncateMiddle(candidate, 120) : undefined;
 }
 
+/**
+ * Parses a JSON string while leaving already-structured values unchanged.
+ *
+ * @param value - Value to parse when it is a string.
+ * @returns Parsed JSON value, original non-string value, or `undefined` when parsing fails.
+ */
 function parseJsonValue(value: unknown): any {
   if (typeof value !== "string") return value;
   try {
@@ -369,17 +479,37 @@ function parseJsonValue(value: unknown): any {
   }
 }
 
+/**
+ * Removes nullish entries from a metadata object.
+ *
+ * @param value - Metadata object that may include `undefined` or `null` values.
+ * @returns New object containing only defined, non-null entries.
+ */
 function compactObject(value: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
     Object.entries(value).filter(([, entry]) => entry !== undefined && entry !== null)
   );
 }
 
+/**
+ * Unescapes a quoted field value found in free-form text.
+ *
+ * @param value - Quoted value without surrounding quote characters.
+ * @param quote - Quote character that surrounded the value.
+ * @returns Unescaped field value.
+ */
 function unescapeQuoted(value: string, quote: string): string {
   if (quote === "\"") return parseJsonValue(`"${value}"`) ?? value;
   return value.replaceAll("\\'", "'").replaceAll("\\\\", "\\");
 }
 
+/**
+ * Shortens long display text while preserving the beginning and end.
+ *
+ * @param value - Value to stringify and truncate.
+ * @param width - Maximum returned string length.
+ * @returns Original text when it fits, otherwise middle-truncated text.
+ */
 function truncateMiddle(value: unknown, width: number): string {
   const text = String(value);
   if (text.length <= width) return text;
@@ -388,6 +518,13 @@ function truncateMiddle(value: unknown, width: number): string {
   return `${text.slice(0, head)}...${text.slice(-tail)}`;
 }
 
+/**
+ * Shortens a path-like value while keeping the basename visible when possible.
+ *
+ * @param value - Path-like value to stringify and truncate.
+ * @param width - Maximum returned string length.
+ * @returns Original path when it fits, otherwise a compact path summary.
+ */
 function truncatePath(value: unknown, width: number): string {
   const text = String(value);
   if (text.length <= width) return text;
@@ -401,6 +538,12 @@ function truncatePath(value: unknown, width: number): string {
     : truncateMiddle(text, width);
 }
 
+/**
+ * Wraps a value as an array for uniform payload traversal.
+ *
+ * @param value - Candidate scalar, array, or nullish value.
+ * @returns The original array, a single-value array, or an empty array for nullish input.
+ */
 function asArray(value: unknown): any[] {
   if (Array.isArray(value)) return value;
   return value === undefined || value === null ? [] : [value];

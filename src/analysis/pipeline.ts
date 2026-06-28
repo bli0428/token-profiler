@@ -3,6 +3,7 @@ import { analyzeContextClutter } from "./context-clutter.ts";
 import { analyzeExposure } from "./exposure.ts";
 import { analyzeLegibility } from "./legibility.ts";
 import { analyzePersistence } from "./persistence.ts";
+import { analyzeRequestAccounting } from "./request-accounting.ts";
 import { prepareRunData } from "./run-data.ts";
 import { compareArtifactsByMetric } from "./sort.ts";
 import { analyzeTaskGroups } from "./task-groups.ts";
@@ -35,6 +36,7 @@ export function analyzeEvents(events: unknown[]): RunAnalysisSummary {
   const contextClutter = analyzeContextClutter(artifacts);
   const legibility = analyzeLegibility(artifacts, requests, runData.artifactEvents);
   const taskGroups = analyzeTaskGroups(requests, legibility);
+  const requestAccounting = analyzeRequestAccounting(runData, requests);
 
   return {
     schema_version: 1,
@@ -57,14 +59,17 @@ export function analyzeEvents(events: unknown[]): RunAnalysisSummary {
       persistence,
       contextClutter,
       legibility,
-      taskGroups
+      taskGroups,
+      requestAccounting
     ],
     legibility,
     task_groups: taskGroups.rows,
+    request_accounting: requestAccounting,
     caveats: [
       ...cache.caveats,
       ...legibility.caveats,
-      ...taskGroups.caveats
+      ...taskGroups.caveats,
+      ...requestAccounting.caveats
     ]
   };
 }

@@ -4,6 +4,7 @@ import { basename, join } from "node:path";
 import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
 import type { DashboardViewSession, DashboardViewSessionIndex } from "./view-model-types.ts";
+import type { SessionIdentityMapping } from "../../analysis/types.ts";
 
 export type DashboardSessionTitleLookup = (
   sessions: Array<{ run_id: string; updated_at: Date }>
@@ -29,10 +30,16 @@ export async function createDashboardSessionIndex(
     try {
       const summary = analyzeEvents(await readEventsFromRunDir(runDir));
       const runId = summary.run_id ?? entry.name;
+      const identity = sessionIdentity({
+        routeRunId: entry.name,
+        canonicalRunId: runId,
+        label: runId
+      });
       sessions.push({
         run_id: runId,
         run_dir: runDir,
         label: runId,
+        identity,
         updated_at: stat.mtime.toISOString(),
         request_count: summary.requests.length,
         artifact_count: summary.artifacts.length,
@@ -48,6 +55,12 @@ export async function createDashboardSessionIndex(
         run_id: entry.name,
         run_dir: runDir,
         label: entry.name,
+        identity: sessionIdentity({
+          routeRunId: entry.name,
+          canonicalRunId: entry.name,
+          label: entry.name,
+          unavailable: true
+        }),
         updated_at: stat.mtime.toISOString(),
         availability: {
           status: "unavailable",
@@ -100,10 +113,88 @@ async function applySessionTitles(
 
     for (const session of sessions) {
       session.label = titlesByRunId.get(basename(session.run_dir)) ?? session.label ?? session.run_id;
+      session.identity = sessionIdentity({
+        routeRunId: basename(session.run_dir),
+        canonicalRunId: session.run_id,
+        label: session.label
+      });
     }
   } catch {
     for (const session of sessions) {
       session.label = session.label ?? session.run_id;
+      session.identity = sessionIdentity({
+        routeRunId: basename(session.run_dir),
+        canonicalRunId: session.run_id,
+        label: session.label
+      });
     }
   }
+}
+
+function sessionIdentity({
+  routeRunId,
+  canonicalRunId,
+  label,
+  unavailable = false
+}: {
+  routeRunId: string;
+  canonicalRunId: string;
+  label?: string | undefined;
+  unavailable?: boolean;
+}): SessionIdentityMapping {
+  const codexSessionId = directCodexSessionId(routeRunId) ?? directCodexSessionId(canonicalRunId);
+  const cacheKey = routeRunId.startsWith("codex-cache-") || canonicalRunId.startsWith("codex-cache-");
+  const generatedCodex = routeRunId.startsWith("codex-") || canonicalRunId.startsWith("codex-");
+
+  if (codexSessionId) {
+    return {
+      route_run_id: routeRunId,
+      ...(canonicalRunId !== routeRunId ? { canonical_run_id: canonicalRunId } : {}),
+      codex_session_id: codexSessionId,
+      ...(label ? { codex_label: label } : {}),
+      mapping_confidence: "one_to_one",
+      mapping_source: "direct_session_id",
+      limitations: []
+    };
+  }
+
+  if (cacheKey) {
+    return {
+      route_run_id: routeRunId,
+      ...(canonicalRunId !== routeRunId ? { canonical_run_id: canonicalRunId } : {}),
+      ...(label ? { codex_label: label } : {}),
+      mapping_confidence: "probable",
+      mapping_source: "cache_key",
+      limitations: ["Cache-key routes identify a stable local session but do not prove a one-to-one Codex session."]
+    };
+  }
+
+  if (generatedCodex) {
+    return {
+      route_run_id: routeRunId,
+      ...(canonicalRunId !== routeRunId ? { canonical_run_id: canonicalRunId } : {}),
+      ...(label ? { codex_label: label } : {}),
+      mapping_confidence: "best_effort",
+      mapping_source: "fallback_fingerprint",
+      limitations: ["Generated or fallback Codex routes may group requests by local routing heuristics."]
+    };
+  }
+
+  return {
+    route_run_id: routeRunId,
+    ...(canonicalRunId !== routeRunId ? { canonical_run_id: canonicalRunId } : {}),
+    ...(label ? { codex_label: label } : {}),
+    mapping_confidence: "unknown",
+    mapping_source: "unavailable",
+    limitations: [
+      unavailable
+        ? "Run data is unreadable, so Codex session identity could not be inspected."
+        : "No Codex session identity was available for this local run."
+    ]
+  };
+}
+
+function directCodexSessionId(value: string): string | undefined {
+  const match = value.match(/^codex-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i);
+  return match?.[1];
 }

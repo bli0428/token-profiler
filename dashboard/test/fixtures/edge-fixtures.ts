@@ -41,6 +41,7 @@ export const statusNotReadyFixture: StatusResponse = {
       sessions: true,
       run_view: true,
       artifact_detail: true,
+      request_accounting: true,
       refresh: "request"
     }
   },

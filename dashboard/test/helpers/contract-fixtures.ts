@@ -69,6 +69,7 @@ export function assertStatusData(data: DashboardStatus) {
   expect(data.read_only).toBe(true);
   expect(data.local_only).toBe(true);
   expect(data.schema_version).toBe(1);
+  expect(data.capabilities.request_accounting).toBe(true);
 }
 
 export function assertSessionsData(data: DashboardSessionsData) {
@@ -77,6 +78,9 @@ export function assertSessionsData(data: DashboardSessionsData) {
     expect(session.run_id).toBeTruthy();
     expect(session.label ?? session.run_id).toBeTruthy();
     expect(session.canonical_run_id).not.toBe(session.run_id);
+    expect(session.identity.route_run_id).toBe(session.run_id);
+    expect(session.identity.mapping_confidence).toBeTruthy();
+    expect(Array.isArray(session.identity.limitations)).toBe(true);
     expect(Array.isArray(session.caveats)).toBe(true);
   }
 }
@@ -85,6 +89,8 @@ export function assertRunData(data: DashboardRun) {
   expect(data.run_id).toBeTruthy();
   expect(Array.isArray(data.task_groups)).toBe(true);
   expect(Array.isArray(data.artifacts)).toBe(true);
+  expect(Array.isArray(data.requests.rows)).toBe(true);
+  expect(typeof data.requests.summary.request_count).toBe("number");
   expect(Array.isArray(data.filters.categories)).toBe(true);
   for (const artifact of data.artifacts) {
     expect(artifact.artifact_id).toBeTruthy();

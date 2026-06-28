@@ -54,6 +54,7 @@ export type DashboardStatus = {
     sessions: true;
     run_view: true;
     artifact_detail: true;
+    request_accounting: true;
     refresh: "request";
   };
 };
@@ -70,6 +71,7 @@ export type DashboardSession = {
   run_id: string;
   canonical_run_id?: string;
   label?: string;
+  identity: DashboardSessionIdentityMapping;
   updated_at?: string;
   request_count?: number;
   artifact_count?: number;
@@ -78,6 +80,89 @@ export type DashboardSession = {
   uncached_input_tokens?: number;
   output_tokens?: number;
   availability: AvailabilityState;
+  caveats: DashboardCaveat[];
+};
+
+export type DashboardSessionIdentityMapping = {
+  route_run_id: string;
+  canonical_run_id?: string;
+  codex_session_id?: string;
+  codex_conversation_id?: string;
+  codex_label?: string;
+  mapping_confidence: "one_to_one" | "probable" | "best_effort" | "unknown";
+  mapping_source: "direct_session_id" | "cache_key" | "wrapper_header" | "rollout_time_index" | "fallback_fingerprint" | "unavailable";
+  limitations: string[];
+};
+
+export type RequestUsageAvailability = {
+  status: "complete" | "partial" | "unavailable";
+  usage_status: "reported" | "missing" | "incomplete";
+  attribution_status: "complete" | "partial" | "unavailable" | "not_applicable";
+  missing_facts: string[];
+  limitations: string[];
+  reason?: string;
+};
+
+export type ProviderRequestUsage = {
+  input_tokens: number;
+  cached_input_tokens: number;
+  uncached_input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  response_id?: string;
+  source: "provider_reported";
+};
+
+export type RequestCacheAttributionSummary = {
+  estimated_cached_input_tokens?: number;
+  estimated_uncached_input_tokens?: number;
+  estimated_cache_attributed_tokens?: number;
+  estimated_cache_hit_ratio?: number;
+  attribution_coverage?: number | "partial" | "unavailable";
+  attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
+};
+
+export type DashboardRequestArtifactInclusion = {
+  artifact_id: string;
+  stable_short_id: string;
+  artifact_type: string;
+  display_name: string;
+  display_category: string;
+  request_order: number;
+  local_token_count: number;
+  token_start?: number;
+  token_end?: number;
+  estimated_cached_input_tokens?: number;
+  estimated_uncached_input_tokens?: number;
+  attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
+  privacy: DashboardPrivacyState;
+  caveats: DashboardCaveat[];
+};
+
+export type DashboardRequestAccountingRow = {
+  request_id: string;
+  timestamp?: string;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage;
+  artifact_count: number;
+  total_local_artifact_tokens: number;
+  cache_attribution?: RequestCacheAttributionSummary;
+  artifact_inclusions: DashboardRequestArtifactInclusion[];
+  caveats: DashboardCaveat[];
+};
+
+export type DashboardRequestAccounting = {
+  availability: AvailabilityState;
+  summary: {
+    request_count: number;
+    usage_reported_count: number;
+    usage_incomplete_count: number;
+    artifact_inclusion_count: number;
+    highest_total_request_id?: string;
+    highest_uncached_request_id?: string;
+  };
+  rows: DashboardRequestAccountingRow[];
   caveats: DashboardCaveat[];
 };
 
@@ -149,6 +234,7 @@ export type DashboardRun = {
   run_id: string;
   canonical_run_id?: string;
   overview: DashboardRunOverview;
+  requests: DashboardRequestAccounting;
   artifacts: DashboardArtifactRow[];
   artifact_details: Record<string, DashboardArtifactDetail>;
   task_groups: DashboardTaskGroup[];
