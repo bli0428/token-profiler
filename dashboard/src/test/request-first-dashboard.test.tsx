@@ -12,11 +12,11 @@ describe("request-first dashboard", () => {
     const run = withAdditionalRequest(apiRealFixtures.run.data);
     renderExplorer({ run });
 
-    const requestList = screen.getByLabelText("Chronological requests");
+    const requestList = screen.getByLabelText("Requests");
     const rows = within(requestList).getAllByLabelText(/Request \d+/);
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toHaveTextContent("fixture-request-001");
-    expect(rows[1]).toHaveTextContent("fixture-request-002");
+    expect(within(rows[0]!).getByRole("heading", { name: "fixture-request-001" })).toBeInTheDocument();
+    expect(within(rows[1]!).getByRole("heading", { name: "fixture-request-002" })).toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
@@ -24,10 +24,19 @@ describe("request-first dashboard", () => {
     const run = withAdditionalRequest(apiRealFixtures.run.data, { missingUsage: true });
     renderExplorer({ run });
 
-    expect(screen.getByText("563,810")).toBeInTheDocument();
-    expect(screen.getByText("424,832")).toBeInTheDocument();
-    expect(screen.getByText("138,978")).toBeInTheDocument();
-    expect(screen.getAllByText("Unavailable").length).toBeGreaterThanOrEqual(5);
+    const metrics = within(screen.getAllByLabelText("Request token totals")[0]!);
+    expect(metrics.getByText("Input")).toBeInTheDocument();
+    expect(metrics.getByText("138,978")).toBeInTheDocument();
+    expect(metrics.getByText("Output")).toBeInTheDocument();
+    expect(metrics.getByText("1,076")).toBeInTheDocument();
+    expect(metrics.getByText("Cached Read")).toBeInTheDocument();
+    expect(metrics.getByText("424,832")).toBeInTheDocument();
+    expect(metrics.getByText("Total Tokens")).toBeInTheDocument();
+    expect(metrics.getByText("564,886")).toBeInTheDocument();
+    expect(metrics.getByText("Artifacts")).toBeInTheDocument();
+    expect(screen.getAllByText("Unavailable").length).toBeGreaterThanOrEqual(4);
+    expect(screen.getByText("*Some requests are missing provider usage.")).toBeInTheDocument();
+    expect(screen.queryByText("Provider request token totals")).not.toBeInTheDocument();
   });
 
   it("expands request artifacts with keyboard-accessible state", async () => {
@@ -47,8 +56,43 @@ describe("request-first dashboard", () => {
 
     expect(screen.getByRole("button", { name: "Collapse artifacts", expanded: true })).toBeInTheDocument();
     expect(screen.getByLabelText("Request artifacts")).toBeInTheDocument();
-    expect(screen.getAllByText("~1,642").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("1,642").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hidden").length).toBeGreaterThan(0);
+    expect(screen.queryByText("local_artifact_attribution_estimate")).not.toBeInTheDocument();
+  });
+
+  it("toggles request artifacts when the card is clicked", async () => {
+    const user = userEvent.setup();
+    const onChangeViewState = vi.fn();
+    renderExplorer({ onChangeViewState });
+
+    await user.click(screen.getByLabelText("Request 1"));
+
+    expect(onChangeViewState).toHaveBeenCalledWith({ expandedRequestIds: ["fixture-request-001"] });
+  });
+
+  it("sorts requests by selected request columns and direction", async () => {
+    const user = userEvent.setup();
+    const run = withAdditionalRequest(apiRealFixtures.run.data);
+    const onChangeViewState = vi.fn();
+    const { rerender } = renderExplorer({ run, onChangeViewState });
+
+    await user.selectOptions(screen.getByLabelText("Category"), "total_tokens");
+    await user.selectOptions(screen.getByLabelText("Direction"), "desc");
+
+    expect(onChangeViewState).toHaveBeenCalledWith({
+      requestSortKey: "total_tokens",
+      requestSortDirection: "asc"
+    });
+    expect(onChangeViewState).toHaveBeenCalledWith({
+      requestSortKey: "time",
+      requestSortDirection: "desc"
+    });
+
+    rerender(renderExplorerElement({ ...defaultViewState, requestSortKey: "total_tokens", requestSortDirection: "desc" }, onChangeViewState, { run }));
+    const rows = within(screen.getByLabelText("Requests")).getAllByLabelText(/Request \d+/);
+    expect(within(rows[0]!).getByRole("heading", { name: "fixture-request-002" })).toBeInTheDocument();
+    expect(within(rows[1]!).getByRole("heading", { name: "fixture-request-001" })).toBeInTheDocument();
   });
 
   it("selects artifact detail from a request inclusion", async () => {
@@ -66,6 +110,9 @@ describe("request-first dashboard", () => {
       <RequestList
         artifactRows={[]}
         expandedRequestIds={[]}
+        sortKey="time"
+        sortDirection="asc"
+        onChangeSort={() => undefined}
         onSelectArtifact={() => undefined}
         onToggleExpanded={() => undefined}
       />
@@ -77,6 +124,9 @@ describe("request-first dashboard", () => {
         requests={{ ...apiRealFixtures.run.data.requests, rows: [], summary: { ...apiRealFixtures.run.data.requests.summary, request_count: 0 } }}
         artifactRows={[]}
         expandedRequestIds={[]}
+        sortKey="time"
+        sortDirection="asc"
+        onChangeSort={() => undefined}
         onSelectArtifact={() => undefined}
         onToggleExpanded={() => undefined}
       />
@@ -130,6 +180,9 @@ function withAdditionalRequest(run: DashboardRun, options: { missingUsage?: bool
     ...run,
     requests: {
       ...run.requests,
+      availability: options.missingUsage
+        ? { status: "partial", reason: "Some requests are missing provider usage.", missing_facts: ["request_usage"] }
+        : run.requests.availability,
       summary: {
         ...run.requests.summary,
         request_count: 2,

@@ -49,6 +49,7 @@ export function DashboardController() {
 
   if (sessions.error) return <ErrorState title="Unable to load sessions" message={sessions.error.message} onAction={sessions.reload} />;
   const sessionList = sessions.data?.data.sessions ?? [];
+  const selectedSession = sessionList.find((session) => session.run_id === viewState.selectedRunId);
 
   return (
     <>
@@ -92,6 +93,7 @@ export function DashboardController() {
               detailLoading={artifactDetail.loading}
               detailError={isDashboardClientError(artifactDetail.error) ? artifactDetail.error.message : undefined}
               viewState={viewState}
+              session={selectedSession}
               lastUpdatedAt={refreshState.lastUpdatedAt ?? selectedRun.data.generated_at}
               onChangeViewState={(next) => setViewState((current) => ({ ...current, ...next }))}
             />

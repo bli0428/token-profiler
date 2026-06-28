@@ -1,5 +1,4 @@
 import type { DashboardArtifactRow, DashboardRequestArtifactInclusion } from "../api/types";
-import { CaveatList } from "../components/CaveatList";
 import { getPrivacyDisplay } from "../policy/privacy-display";
 import { formatEstimatedTokens, privacyDisplayState } from "./request-format";
 
@@ -39,9 +38,9 @@ export function RequestArtifacts({ artifacts, artifactRows, selectedArtifactId, 
               </span>
             </div>
             <dl className="request-artifact-metrics">
-              <Metric label="Local estimate" value={formatEstimatedTokens(artifact.local_token_count)} />
-              <Metric label="Estimated cached" value={formatEstimatedTokens(artifact.estimated_cached_input_tokens)} />
-              <Metric label="Estimated uncached" value={formatEstimatedTokens(artifact.estimated_uncached_input_tokens)} />
+              <Metric label="Local Tokens" value={formatEstimatedTokens(artifact.local_token_count)} />
+              <Metric label="Cached Read" value={formatEstimatedTokens(artifact.estimated_cached_input_tokens)} />
+              <Metric label="Input" value={formatEstimatedTokens(artifact.estimated_uncached_input_tokens)} />
               <Metric label="Attribution" value={artifact.attribution_state.replaceAll("_", " ")} />
             </dl>
             {detailAvailable ? (
@@ -51,7 +50,6 @@ export function RequestArtifacts({ artifacts, artifactRows, selectedArtifactId, 
             ) : (
               <span className="request-empty-note">Artifact detail unavailable</span>
             )}
-            <CaveatList caveats={artifact.caveats} />
           </article>
         );
       })}

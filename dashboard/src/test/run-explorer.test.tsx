@@ -5,15 +5,36 @@ import { defaultViewState, type DashboardViewState } from "../state/view-state";
 import { apiRealFixtures } from "../../test/helpers/contract-fixtures";
 
 describe("run explorer", () => {
-  it("renders run overview, task groups, and chronological requests", () => {
+  it("renders run overview and chronological requests", () => {
     renderExplorer();
-    expect(screen.getByText(apiRealFixtures.run.data.overview.scope_label)).toBeInTheDocument();
-    expect(screen.getAllByText(apiRealFixtures.run.data.task_groups[0]!.display_name).length).toBeGreaterThan(0);
-    expect(screen.getByLabelText("Chronological requests")).toBeInTheDocument();
-    expect(screen.getByLabelText("Request 1")).toHaveTextContent(apiRealFixtures.run.data.requests.rows[0]!.request_id);
+    expect(screen.getByText(apiRealFixtures.sessions.data.sessions[0]!.label ?? apiRealFixtures.sessions.data.sessions[0]!.run_id)).toBeInTheDocument();
+    expect(screen.queryByText(apiRealFixtures.run.data.overview.scope)).not.toBeInTheDocument();
+    const overviewMetrics = within(screen.getByLabelText("Run token totals"));
+    expect(overviewMetrics.getByText("Input")).toBeInTheDocument();
+    expect(overviewMetrics.getByText("Output")).toBeInTheDocument();
+    expect(overviewMetrics.getByText("Cached Read")).toBeInTheDocument();
+    expect(overviewMetrics.getByText("Total Tokens")).toBeInTheDocument();
+    expect(overviewMetrics.getByText("Requests")).toBeInTheDocument();
+    expect(screen.queryByText("Total exposure")).not.toBeInTheDocument();
+    expect(screen.queryByText(apiRealFixtures.run.data.overview.availability.status)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Task groups")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Requests")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: apiRealFixtures.run.data.requests.rows[0]!.request_id })).toBeInTheDocument();
   });
 
-  it("preserves task group selection without returning to artifact-first layout", () => {
+  it("uses the selected session title in the run overview header", () => {
+    renderExplorer({
+      session: {
+        ...apiRealFixtures.sessions.data.sessions[0]!,
+        label: "Review artifact conversion types",
+        updated_at: "2026-06-28T15:15:07.000Z"
+      }
+    });
+    expect(screen.getByRole("heading", { name: "Review artifact conversion types" })).toBeInTheDocument();
+    expect(screen.getByText(new Date("2026-06-28T15:15:07.000Z").toLocaleString())).toBeInTheDocument();
+  });
+
+  it("does not render artifact-first filters or task controls", () => {
     let state: DashboardViewState = { ...defaultViewState };
     const { rerender } = renderExplorer({
       viewState: state,
@@ -23,8 +44,9 @@ describe("run explorer", () => {
       }
     });
     expect(screen.queryByLabelText("Search")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Task groups")).not.toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Chronological requests")).toBeInTheDocument();
+    expect(screen.getByLabelText("Requests")).toBeInTheDocument();
   });
 
   it("opens artifact detail", () => {
@@ -41,7 +63,7 @@ describe("run explorer", () => {
       },
       detail: apiRealFixtures.artifactDetail
     });
-    expect(screen.getByLabelText("Chronological requests")).toBeInTheDocument();
+    expect(screen.getByLabelText("Requests")).toBeInTheDocument();
     expect(within(screen.getByLabelText("Artifact detail")).getAllByText("Identity").length).toBeGreaterThan(0);
   });
 });
@@ -60,6 +82,7 @@ function renderExplorerElement(
       run={apiRealFixtures.run.data}
       detailLoading={false}
       viewState={viewState}
+      session={apiRealFixtures.sessions.data.sessions[0]}
       onChangeViewState={onChangeViewState}
       {...overrides}
     />

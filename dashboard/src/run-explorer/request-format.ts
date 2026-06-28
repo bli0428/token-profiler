@@ -7,7 +7,7 @@ export function formatTokens(value: number | undefined): string {
 
 export function formatEstimatedTokens(value: number | undefined): string {
   if (value === undefined) return "Estimate unavailable";
-  return `~${formatTokens(value)}`;
+  return formatTokens(value);
 }
 
 export function formatPercent(value: number | "partial" | "unavailable" | undefined): string {
@@ -39,13 +39,13 @@ export function collectionAvailabilityLabel(availability: AvailabilityState): st
   return "Request accounting not applicable";
 }
 
-export function usageMetricEntries(usage: ProviderRequestUsage | undefined): Array<{ label: string; value: string; kind: "provider" }> {
+export function requestMetricEntries(usage: ProviderRequestUsage | undefined, artifactCount: number): Array<{ label: string; value: string }> {
   return [
-    { label: "Cached input", value: formatTokens(usage?.cached_input_tokens), kind: "provider" },
-    { label: "Uncached input", value: formatTokens(usage?.uncached_input_tokens), kind: "provider" },
-    { label: "Total input", value: formatTokens(usage?.input_tokens), kind: "provider" },
-    { label: "Output", value: formatTokens(usage?.output_tokens), kind: "provider" },
-    { label: "Total", value: formatTokens(usage?.total_tokens), kind: "provider" }
+    { label: "Input", value: formatTokens(usage?.uncached_input_tokens) },
+    { label: "Output", value: formatTokens(usage?.output_tokens) },
+    { label: "Cached Read", value: formatTokens(usage?.cached_input_tokens) },
+    { label: "Total Tokens", value: formatTokens(usage?.total_tokens) },
+    { label: "Artifacts", value: formatTokens(artifactCount) }
   ];
 }
 

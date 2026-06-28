@@ -5,16 +5,17 @@ import { SessionList } from "../sessions/SessionList";
 import { apiRealFixtures } from "../../test/helpers/contract-fixtures";
 
 describe("session list", () => {
-  it("renders token totals, Codex identity, and mapping limitations", () => {
+  it("renders token totals and mapping limitations", () => {
     const session = apiRealFixtures.sessions.data.sessions[0]!;
     render(<SessionList sessions={[session]} selectedRunId={session.run_id} onSelect={() => undefined} />);
 
     expect(screen.getByText(session.label ?? session.run_id)).toBeInTheDocument();
-    expect(screen.getByText(`Codex: ${session.identity.codex_label}`)).toBeInTheDocument();
-    expect(screen.getByText("probable")).toBeInTheDocument();
+    expect(screen.queryByText(`Codex: ${session.identity.codex_label}`)).not.toBeInTheDocument();
+    expect(screen.queryByText("probable")).not.toBeInTheDocument();
     expect(screen.getByText("563,810")).toBeInTheDocument();
     expect(screen.getByText("424,832")).toBeInTheDocument();
     expect(screen.getByText("138,978")).toBeInTheDocument();
+    expect(screen.queryByText(session.availability.status)).not.toBeInTheDocument();
     expect(screen.getByText(/Cache-key routes identify a stable local session/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /codex-cache-da1ec74b3a82b48a/ })).toHaveAttribute("aria-current", "true");
   });

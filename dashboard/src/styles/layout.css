@@ -21,6 +21,11 @@
   color: var(--color-muted);
 }
 
+.app-header-note {
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
 .shell-toolbar {
   display: flex;
   gap: var(--space-4);

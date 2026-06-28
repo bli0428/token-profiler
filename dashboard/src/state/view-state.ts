@@ -7,6 +7,8 @@ export type DashboardSortKey =
   | "estimated_cached_input_tokens"
   | "estimated_uncached_input_tokens";
 
+export type RequestSortKey = "time" | "input" | "output" | "cached_read" | "total_tokens" | "artifacts";
+
 export type DashboardViewState = {
   selectedRunId?: string;
   selectedTaskGroupId?: string;
@@ -16,6 +18,8 @@ export type DashboardViewState = {
   searchQuery: string;
   sortKey: DashboardSortKey;
   sortDirection: "asc" | "desc";
+  requestSortKey: RequestSortKey;
+  requestSortDirection: "asc" | "desc";
   refreshMode: "manual" | "interval";
 };
 
@@ -25,6 +29,8 @@ export const defaultViewState: DashboardViewState = {
   searchQuery: "",
   sortKey: "total_exposure",
   sortDirection: "desc",
+  requestSortKey: "time",
+  requestSortDirection: "asc",
   refreshMode: "manual"
 };
 
