@@ -17,18 +17,27 @@ import type {
   CodexPatchArtifact,
   CodexPatchMetadata,
   CodexProviderItem,
+  CodexResponsesFunctionCallItem,
+  CodexResponsesFunctionCallOutputItem,
+  CodexResponsesCustomToolCallItem,
+  CodexResponsesCustomToolCallOutputItem,
+  CodexResponsesInputItem,
+  CodexResponsesMessageItem,
+  CodexResponsesRequest,
+  CodexResponsesToolDefinition,
+  CodexResponsesUnknownInputObject,
   CodexToolCallArtifact,
   CodexToolCallMetadata,
   CodexUnknownInputMetadata
 } from "./types.ts";
 
 type InputItemContext = {
-  item: unknown;
+  item: CodexResponsesInputItem;
   index: number;
-  callsById: Map<string, CodexProviderItem>;
+  callsById: Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>;
 };
 
-export function extractInstructionsArtifact(request: CodexProviderItem): CodexExtractedArtifact[] {
+export function extractInstructionsArtifact(request: CodexResponsesRequest): CodexExtractedArtifact[] {
   const content = artifactContent(request.instructions);
   if (!content) return [];
   return [codexSystemArtifact(content)];
@@ -36,7 +45,7 @@ export function extractInstructionsArtifact(request: CodexProviderItem): CodexEx
 
 export function extractToolDefinitionArtifacts(tools: unknown): CodexExtractedArtifact[] {
   return asArray(tools).map((tool, index) => {
-    const toolItem = asProviderItem(tool);
+    const toolItem = asProviderItem(tool) as CodexResponsesToolDefinition;
     const functionItem = asProviderItem(toolItem.function);
     const name = stringValue(toolItem.name) ?? stringValue(functionItem.name) ?? stringValue(toolItem.type) ?? `tool_${index}`;
     return {
@@ -49,13 +58,16 @@ export function extractToolDefinitionArtifacts(tools: unknown): CodexExtractedAr
   });
 }
 
-export function indexToolCalls(inputs: unknown[]): Map<string, CodexProviderItem> {
-  const callsById = new Map<string, CodexProviderItem>();
+export function indexToolCalls(inputs: CodexResponsesInputItem[]): Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem> {
+  const callsById = new Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>();
   for (const item of inputs) {
-    const input = asProviderItem(item);
-    const callId = stringValue(input.call_id);
-    if ((input.type === "function_call" || input.type === "custom_tool_call") && callId) {
-      callsById.set(callId, input);
+    if (typeof item === "string") continue;
+    const callId = stringValue(item.call_id);
+    if (isFunctionCallItem(item) && callId) {
+      callsById.set(callId, item);
+    }
+    if (isCustomToolCallItem(item) && callId) {
+      callsById.set(callId, item);
     }
   }
   return callsById;
@@ -69,33 +81,33 @@ export function extractInputItemArtifacts({
   if (typeof item === "string") return [messageArtifact("user", index, 0, item)];
   if (!isProviderItem(item)) return [];
 
-  switch (item.type) {
-    case "function_call":
-      return artifactFromContent(
-        { name: stringValue(item.name) ?? "unknown", arguments: item.arguments },
-        (content) => functionCallArtifact(item, index, content)
-      );
-    case "function_call_output":
-      return artifactFromContent(
-        item.output,
-        (content) => functionCallOutputArtifact(item, index, callsById, content)
-      );
-    case "custom_tool_call":
-      return artifactFromContent(
-        item,
-        (content) => customToolCallArtifact(item, index, content)
-      );
-    case "custom_tool_call_output":
-      return artifactFromContent(
-        item.output,
-        (content) => customToolCallOutputArtifact(item, index, callsById, content)
-      );
-    case "message":
-      return messageArtifacts(item, index);
-    default:
-      if (item.role) return messageArtifacts(item, index);
-      return artifactFromContent(item, (content) => unknownInputArtifact(item, index, content));
+  if (isFunctionCallItem(item)) {
+    return artifactFromContent(
+      item,
+      (content) => functionCallArtifact(item, index, content)
+    );
   }
+  if (isFunctionCallOutputItem(item)) {
+    return artifactFromContent(
+      item.output,
+      (content) => functionCallOutputArtifact(item, index, callsById, content)
+    );
+  }
+  if (isCustomToolCallItem(item)) {
+    return artifactFromContent(
+      item,
+      (content) => customToolCallArtifact(item, index, content)
+    );
+  }
+  if (isCustomToolCallOutputItem(item)) {
+    return artifactFromContent(
+      item.output,
+      (content) => customToolCallOutputArtifact(item, index, callsById, content)
+    );
+  }
+  if (isMessageItem(item)) return messageArtifacts(item, index);
+  if (item.role) return messageArtifacts(item, index);
+  return artifactFromContent(item, (content) => unknownInputArtifact(item, index, content));
 }
 
 function codexSystemArtifact(content: string): CodexExtractedArtifact {
@@ -108,7 +120,7 @@ function codexSystemArtifact(content: string): CodexExtractedArtifact {
   };
 }
 
-function functionCallArtifact(item: CodexProviderItem, index: number, content: string): CodexToolCallArtifact {
+function functionCallArtifact(item: CodexResponsesFunctionCallItem, index: number, content: string): CodexToolCallArtifact {
   const toolName = stringValue(item.name) ?? "unknown";
   const callId = stringValue(item.call_id);
   const toolCall = describeFunctionCall({ toolName, callId, input: item.arguments });
@@ -123,9 +135,9 @@ function functionCallArtifact(item: CodexProviderItem, index: number, content: s
 }
 
 function functionCallOutputArtifact(
-  item: CodexProviderItem,
+  item: CodexResponsesFunctionCallOutputItem,
   index: number,
-  callsById: Map<string, CodexProviderItem>,
+  callsById: Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>,
   content: string
 ): CodexExtractedArtifact {
   const callId = stringValue(item.call_id);
@@ -148,7 +160,7 @@ function functionCallOutputArtifact(
   };
 }
 
-function customToolCallArtifact(item: CodexProviderItem, index: number, content: string): CodexToolCallArtifact | CodexPatchArtifact {
+function customToolCallArtifact(item: CodexResponsesCustomToolCallItem, index: number, content: string): CodexToolCallArtifact | CodexPatchArtifact {
   const toolName = stringValue(item.name) ?? "custom";
   const callId = stringValue(item.call_id);
   const toolCall = describeCustomToolCall({
@@ -165,9 +177,9 @@ function customToolCallArtifact(item: CodexProviderItem, index: number, content:
 }
 
 function customToolCallOutputArtifact(
-  item: CodexProviderItem,
+  item: CodexResponsesCustomToolCallOutputItem,
   index: number,
-  callsById: Map<string, CodexProviderItem>,
+  callsById: Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>,
   content: string
 ): CodexExtractedArtifact {
   const callId = stringValue(item.call_id);
@@ -249,7 +261,7 @@ function toolCallArtifact({
   };
 }
 
-function unknownInputArtifact(item: CodexProviderItem, index: number, content: string): CodexExtractedArtifact {
+function unknownInputArtifact(item: CodexResponsesUnknownInputObject, index: number, content: string): CodexExtractedArtifact {
   const providerType = stringValue(item.type) ?? "unknown";
   const metadata: CodexUnknownInputMetadata = {
     content_kind: "unknown_input",
@@ -273,4 +285,24 @@ function artifactFromContent(
 ): CodexExtractedArtifact[] {
   const content = artifactContent(value);
   return content && content.length > 0 ? [buildArtifact(content)] : [];
+}
+
+function isFunctionCallItem(item: CodexProviderItem): item is CodexResponsesFunctionCallItem {
+  return item.type === "function_call";
+}
+
+function isFunctionCallOutputItem(item: CodexProviderItem): item is CodexResponsesFunctionCallOutputItem {
+  return item.type === "function_call_output";
+}
+
+function isCustomToolCallItem(item: CodexProviderItem): item is CodexResponsesCustomToolCallItem {
+  return item.type === "custom_tool_call";
+}
+
+function isCustomToolCallOutputItem(item: CodexProviderItem): item is CodexResponsesCustomToolCallOutputItem {
+  return item.type === "custom_tool_call_output";
+}
+
+function isMessageItem(item: CodexProviderItem): item is CodexResponsesMessageItem {
+  return item.type === "message";
 }

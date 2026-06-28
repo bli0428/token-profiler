@@ -1,5 +1,79 @@
 export type CodexProviderItem = Record<string, unknown>;
 
+/**
+ * Adapter-local model for the Responses request body observed by the Codex live
+ * proxy. Public fields are based on the OpenAI Responses create API:
+ * https://platform.openai.com/docs/api-reference/responses/create
+ *
+ * Codex-specific custom tool call item shapes are based on observed live-proxy
+ * payloads and fixture coverage in test/proxy.test.js; keep those quarantined in
+ * this adapter rather than treating them as canonical project contracts.
+ */
+export type CodexResponsesRequest = CodexProviderItem & {
+  model?: unknown;
+  instructions?: unknown;
+  tools?: unknown;
+  input?: unknown;
+  conversation?: CodexProviderItem;
+  metadata?: CodexProviderItem;
+  prompt_cache_key?: unknown;
+  previous_response_id?: unknown;
+};
+
+export type CodexResponsesToolDefinition = CodexProviderItem & {
+  type?: unknown;
+  name?: unknown;
+  function?: unknown;
+};
+
+export type CodexResponsesMessageItem = CodexProviderItem & {
+  type?: "message";
+  role?: unknown;
+  content?: unknown;
+};
+
+export type CodexResponsesFunctionCallItem = CodexProviderItem & {
+  type: "function_call";
+  name?: unknown;
+  call_id?: unknown;
+  arguments?: unknown;
+};
+
+export type CodexResponsesFunctionCallOutputItem = CodexProviderItem & {
+  type: "function_call_output";
+  call_id?: unknown;
+  output?: unknown;
+};
+
+export type CodexResponsesCustomToolCallItem = CodexProviderItem & {
+  type: "custom_tool_call";
+  name?: unknown;
+  call_id?: unknown;
+  input?: unknown;
+};
+
+export type CodexResponsesCustomToolCallOutputItem = CodexProviderItem & {
+  type: "custom_tool_call_output";
+  call_id?: unknown;
+  output?: unknown;
+};
+
+export type CodexResponsesUnknownInputObject = CodexProviderItem & {
+  type?: unknown;
+  role?: unknown;
+  content?: unknown;
+};
+
+export type CodexResponsesInputObject =
+  | CodexResponsesMessageItem
+  | CodexResponsesFunctionCallItem
+  | CodexResponsesFunctionCallOutputItem
+  | CodexResponsesCustomToolCallItem
+  | CodexResponsesCustomToolCallOutputItem
+  | CodexResponsesUnknownInputObject;
+
+export type CodexResponsesInputItem = string | CodexResponsesInputObject;
+
 export type CodexArtifactType =
   | "SYSTEM_PROMPT"
   | "USER_MESSAGE"

@@ -1,4 +1,8 @@
-import type { CodexProviderItem } from "./types.ts";
+import type {
+  CodexProviderItem,
+  CodexResponsesInputItem,
+  CodexResponsesRequest
+} from "./types.ts";
 
 export function artifactContent(value: unknown): string | undefined {
   if (value === undefined || value === null) return undefined;
@@ -12,6 +16,22 @@ export function asArray(value: unknown): unknown[] {
 
 export function asProviderItem(value: unknown): CodexProviderItem {
   return isProviderItem(value) ? value : {};
+}
+
+export function asResponsesRequest(value: unknown): CodexResponsesRequest {
+  return isProviderItem(value) ? value : {};
+}
+
+export function asResponsesInputItems(value: unknown): CodexResponsesInputItem[] {
+  const items: CodexResponsesInputItem[] = [];
+  for (const item of asArray(value)) {
+    if (typeof item === "string") {
+      items.push(item);
+    } else if (isProviderItem(item)) {
+      items.push(item);
+    }
+  }
+  return items;
 }
 
 export function isProviderItem(value: unknown): value is CodexProviderItem {

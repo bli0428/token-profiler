@@ -1,4 +1,4 @@
-import { asArray, asProviderItem } from "./payload.ts";
+import { asResponsesInputItems, asResponsesRequest } from "./payload.ts";
 import {
   extractInputItemArtifacts,
   extractInstructionsArtifact,
@@ -8,8 +8,8 @@ import {
 import type { CodexExtractedArtifact } from "./types.ts";
 
 export function extractResponsesArtifacts(payload: unknown): CodexExtractedArtifact[] {
-  const request = asProviderItem(payload);
-  const inputs = asArray(request.input);
+  const request = asResponsesRequest(payload);
+  const inputs = asResponsesInputItems(request.input);
   const callsById = indexToolCalls(inputs);
 
   return [
