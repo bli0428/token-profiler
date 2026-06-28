@@ -18,7 +18,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "tiktoken": "^1.0.22"
+    "tiktoken": "^1.0.22",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

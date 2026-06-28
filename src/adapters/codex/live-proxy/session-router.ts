@@ -8,6 +8,7 @@ import { randomUUID } from "node:crypto";
 import { TokenProfiler } from "../../../core/capture/index.ts";
 import { sha256 } from "../../../core/hash/index.ts";
 import { normalizeStorageMode } from "../../../core/privacy/index.ts";
+import { codexSessionRoute, parseCodexRequestEnvelope } from "./codex-envelope.ts";
 
 const SESSION_HEADER = "x-token-profiler-session";
 
@@ -80,6 +81,9 @@ export class SessionRouter {
     const now = this.clock();
     const explicit = headerValue(headers[SESSION_HEADER]);
     if (explicit) return this.result(explicit, "header", now);
+
+    const codexRoute = codexSessionRoute(parseCodexRequestEnvelope({ headers, payload }));
+    if (codexRoute) return this.result(codexRoute.sessionId, codexRoute.source, now);
 
     const conversationId = payload.conversation?.id
       ?? payload.metadata?.session_id
