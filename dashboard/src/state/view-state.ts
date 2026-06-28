@@ -11,6 +11,7 @@ export type DashboardViewState = {
   selectedRunId?: string;
   selectedTaskGroupId?: string;
   selectedArtifactId?: string;
+  expandedRequestIds: string[];
   categoryFilter: string | "all";
   searchQuery: string;
   sortKey: DashboardSortKey;
@@ -19,6 +20,7 @@ export type DashboardViewState = {
 };
 
 export const defaultViewState: DashboardViewState = {
+  expandedRequestIds: [],
   categoryFilter: "all",
   searchQuery: "",
   sortKey: "total_exposure",
@@ -31,6 +33,20 @@ export function withSelectedRun(state: DashboardViewState, selectedRunId: string
     ...state,
     selectedRunId,
     selectedTaskGroupId: undefined,
-    selectedArtifactId: undefined
+    selectedArtifactId: undefined,
+    expandedRequestIds: []
+  };
+}
+
+export function toggleExpandedRequest(state: DashboardViewState, requestId: string): DashboardViewState {
+  const expanded = new Set(state.expandedRequestIds);
+  if (expanded.has(requestId)) {
+    expanded.delete(requestId);
+  } else {
+    expanded.add(requestId);
+  }
+  return {
+    ...state,
+    expandedRequestIds: Array.from(expanded)
   };
 }

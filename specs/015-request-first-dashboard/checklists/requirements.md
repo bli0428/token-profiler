@@ -31,4 +31,5 @@
 
 ## Notes
 
-- Validation passed. The spec depends on request accounting being exposed by spec 014 before the dashboard changes are implemented.
+- Validation passed after adding explicit unsupported/partial states, keyboard expansion behavior, responsive readability, and stable drilldown requirements.
+- The spec depends on request accounting being exposed by spec 014 before the dashboard changes are implemented.

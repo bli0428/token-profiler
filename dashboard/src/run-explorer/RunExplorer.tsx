@@ -1,9 +1,7 @@
 import type { ArtifactDetailResponse, DashboardRun } from "../api/types";
 import type { DashboardViewState } from "../state/view-state";
-import { filterAndSortArtifacts } from "../utils/run-filters";
 import { ArtifactDetailPanel } from "./ArtifactDetailPanel";
-import { ArtifactTable } from "./ArtifactTable";
-import { FiltersBar } from "./FiltersBar";
+import { RequestList } from "./RequestList";
 import { RunOverview } from "./RunOverview";
 import { TaskGroups } from "./TaskGroups";
 
@@ -18,7 +16,16 @@ type Props = {
 };
 
 export function RunExplorer({ run, detail, detailLoading, detailError, viewState, lastUpdatedAt, onChangeViewState }: Props) {
-  const artifacts = filterAndSortArtifacts(run.artifacts, viewState);
+  const toggleRequest = (requestId: string) => {
+    const expanded = new Set(viewState.expandedRequestIds);
+    if (expanded.has(requestId)) {
+      expanded.delete(requestId);
+    } else {
+      expanded.add(requestId);
+    }
+    onChangeViewState({ expandedRequestIds: Array.from(expanded) });
+  };
+
   return (
     <section className="run-explorer" aria-label="Run explorer">
       <div className="run-main">
@@ -28,11 +35,13 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
           selectedTaskGroupId={viewState.selectedTaskGroupId}
           onSelect={(selectedTaskGroupId) => onChangeViewState({ selectedTaskGroupId, selectedArtifactId: undefined })}
         />
-        <FiltersBar categories={run.filters.categories} state={viewState} onChange={onChangeViewState} />
-        <ArtifactTable
-          artifacts={artifacts}
+        <RequestList
+          requests={run.requests}
+          artifactRows={run.artifacts}
+          expandedRequestIds={viewState.expandedRequestIds}
           selectedArtifactId={viewState.selectedArtifactId}
-          onSelect={(selectedArtifactId) => onChangeViewState({ selectedArtifactId })}
+          onSelectArtifact={(selectedArtifactId) => onChangeViewState({ selectedArtifactId })}
+          onToggleExpanded={toggleRequest}
         />
       </div>
       <ArtifactDetailPanel detail={detail?.data} loading={detailLoading} errorMessage={detailError} />

@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-27
 
-**Status**: Draft
+**Status**: Ready for Planning
 
 **Input**: User description: "Keep the dashboard session list on the left, ideally one-to-one with Codex sessions. Change the center from artifact-first to request-first, sorted chronologically. Each request shows cached and uncached tokens, and expands to show artifacts with estimated token counts."
 
@@ -39,6 +39,7 @@ A user selects a session and sees requests in chronological order in the main pa
 1. **Given** a selected session has request accounting, **When** the main pane renders, **Then** requests appear in chronological order by default.
 2. **Given** a request has provider usage, **When** it appears in the request list, **Then** cached input, uncached input, total input, output, and total tokens are visible or reachable in the row.
 3. **Given** a request has missing usage, **When** it appears in the request list, **Then** unavailable values are labeled as unavailable rather than zero.
+4. **Given** a user changes selection between sessions, **When** they return to a session, **Then** request ordering and default visibility remain predictable.
 
 ---
 
@@ -55,6 +56,7 @@ A user expands an expensive request and sees the artifacts included in that requ
 1. **Given** a request row is expandable, **When** the user expands it, **Then** request-scoped artifacts appear beneath that request.
 2. **Given** request-scoped artifact estimates are available, **When** artifacts are shown, **Then** estimated local, cached, and uncached token counts are visible as estimates.
 3. **Given** artifact content is metadata-only or hidden, **When** the expanded request renders, **Then** hidden raw content is not displayed.
+4. **Given** a user expands or collapses request details, **When** they navigate by mouse or keyboard, **Then** expansion state, focus, and artifact detail access remain understandable.
 
 ---
 
@@ -70,6 +72,7 @@ A user can still inspect an artifact after finding it inside a request, but arti
 
 1. **Given** an artifact appears in a request expansion, **When** the user selects it, **Then** artifact detail is available if the API reports detail support.
 2. **Given** aggregate artifact sorting exists, **When** the dashboard first opens a run, **Then** the main pane still defaults to chronological requests.
+3. **Given** an artifact detail panel is open, **When** the user changes requests or sessions, **Then** the selected artifact state updates without showing stale detail for a different request.
 
 ### Edge Cases
 
@@ -79,6 +82,8 @@ A user can still inspect an artifact after finding it inside a request, but arti
 - Multiple requests may have identical timestamps; display order must still be stable.
 - Metadata-only, preview, raw-available, and unavailable artifact states must be visually distinct without exposing hidden content.
 - Historical runs captured before request offsets or usage were available may support only partial request detail.
+- The request accounting contract may be absent from an older local API; the dashboard must show a compatible empty or unsupported state.
+- Very small viewports may not fit all request metrics in a single line; the dashboard must preserve readability instead of truncating key values.
 
 ## Requirements *(mandatory)*
 
@@ -97,6 +102,10 @@ A user can still inspect an artifact after finding it inside a request, but arti
 - **FR-011**: The dashboard MUST consume request accounting from the dashboard data contract and MUST NOT recompute provider usage, request chronology, or artifact attribution in browser code.
 - **FR-012**: Existing artifact detail MAY remain accessible, but aggregate artifact tables MUST NOT be the default center-pane workflow for a selected session.
 - **FR-013**: The dashboard MUST make estimated artifact values visually or textually distinguishable from provider-reported request totals.
+- **FR-014**: The request-first view MUST provide explicit empty, unsupported, partial, and error states for request accounting data.
+- **FR-015**: Request expansion controls MUST be usable with keyboard navigation and MUST expose expanded/collapsed state to assistive technologies.
+- **FR-016**: The dashboard MUST preserve stable session selection and artifact detail behavior when moving between session, request, and artifact scopes.
+- **FR-017**: The dashboard MUST keep request metrics readable on desktop and narrow viewport sizes without overlapping labels, controls, or artifact rows.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -104,6 +113,7 @@ A user can still inspect an artifact after finding it inside a request, but arti
 - **RequestRow**: A chronological provider request row showing request identity, timing, availability, and provider token totals.
 - **RequestExpansion**: The expanded view of one request's included artifacts and request-scoped estimates.
 - **RequestArtifactDisplayItem**: A privacy-aware artifact row nested under a request, showing local estimated token contribution and available detail navigation.
+- **RequestAccountingViewState**: Surface-owned state for selected session, expanded requests, selected artifact, loading, unsupported, and partial-data presentation.
 
 ## Success Criteria *(mandatory)*
 
@@ -115,6 +125,9 @@ A user can still inspect an artifact after finding it inside a request, but arti
 - **SC-004**: Expanding a request shows artifacts scoped to that request, not only aggregate artifact totals across the full session.
 - **SC-005**: Metadata-only fixtures render zero hidden raw prompt, tool output, file, patch, or message bodies.
 - **SC-006**: Users can distinguish provider-reported request totals from estimated artifact attribution values.
+- **SC-007**: A keyboard-only user can select a session, move through request rows, expand a request, and open artifact detail without losing their place.
+- **SC-008**: Older or partial runs display a clear unsupported, empty, or partial request-accounting state rather than an artifact-first default.
+- **SC-009**: At common desktop and narrow viewport sizes, request rows and expanded artifact rows remain readable with no overlapping text or controls.
 
 ## Assumptions
 

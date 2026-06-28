@@ -91,7 +91,26 @@ export function assertRunData(data: DashboardRun) {
   expect(Array.isArray(data.artifacts)).toBe(true);
   expect(Array.isArray(data.requests.rows)).toBe(true);
   expect(typeof data.requests.summary.request_count).toBe("number");
+  expect(data.requests.summary.request_count).toBeGreaterThanOrEqual(data.requests.rows.length);
   expect(Array.isArray(data.filters.categories)).toBe(true);
+  for (const [index, request] of data.requests.rows.entries()) {
+    expect(request.request_id).toBeTruthy();
+    expect(request.chronology_index).toBe(index);
+    expect(request.availability.status).toMatch(/complete|partial|unavailable/);
+    expect(request.usage?.source ?? "missing").toMatch(/provider_reported|missing/);
+    if (request.usage) {
+      expect(typeof request.usage.cached_input_tokens).toBe("number");
+      expect(typeof request.usage.uncached_input_tokens).toBe("number");
+      expect(typeof request.usage.total_tokens).toBe("number");
+    }
+    for (const inclusion of request.artifact_inclusions) {
+      expect(inclusion.artifact_id).toBeTruthy();
+      expect(inclusion.display_name).toBeTruthy();
+      expect(typeof inclusion.local_token_count).toBe("number");
+      expect(inclusion.privacy.raw_content_revealed).toBe(false);
+      expect("raw" in inclusion).toBe(false);
+    }
+  }
   for (const artifact of data.artifacts) {
     expect(artifact.artifact_id).toBeTruthy();
     expect(artifact.search_text).toBeTruthy();
