@@ -18,12 +18,15 @@ export function prepareRunData(events: unknown[]): PreparedRunData {
     });
   const usageEvents = canonicalEvents
     .filter((event): event is Extract<CanonicalEvent, { event_kind: "request_usage" }> => event.event_kind === "request_usage");
+  const turnIdentityEvents = canonicalEvents
+    .filter((event): event is Extract<CanonicalEvent, { event_kind: "request_turn_identity" }> => event.event_kind === "request_turn_identity");
   const run_id = canonicalEvents.find((event) => event.run_id)?.run_id;
 
   return {
     ...(run_id ? { run_id } : {}),
     events: canonicalEvents,
     artifactEvents,
-    usageEvents
+    usageEvents,
+    turnIdentityEvents
   };
 }

@@ -125,6 +125,53 @@ export type RequestAccountingResult = {
   caveats: AnalysisCaveat[];
 };
 
+export type TurnGroupingSource = "direct_turn_id" | "missing_turn_id" | "fallback";
+export type TurnTitleSource = "user_preview" | "safe_summary" | "fallback" | "turn_id";
+export type TurnConfidence = "complete" | "partial" | "fallback";
+export type TurnRequestTitleSource = "assistant_preview" | "action_label" | "turn_title" | "request_id";
+
+export type TurnRequest = {
+  request_id: string;
+  display_title: string;
+  title_source: TurnRequestTitleSource;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage | undefined;
+  artifact_inclusions: RequestArtifactInclusion[];
+  caveats: AnalysisCaveat[];
+};
+
+export type TurnGroup = {
+  turn_id: string;
+  display_title: string;
+  title_source: TurnTitleSource;
+  grouping_source: TurnGroupingSource;
+  confidence: TurnConfidence;
+  request_ids: string[];
+  artifact_ids: string[];
+  requests: TurnRequest[];
+  metrics: {
+    input_tokens?: number | undefined;
+    cached_input_tokens?: number | undefined;
+    uncached_input_tokens?: number | undefined;
+    output_tokens?: number | undefined;
+    total_tokens?: number | undefined;
+    total_local_artifact_tokens: number;
+    artifact_count: number;
+  };
+  privacy: {
+    preview_state: PreviewState;
+    prompt_available: boolean;
+    hidden_reason?: string | undefined;
+  };
+  caveats: AnalysisCaveat[];
+};
+
+export type TurnGroupAnalysisResult = Omit<AnalyzerResult, "analyzer_id" | "rows"> & {
+  analyzer_id: "turn-groups";
+  rows: TurnGroup[];
+};
+
 export type SessionIdentityMapping = {
   route_run_id: string;
   canonical_run_id?: string | undefined;
@@ -301,6 +348,7 @@ export type RunAnalysisSummary = AggregateSummary & {
   caveats: AnalysisCaveat[];
   legibility?: LegibilityAnalysisResult;
   task_groups?: TaskGroup[];
+  turns?: TurnGroup[];
   request_accounting?: RequestAccountingResult;
 };
 
@@ -315,6 +363,7 @@ export type PreparedRunData = {
   events: CanonicalEvent[];
   artifactEvents: Extract<CanonicalEvent, { event_kind: "artifact" }>[];
   usageEvents: Extract<CanonicalEvent, { event_kind: "request_usage" }>[];
+  turnIdentityEvents: Extract<CanonicalEvent, { event_kind: "request_turn_identity" }>[];
 };
 
 /**

@@ -7,6 +7,7 @@ import { analyzeRequestAccounting } from "./request-accounting.ts";
 import { prepareRunData } from "./run-data.ts";
 import { compareArtifactsByMetric } from "./sort.ts";
 import { analyzeTaskGroups } from "./task-groups.ts";
+import { analyzeTurnGroups } from "./turn-groups.ts";
 import type { RunAnalysisSummary } from "./types.ts";
 
 /**
@@ -37,6 +38,7 @@ export function analyzeEvents(events: unknown[]): RunAnalysisSummary {
   const legibility = analyzeLegibility(artifacts, requests, runData.artifactEvents);
   const taskGroups = analyzeTaskGroups(requests, legibility);
   const requestAccounting = analyzeRequestAccounting(runData, requests);
+  const turnGroups = analyzeTurnGroups(runData, requestAccounting, legibility);
 
   return {
     schema_version: 1,
@@ -60,16 +62,19 @@ export function analyzeEvents(events: unknown[]): RunAnalysisSummary {
       contextClutter,
       legibility,
       taskGroups,
-      requestAccounting
+      requestAccounting,
+      turnGroups
     ],
     legibility,
     task_groups: taskGroups.rows,
+    turns: turnGroups.rows,
     request_accounting: requestAccounting,
     caveats: [
       ...cache.caveats,
       ...legibility.caveats,
       ...taskGroups.caveats,
-      ...requestAccounting.caveats
+      ...requestAccounting.caveats,
+      ...turnGroups.caveats
     ]
   };
 }

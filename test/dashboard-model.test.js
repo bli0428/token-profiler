@@ -1,8 +1,14 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { analyzeEvents } from "../src/analysis/pipeline.ts";
 import { createDashboardViewModel, dashboardOverview } from "../src/surfaces/dashboard-api/view-model.ts";
 import { dashboardSummary } from "./helpers/dashboard-fixtures.js";
+
+async function fixture(name) {
+  const text = await readFile(new URL(`./fixtures/events/${name}`, import.meta.url), "utf8");
+  return text.trim().split("\n").map((line) => JSON.parse(line));
+}
 
 test("dashboard overview mirrors analyzer totals", () => {
   const summary = dashboardSummary();
@@ -89,4 +95,52 @@ test("dashboard can derive task-scoped overview without mutating run data", () =
   assert.equal(scoped.scope_id, "task:req_1:req_2");
   assert.equal(scoped.artifact_count, model.task_groups[0].artifact_count);
   assert.equal(model.overview.scope, "run");
+});
+
+test("analysis builds turns with request and artifact children", async () => {
+  const summary = analyzeEvents(await fixture("turn-hierarchy.jsonl"));
+  const turns = summary.turns;
+
+  assert.equal(turns.length, 3);
+  assert.deepEqual(turns[0].request_ids, ["req_1", "req_2"]);
+  assert.deepEqual(turns[0].requests.map((request) => request.request_id), ["req_1", "req_2"]);
+  assert.ok(turns[0].artifact_ids.includes("PATCH:alpha"));
+  assert.equal(turns[0].grouping_source, "direct_turn_id");
+  assert.equal(turns[0].confidence, "complete");
+  assert.equal(turns[0].requests[1].artifact_inclusions.some((artifact) => artifact.artifact_id === "PATCH:alpha"), true);
+});
+
+test("analysis prefers assistant preview for request titles", async () => {
+  const summary = analyzeEvents(await fixture("turn-hierarchy.jsonl"));
+  const alpha = summary.turns.find((turn) => turn.turn_id === "turn_alpha");
+  const secondRequest = alpha.requests.find((request) => request.request_id === "req_2");
+
+  assert.equal(alpha.display_title, "Refactor capture flow");
+  assert.equal(alpha.title_source, "user_preview");
+  assert.equal(secondRequest.display_title, "Wiring turn identity through recording");
+  assert.equal(secondRequest.title_source, "assistant_preview");
+});
+
+test("analysis groups missing turn identity under explicit fallback", async () => {
+  const summary = analyzeEvents(await fixture("turn-hierarchy.jsonl"));
+  const fallback = summary.turns.find((turn) => turn.grouping_source === "missing_turn_id");
+
+  assert.ok(fallback);
+  assert.equal(fallback.turn_id, "turn:fallback:missing");
+  assert.deepEqual(fallback.request_ids, ["req_4"]);
+  assert.equal(fallback.confidence, "fallback");
+  assert.equal(fallback.title_source, "fallback");
+  assert.ok(fallback.caveats.some((caveat) => caveat.code === "turn_identity_missing"));
+});
+
+test("analysis groups metadata-only requests by direct turn id without content previews", async () => {
+  const summary = analyzeEvents(await fixture("turn-hierarchy-metadata.jsonl"));
+  const turn = summary.turns[0];
+
+  assert.equal(summary.turns.length, 1);
+  assert.equal(turn.turn_id, "turn_metadata_only");
+  assert.deepEqual(turn.request_ids, ["req_meta_1", "req_meta_2"]);
+  assert.equal(turn.title_source, "turn_id");
+  assert.equal(turn.display_title, "turn_metadata_only");
+  assert.equal(turn.privacy.prompt_available, false);
 });
