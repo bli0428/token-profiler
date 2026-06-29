@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-28
 
-**Status**: Draft
+**Status**: Ready for Planning
 
 **Input**: User description: "Keep dashboard changes separate from underlying source changes. Add grouping by Codex session id for new traffic after restarting the proxy, and make the dashboard reflect those grouped sessions without backward-compatibility concerns."
 

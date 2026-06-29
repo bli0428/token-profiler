@@ -275,6 +275,99 @@ test("routes Codex turn metadata before prompt cache key", async () => {
   }
 });
 
+test("groups new traffic with the same Codex session identity", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "session-router-test-"));
+  const router = new SessionRouter({ rootDir });
+
+  try {
+    const first = router.resolve({
+      payload: {
+        client_metadata: {
+          "x-codex-turn-metadata": JSON.stringify({
+            session_id: "shared-codex-session",
+            thread_id: "shared-thread",
+            request_kind: "turn"
+          })
+        },
+        prompt_cache_key: "first-cache-key"
+      }
+    });
+    const second = router.resolve({
+      payload: {
+        client_metadata: {
+          "x-codex-turn-metadata": JSON.stringify({
+            session_id: "shared-codex-session",
+            thread_id: "shared-thread",
+            request_kind: "turn"
+          })
+        },
+        prompt_cache_key: "second-cache-key"
+      }
+    });
+
+    assert.equal(first.sessionId, "codex-shared-codex-session");
+    assert.equal(second.sessionId, "codex-shared-codex-session");
+    assert.equal(first.source, "codex_turn_metadata");
+    assert.equal(second.source, "codex_turn_metadata");
+  } finally {
+    await rm(rootDir, { recursive: true, force: true });
+  }
+});
+
+test("separates new traffic with different Codex session identities", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "session-router-test-"));
+  const router = new SessionRouter({ rootDir });
+
+  try {
+    const first = router.resolve({
+      payload: {
+        client_metadata: {
+          "x-codex-turn-metadata": JSON.stringify({
+            session_id: "codex-session-one",
+            thread_id: "shared-thread",
+            request_kind: "turn"
+          })
+        },
+        prompt_cache_key: "shared-cache-key"
+      }
+    });
+    const second = router.resolve({
+      payload: {
+        client_metadata: {
+          "x-codex-turn-metadata": JSON.stringify({
+            session_id: "codex-session-two",
+            thread_id: "shared-thread",
+            request_kind: "turn"
+          })
+        },
+        prompt_cache_key: "shared-cache-key"
+      }
+    });
+
+    assert.equal(first.sessionId, "codex-codex-session-one");
+    assert.equal(second.sessionId, "codex-codex-session-two");
+    assert.notEqual(first.sessionId, second.sessionId);
+  } finally {
+    await rm(rootDir, { recursive: true, force: true });
+  }
+});
+
+test("reports fallback source when Codex session identity is unavailable", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "session-router-test-"));
+  const router = new SessionRouter({ rootDir });
+
+  try {
+    const session = router.resolve({
+      payload: { prompt_cache_key: "fallback-cache-key" }
+    });
+
+    assert.equal(session.sessionId.startsWith("codex-cache-"), true);
+    assert.equal(session.source, "prompt_cache_key");
+  } finally {
+    await rm(rootDir, { recursive: true, force: true });
+  }
+});
+
 test("falls back from Codex compatibility session header before prompt cache key", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "session-router-test-"));
   const router = new SessionRouter({ rootDir });

@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/015-request-first-dashboard/plan.md
+at specs/017-codex-session-dashboard-grouping/plan.md
 <!-- SPECKIT END -->
 
 ## Architecture Direction

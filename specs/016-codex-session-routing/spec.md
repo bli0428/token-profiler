@@ -4,7 +4,7 @@
 
 **Created**: 2026-06-28
 
-**Status**: Draft
+**Status**: Ready for Planning
 
 **Input**: User description: "Add grouping by id for new traffic after restarting the proxy. Keep underlying src changes separate from dashboard work. Do not concern this feature with backward compatibility; new live traffic should be grouped by Codex session."
 

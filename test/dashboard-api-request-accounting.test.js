@@ -63,6 +63,41 @@ test("dashboard API exposes session identity mapping without replacing route ide
   assert.equal(cache.identity.limitations.length > 0, true);
 });
 
+test("dashboard API keeps direct Codex sessions separate when labels and local hints overlap", async () => {
+  const root = tempRoot("direct-identity-separation");
+  const firstRunId = "codex-019ef64d-7666-7ba3-a9d6-ac0fe4cd2341";
+  const secondRunId = "codex-019ef64d-7666-7ba3-a9d6-ac0fe4cd9999";
+
+  await writeRun(root, firstRunId, [
+    artifact("req_1", "FILE:first", "FILE", "shared.ts", "h-first", 2, 0, 2, { prompt_cache_key: "shared-cache-hint" }),
+    usage("req_1", 2, 0)
+  ]);
+  await writeRun(root, secondRunId, [
+    artifact("req_2", "FILE:second", "FILE", "shared.ts", "h-second", 3, 0, 3, { prompt_cache_key: "shared-cache-hint" }),
+    usage("req_2", 3, 0)
+  ]);
+
+  const response = await handleDashboardApiRequest("GET", "/api/sessions", {
+    rootDir: root,
+    sessionTitleLookup: async () => new Map([
+      [firstRunId, "Shared title"],
+      [secondRunId, "Shared title"]
+    ])
+  });
+
+  const directSessions = response.body.data.sessions
+    .filter((session) => session.identity.mapping_source === "direct_session_id")
+    .sort((a, b) => a.run_id.localeCompare(b.run_id));
+
+  assert.equal(directSessions.length, 2);
+  assert.deepEqual(directSessions.map((session) => session.run_id), [firstRunId, secondRunId].sort());
+  assert.deepEqual(directSessions.map((session) => session.identity.codex_session_id).sort(), [
+    "019ef64d-7666-7ba3-a9d6-ac0fe4cd2341",
+    "019ef64d-7666-7ba3-a9d6-ac0fe4cd9999"
+  ].sort());
+  assert.equal(directSessions.every((session) => session.label === "Shared title"), true);
+});
+
 test("dashboard API exposes request-scoped artifact inclusions", async () => {
   const root = tempRoot("request-inclusions");
   await writeRun(root, "selected", requestArtifactInclusionEvents());
