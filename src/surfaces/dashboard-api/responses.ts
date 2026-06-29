@@ -1,4 +1,4 @@
-import { stat } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
@@ -22,13 +22,21 @@ import {
   type DashboardApiTaskGroup
 } from "./types.ts";
 
-export function createStatusResponse(rootDir: string): DashboardApiStatus {
+type ProxyState = {
+  pid?: unknown;
+  host?: unknown;
+  port?: unknown;
+  capture_mode?: unknown;
+};
+
+export async function createStatusResponse(rootDir: string): Promise<DashboardApiStatus> {
   return {
     service: "token-profiler-dashboard-api",
     ready: true,
     read_only: true,
     local_only: true,
     data_root_label: basename(resolve(rootDir)) || "token-profiler",
+    current_proxy: await readCurrentProxy(rootDir),
     schema_version: DASHBOARD_API_SCHEMA_VERSION,
     capabilities: {
       sessions: true,
@@ -38,6 +46,36 @@ export function createStatusResponse(rootDir: string): DashboardApiStatus {
       refresh: "request"
     }
   };
+}
+
+async function readCurrentProxy(rootDir: string): Promise<DashboardApiStatus["current_proxy"]> {
+  try {
+    const state = JSON.parse(await readFile(join(rootDir, "proxy-state.json"), "utf8")) as ProxyState;
+    if (!isProcessRunning(state.pid)) {
+      return { status: "not_running", ...(typeof state.capture_mode === "string" ? { capture_mode: state.capture_mode } : {}) };
+    }
+    return {
+      status: "running",
+      host: typeof state.host === "string" ? state.host : "127.0.0.1",
+      port: typeof state.port === "number" ? state.port : Number(state.port ?? 8787),
+      capture_mode: typeof state.capture_mode === "string" ? state.capture_mode : "unknown"
+    };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return { status: "not_running" };
+    }
+    return { status: "unknown" };
+  }
+}
+
+function isProcessRunning(pid: unknown): boolean {
+  if (!Number.isInteger(pid)) return false;
+  try {
+    process.kill(pid as number, 0);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export async function createSessionsResponse(

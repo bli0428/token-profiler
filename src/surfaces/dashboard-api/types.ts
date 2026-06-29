@@ -41,6 +41,7 @@ export type DashboardApiStatus = {
   read_only: true;
   local_only: true;
   data_root_label: string;
+  current_proxy: DashboardApiCurrentProxy;
   schema_version: typeof DASHBOARD_API_SCHEMA_VERSION;
   capabilities: {
     sessions: true;
@@ -50,6 +51,18 @@ export type DashboardApiStatus = {
     refresh: "request";
   };
 };
+
+export type DashboardApiCurrentProxy =
+  | {
+    status: "running";
+    host: string;
+    port: number;
+    capture_mode: string;
+  }
+  | {
+    status: "not_running" | "unknown";
+    capture_mode?: string | undefined;
+  };
 
 export type DashboardApiSessionIdentityMapping = {
   route_run_id: string;

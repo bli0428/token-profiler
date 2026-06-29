@@ -77,7 +77,7 @@ export function formatArtifactDetail(summary: RunAnalysisSummary | AggregateSumm
     `Short ID:        ${detail.identity.stable_short_id}`,
     `Type:            ${detail.display_category}`,
     `Artifact Name:   ${detail.identity.artifact_name}`,
-    `Storage Mode:    ${detail.privacy.storage_mode}`,
+    `Stored As:       ${detail.privacy.storage_mode}`,
     `Preview State:   ${detail.privacy.preview_state}`
   ];
 
@@ -115,7 +115,7 @@ function readableArtifact(
   if (preview === "hidden") {
     caveats.push(legibilityCaveat(
       LEGIBILITY_CAVEATS.privacyHidden,
-      "Raw content is hidden by the artifact storage mode.",
+      "Raw content is hidden by the artifact storage policy.",
       { analyzer_id: "legibility", artifact_id: artifact.artifact_id }
     ));
   }

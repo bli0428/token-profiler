@@ -37,7 +37,7 @@ export async function runSetup(args: string[]): Promise<void> {
       dashboardPort: optionString(options["dashboard-port"], "8788"),
       origin: optionString(options.origin, "http://127.0.0.1:5173"),
       upstream: typeof options.upstream === "string" ? options.upstream : undefined,
-      storageMode: typeof options["storage-mode"] === "string" ? options["storage-mode"] : undefined,
+      captureMode: typeof options["capture-mode"] === "string" ? options["capture-mode"] : undefined,
       codexHome: typeof options["codex-home"] === "string" ? options["codex-home"] : undefined,
       noCodex: Boolean(options["no-codex"])
     });
@@ -59,7 +59,7 @@ export async function runSetup(args: string[]): Promise<void> {
       optionString(options.origin, "http://127.0.0.1:5173")
     ];
     if (typeof options.upstream === "string") daemonArgs.push("--upstream", options.upstream);
-    if (typeof options["storage-mode"] === "string") daemonArgs.push("--storage-mode", options["storage-mode"]);
+    if (typeof options["capture-mode"] === "string") daemonArgs.push("--capture-mode", options["capture-mode"]);
     if (typeof options["codex-home"] === "string") daemonArgs.push("--codex-home", options["codex-home"]);
     if (options["no-codex"]) daemonArgs.push("--no-codex");
 
@@ -77,7 +77,7 @@ type LaunchAgentOptions = {
   dashboardPort: string;
   origin: string;
   upstream?: string | undefined;
-  storageMode?: string | undefined;
+  captureMode?: string | undefined;
   codexHome?: string | undefined;
   noCodex?: boolean | undefined;
 };
@@ -128,7 +128,7 @@ export function launchAgentPlist(options: LaunchAgentPlistOptions): string {
     options.origin
   ];
   if (options.upstream) args.push("--upstream", options.upstream);
-  if (options.storageMode) args.push("--storage-mode", options.storageMode);
+  if (options.captureMode) args.push("--capture-mode", options.captureMode);
   if (options.codexHome) args.push("--codex-home", options.codexHome);
   if (options.noCodex) args.push("--no-codex");
 

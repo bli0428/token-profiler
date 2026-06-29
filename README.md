@@ -237,7 +237,7 @@ node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js daemon stop
 node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js daemon ensure
 ```
 
-The proxy sees authorization headers only long enough to forward the request. It never records them. The default storage mode is `preview`, which records bounded excerpts without full raw prompt text. Use `--storage-mode metadata` for operational facts only or `--storage-mode raw` when you intentionally want full prompt text included in the local event log.
+The proxy sees authorization headers only long enough to forward the request. It never records them. The default capture mode is `preview`, which records bounded excerpts without full raw prompt text. Use `--capture-mode metadata` for operational facts only or `--capture-mode raw` when you intentionally want full prompt text included in the local event log.
 
 ChatGPT authentication is the default mode and forwards to the Codex account endpoint. Use `--auth api` on both `proxy start` and `codex enable` when Codex is logged in with an API key. The managed provider uses HTTP streaming so every request passes through the profiler without WebSocket retry delays.
 

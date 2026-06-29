@@ -65,7 +65,7 @@ export function formatArtifactDetail(summary: SummaryLike, artifactQuery: string
   }
   if (detail.persistence.first_seen_at) lines.push(`First Seen:      ${detail.persistence.first_seen_at}`);
   if (detail.persistence.last_seen_at) lines.push(`Last Seen:       ${detail.persistence.last_seen_at}`);
-  lines.push(`Storage Mode:    ${detail.privacy.storage_mode}`);
+  lines.push(`Stored As:       ${detail.privacy.storage_mode}`);
   lines.push(`Preview State:   ${detail.privacy.preview_state}`);
 
   const detailLines = metadataDetailLines(detail);

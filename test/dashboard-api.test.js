@@ -7,13 +7,28 @@ import { handleDashboardApiRequest } from "../src/surfaces/dashboard-api/routes.
 import { artifact, usage } from "./helpers/analyzer-fixtures.js";
 
 test("dashboard API status advertises local read-only contract", async () => {
-  const response = await handleDashboardApiRequest("GET", "/api/status", { rootDir: tempRoot("status") });
+  const root = tempRoot("status");
+  await mkdir(root, { recursive: true });
+  await writeFile(join(root, "proxy-state.json"), JSON.stringify({
+    schema_version: 2,
+    pid: process.pid,
+    host: "127.0.0.1",
+    port: 8787,
+    capture_mode: "preview"
+  }));
+  const response = await handleDashboardApiRequest("GET", "/api/status", { rootDir: root });
 
   assert.equal(response.status, 200);
   assert.equal(response.body.schema_version, 1);
   assert.equal(response.body.data.service, "token-profiler-dashboard-api");
   assert.equal(response.body.data.read_only, true);
   assert.equal(response.body.data.local_only, true);
+  assert.deepEqual(response.body.data.current_proxy, {
+    status: "running",
+    host: "127.0.0.1",
+    port: 8787,
+    capture_mode: "preview"
+  });
   assert.equal(response.body.data.capabilities.refresh, "request");
   assert.equal(response.headers["access-control-allow-origin"], "http://127.0.0.1:5173");
 });

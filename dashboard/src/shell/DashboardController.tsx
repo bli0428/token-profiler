@@ -37,7 +37,9 @@ export function DashboardController() {
   }, [artifactDetail, selectedRun, sessions, setViewState, status]);
 
   const refreshState = useRefresh(refresh, viewState.refreshMode);
-  const storageMode = selectedRun.data?.data.privacy.storage_mode;
+  const captureMode = status.data?.data.current_proxy?.status === "running"
+    ? status.data.data.current_proxy.capture_mode
+    : undefined;
 
   let content;
   if (status.loading) {
@@ -114,9 +116,9 @@ export function DashboardController() {
           <p>Local context exposure explorer</p>
           <p className="app-header-note">*Artifact-level attribution is estimated from local tokenization.</p>
         </div>
-        <div className="storage-mode-pill" aria-label="Storage mode">
-          <span>Storage mode:</span>
-          <strong>{formatStorageMode(storageMode)}</strong>
+        <div className="capture-mode-pill" aria-label="Capture mode">
+          <span>Capture mode:</span>
+          <strong>{formatCaptureMode(captureMode)}</strong>
         </div>
       </header>
       {content}
@@ -124,7 +126,7 @@ export function DashboardController() {
   );
 }
 
-function formatStorageMode(value: string | undefined): string {
+function formatCaptureMode(value: string | undefined): string {
   if (!value) return "Unavailable";
   if (value === "raw") return "Raw";
   return value.charAt(0).toUpperCase() + value.slice(1);

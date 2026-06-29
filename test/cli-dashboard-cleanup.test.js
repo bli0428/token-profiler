@@ -10,7 +10,7 @@ test("CLI help points to dashboard API workflow instead of static dashboard file
 
   assert.match(output, /dashboard-api serve/);
   assert.match(output, /daemon start\|stop\|status\|ensure/);
-  assert.match(output, /--storage-mode metadata\|preview\|raw/);
+  assert.match(output, /--capture-mode metadata\|preview\|raw/);
   assert.match(output, /--codex-home <path>/);
   assert.match(output, /setup codex/);
   assert.match(output, /local read-only dashboard HTTP API/);
@@ -53,7 +53,7 @@ test("daemon help exposes service flags but not run fallback", () => {
   const output = captureConsole(() => printDaemonHelp());
 
   assert.match(output, /--upstream <url>/);
-  assert.match(output, /--storage-mode metadata\|preview\|raw/);
+  assert.match(output, /--capture-mode metadata\|preview\|raw/);
   assert.match(output, /--codex-home <path>/);
   assert.match(output, /--no-codex/);
   assert.doesNotMatch(output, /--run <id>/);
@@ -70,13 +70,13 @@ test("setup autostart plist preserves daemon service flags", () => {
     dashboardPort: "8788",
     origin: "http://127.0.0.1:5173",
     upstream: "https://example.test/codex",
-    storageMode: "preview",
+    captureMode: "preview",
     codexHome: "/Users/example/.codex-alt",
     noCodex: true
   });
 
   assert.match(plist, /<string>--upstream<\/string>\s*<string>https:\/\/example\.test\/codex<\/string>/);
-  assert.match(plist, /<string>--storage-mode<\/string>\s*<string>preview<\/string>/);
+  assert.match(plist, /<string>--capture-mode<\/string>\s*<string>preview<\/string>/);
   assert.match(plist, /<string>--codex-home<\/string>\s*<string>\/Users\/example\/\.codex-alt<\/string>/);
   assert.match(plist, /<string>--no-codex<\/string>/);
 });

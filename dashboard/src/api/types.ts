@@ -49,6 +49,7 @@ export type DashboardStatus = {
   read_only: true;
   local_only: true;
   data_root_label: string;
+  current_proxy?: DashboardCurrentProxy;
   schema_version: SupportedSchemaVersion;
   capabilities: {
     sessions: true;
@@ -58,6 +59,18 @@ export type DashboardStatus = {
     refresh: "request";
   };
 };
+
+export type DashboardCurrentProxy =
+  | {
+    status: "running";
+    host: string;
+    port: number;
+    capture_mode: string;
+  }
+  | {
+    status: "not_running" | "unknown";
+    capture_mode?: string;
+  };
 
 export type DashboardMetricSet = {
   total_exposure?: number;

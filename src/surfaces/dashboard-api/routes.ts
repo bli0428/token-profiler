@@ -38,7 +38,7 @@ export async function handleDashboardApiRequest(
     const parts = url.pathname.split("/").filter(Boolean).map((part) => decodeURIComponent(part));
 
     if (parts.length === 2 && parts[0] === "api" && parts[1] === "status") {
-      return { status: 200, body: envelope(createStatusResponse(options.rootDir)), headers };
+      return { status: 200, body: envelope(await createStatusResponse(options.rootDir)), headers };
     }
 
     if (parts.length === 2 && parts[0] === "api" && parts[1] === "sessions") {

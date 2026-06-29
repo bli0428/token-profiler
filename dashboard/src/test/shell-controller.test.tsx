@@ -16,7 +16,7 @@ describe("dashboard shell/controller", () => {
     render(<DashboardShell />);
     expect(await screen.findByText(apiRealFixtures.sessions.data.sessions[0]!.label ?? apiRealFixtures.sessions.data.sessions[0]!.run_id)).toBeInTheDocument();
     expect(screen.getByText("API ready")).toBeInTheDocument();
-    expect(within(screen.getByRole("banner")).getByLabelText("Storage mode")).toHaveTextContent("Storage mode:");
+    expect(within(screen.getByRole("banner")).getByLabelText("Capture mode")).toHaveTextContent("Capture mode:Preview");
   });
 
   it("selects a session using run_id instead of canonical_run_id", async () => {
@@ -50,7 +50,20 @@ function mockApi(overrides: { getRun?: (url: string) => Promise<Response>; sessi
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string) => {
-      if (url.includes("/api/status")) return Response.json(apiRealFixtures.status);
+      if (url.includes("/api/status")) {
+        return Response.json({
+          ...apiRealFixtures.status,
+          data: {
+            ...apiRealFixtures.status.data,
+            current_proxy: {
+              status: "running",
+              host: "127.0.0.1",
+              port: 8787,
+              capture_mode: "preview"
+            }
+          }
+        });
+      }
       if (url.includes("/api/sessions")) {
         return Response.json(overrides.sessions ? { ...apiRealFixtures.sessions, data: { sessions: overrides.sessions } } : apiRealFixtures.sessions);
       }

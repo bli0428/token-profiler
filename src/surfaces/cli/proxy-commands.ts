@@ -17,7 +17,7 @@ type ProxyState = {
   port: number;
   upstream: string;
   run_id?: string | null;
-  storage_mode?: string;
+  capture_mode?: string;
   log_path?: string;
   started_at?: string;
 };
@@ -30,7 +30,7 @@ type StartProxyDaemonOptions = {
   upstream: string;
   host: string;
   port: number;
-  storageMode: string;
+  captureMode: string;
 };
 
 export async function runProxy(args: string[]): Promise<void> {
@@ -50,13 +50,13 @@ export async function runProxy(args: string[]): Promise<void> {
   const statePath = join(rootDir, "proxy-state.json");
 
   if (action === "start") {
-    const storageModeOption = typeof options["storage-mode"] === "string"
-      ? { storageMode: options["storage-mode"] }
+    const captureModeOption = typeof options["capture-mode"] === "string"
+      ? { storageMode: options["capture-mode"] }
       : {};
-    const storageMode = normalizeStorageMode({
-      ...storageModeOption
+    const captureMode = normalizeStorageMode({
+      ...captureModeOption
     });
-    await startProxyDaemon({ optionArgs, rootDir, statePath, runId, upstream, host, port, storageMode });
+    await startProxyDaemon({ optionArgs, rootDir, statePath, runId, upstream, host, port, captureMode });
     return;
   }
 
@@ -84,7 +84,7 @@ export async function runProxy(args: string[]): Promise<void> {
     }
     console.log(`Token profiler proxy is running (pid ${state.pid}).`);
     console.log(`Listening on http://${state.host}:${state.port}`);
-    if (state.storage_mode) console.log(`Storage mode: ${state.storage_mode}`);
+    if (state.capture_mode) console.log(`Capture mode: ${state.capture_mode}`);
     console.log(state.run_id ? `Fallback session: ${state.run_id}` : "Automatic session IDs are enabled.");
     return;
   }
@@ -93,15 +93,15 @@ export async function runProxy(args: string[]): Promise<void> {
     throw new Error("Use: proxy start|stop|status [--auth chatgpt|api] [--run <id>] [--upstream <url>] [--port <port>]");
   }
 
-  const storageModeOption = typeof options["storage-mode"] === "string"
-    ? { storageMode: options["storage-mode"] }
+  const captureModeOption = typeof options["capture-mode"] === "string"
+    ? { storageMode: options["capture-mode"] }
     : {};
-  const storageMode = normalizeStorageMode({
-    ...storageModeOption
+  const captureMode = normalizeStorageMode({
+    ...captureModeOption
   });
   const sessionRouter = new SessionRouter({
     rootDir,
-    storageMode,
+    storageMode: captureMode,
     fallbackSessionId: runId
   });
   const proxy = createProfilerProxy({ sessionRouter, upstream, host, port });
@@ -111,7 +111,7 @@ export async function runProxy(args: string[]): Promise<void> {
   console.log(`Forwarding to ${upstream}`);
   console.log(`Writing sessions under ${join(rootDir, "runs")}`);
   console.log(runId ? `Fallback session: ${runId}` : "Automatic session IDs are enabled.");
-  console.log(`Storage mode: ${storageMode}`);
+  console.log(`Capture mode: ${captureMode}`);
 
   const stop = async () => {
     console.log("\nStopping proxy...");
@@ -132,7 +132,7 @@ async function startProxyDaemon({
   upstream,
   host,
   port,
-  storageMode
+  captureMode
 }: StartProxyDaemonOptions): Promise<void> {
   const existing = await readProxyState(statePath, false);
   if (existing && isProcessRunning(existing.pid)) {
@@ -164,7 +164,7 @@ async function startProxyDaemon({
     port,
     upstream,
     run_id: runId,
-    storage_mode: storageMode,
+    capture_mode: captureMode,
     log_path: logPath,
     started_at: new Date().toISOString()
   };
@@ -187,7 +187,7 @@ async function startProxyDaemon({
 
   console.log(`Started token profiler proxy (pid ${child.pid}) on http://${host}:${port}`);
   console.log(`Writing sessions under ${join(rootDir, "runs")}`);
-  console.log(`Storage mode: ${storageMode}`);
+  console.log(`Capture mode: ${captureMode}`);
 }
 
 
@@ -306,11 +306,11 @@ async function runCodexThroughProxy(args: string[]): Promise<void> {
   const port = Number(options.port ?? 8787);
   const host = "127.0.0.1";
   const existing = await readProxyState(statePath, false);
-  const storageModeOption = typeof options["storage-mode"] === "string"
-    ? { storageMode: options["storage-mode"] }
+  const captureModeOption = typeof options["capture-mode"] === "string"
+    ? { storageMode: options["capture-mode"] }
     : {};
-  const storageMode = normalizeStorageMode({
-    ...storageModeOption
+  const captureMode = normalizeStorageMode({
+    ...captureModeOption
   });
 
   if (existing && isProcessRunning(existing.pid)) {
@@ -320,7 +320,7 @@ async function runCodexThroughProxy(args: string[]): Promise<void> {
   } else {
     const proxyArgs = ["--auth", authMode, "--port", String(port)];
     if (typeof options["data-dir"] === "string") proxyArgs.push("--data-dir", options["data-dir"]);
-    if (typeof options["storage-mode"] === "string") proxyArgs.push("--storage-mode", options["storage-mode"]);
+    if (typeof options["capture-mode"] === "string") proxyArgs.push("--capture-mode", options["capture-mode"]);
     await startProxyDaemon({
       optionArgs: proxyArgs,
       rootDir,
@@ -329,7 +329,7 @@ async function runCodexThroughProxy(args: string[]): Promise<void> {
       upstream,
       host,
       port,
-      storageMode
+      captureMode
     });
   }
 

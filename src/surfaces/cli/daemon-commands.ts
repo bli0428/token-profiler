@@ -217,8 +217,8 @@ function parseDaemonOptions(options: Record<string, string | boolean>): DaemonOp
   if (typeof options.upstream === "string") {
     proxyArgs.push("--upstream", options.upstream);
   }
-  if (typeof options["storage-mode"] === "string") {
-    proxyArgs.push("--storage-mode", options["storage-mode"]);
+  if (typeof options["capture-mode"] === "string") {
+    proxyArgs.push("--capture-mode", options["capture-mode"]);
   }
   if (typeof options["codex-home"] === "string") {
     dashboardArgs.push("--codex-home", options["codex-home"]);
@@ -266,7 +266,7 @@ Options:
   --upstream <url>
     Override the proxy upstream URL.
 
-  --storage-mode metadata|preview|raw
+  --capture-mode metadata|preview|raw
     Select capture privacy mode for proxy events. Defaults to preview.
 
   --codex-home <path>
@@ -278,7 +278,7 @@ Options:
 }
 
 function daemonUsage(): string {
-  return "Use: daemon start|stop|status|ensure|help [--auth chatgpt|api] [--data-dir <path>] [--host <host>] [--proxy-port <port>] [--dashboard-port <port>] [--origin <origin>] [--upstream <url>] [--storage-mode metadata|preview|raw] [--codex-home <path>] [--no-codex]";
+  return "Use: daemon start|stop|status|ensure|help [--auth chatgpt|api] [--data-dir <path>] [--host <host>] [--proxy-port <port>] [--dashboard-port <port>] [--origin <origin>] [--upstream <url>] [--capture-mode metadata|preview|raw] [--codex-home <path>] [--no-codex]";
 }
 
 function parsePort(value: string | boolean | number, name: string): number {
