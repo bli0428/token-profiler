@@ -15,12 +15,12 @@ export function ArtifactDetailPanel({ detail, loading, errorMessage }: Props) {
   if (errorMessage) return <ErrorState title="Artifact unavailable" message={errorMessage} />;
   if (!detail) return <EmptyState title="No artifact selected" message="Select an artifact row to inspect metadata and metrics." />;
 
-  const privacy = detail.privacy.raw_content_available && detail.privacy.raw_content_revealed
+  const content = availableContent(detail);
+  const privacy = content.kind === "raw"
     ? getPrivacyDisplay("raw_available")
-    : detail.content?.preview
+    : content.kind === "preview"
       ? getPrivacyDisplay("preview")
       : getPrivacyDisplay(detail.privacy.unavailable_fields.length > 0 ? "unavailable" : "hidden");
-  const rawContent = privacy.canShowRawContent ? detail.content?.raw : undefined;
   return (
     <aside className="detail-panel" aria-label="Artifact detail">
       <header>
@@ -38,11 +38,16 @@ export function ArtifactDetailPanel({ detail, loading, errorMessage }: Props) {
         <Section key={section.title} title={section.title} rows={section.rows} />
       ))}
       <Section title="Relationships" rows={relationshipRows(detail)} />
-      {detail.content?.preview && !rawContent ? <pre className="preview">{detail.content.preview}</pre> : null}
-      {rawContent ? <pre className="preview">{rawContent}</pre> : null}
+      {content.text ? <pre className="preview">{content.text}</pre> : null}
       <CaveatList caveats={detail.caveats} />
     </aside>
   );
+}
+
+function availableContent(detail: DashboardArtifactDetail): { kind: "metadata" | "preview" | "raw"; text?: string } {
+  if (detail.content?.raw) return { kind: "raw", text: detail.content.raw };
+  if (detail.content?.preview) return { kind: "preview", text: detail.content.preview };
+  return { kind: "metadata" };
 }
 
 function Section({ title, rows }: { title: string; rows: Array<{ label: string; value: string }> }) {

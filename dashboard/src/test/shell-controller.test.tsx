@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { DashboardSession } from "../api/types";
@@ -16,6 +16,7 @@ describe("dashboard shell/controller", () => {
     render(<DashboardShell />);
     expect(await screen.findByText(apiRealFixtures.sessions.data.sessions[0]!.label ?? apiRealFixtures.sessions.data.sessions[0]!.run_id)).toBeInTheDocument();
     expect(screen.getByText("API ready")).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByLabelText("Storage mode")).toHaveTextContent("Storage mode:");
   });
 
   it("selects a session using run_id instead of canonical_run_id", async () => {
