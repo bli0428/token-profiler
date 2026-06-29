@@ -43,7 +43,7 @@ describe("turn drilldown dashboard", () => {
 
     const firstTurn = screen.getAllByLabelText(/Turn \d+/)[0]!;
     expect(within(firstTurn).getByRole("heading", { name: "Wiring turn identity through recording" })).toBeInTheDocument();
-    expect(within(firstTurn).getByText("Assistant preview")).toBeInTheDocument();
+    expect(within(firstTurn).queryByText("Assistant preview")).not.toBeInTheDocument();
     expect(within(firstTurn).queryByRole("heading", { name: "req-alpha-1" })).not.toBeInTheDocument();
   });
 
@@ -94,13 +94,48 @@ describe("turn drilldown dashboard", () => {
         artifactRows={[]}
         expandedRequestIds={[]}
         expandedTurnIds={[]}
+        requestSortDirection="asc"
+        requestSortKey="time"
         turns={[]}
+        onChangeRequestSort={() => undefined}
         onSelectArtifact={() => undefined}
         onToggleRequest={() => undefined}
         onToggleTurn={() => undefined}
       />
     );
     expect(screen.getByText("No turns")).toBeInTheDocument();
+  });
+
+  it("renders turn totals and the first request time", () => {
+    renderExplorer({ run: turnRun() });
+
+    const firstTurn = screen.getAllByLabelText(/Turn \d+/)[0]!;
+    expect(within(firstTurn).getByText("Total Tokens")).toBeInTheDocument();
+    expect(within(firstTurn).getByText("Requests")).toBeInTheDocument();
+    expect(within(firstTurn).getByText(/6\/29\/2026/)).toBeInTheDocument();
+  });
+
+  it("sorts turns by selected category and direction", async () => {
+    const user = userEvent.setup();
+    const onChangeViewState = vi.fn();
+    const { rerender } = renderExplorer({
+      run: turnRun(),
+      viewState: { ...defaultViewState, expandedTurnIds: ["turn-alpha"] },
+      onChangeViewState
+    });
+
+    await user.selectOptions(screen.getByLabelText("Direction"), "desc");
+    expect(onChangeViewState).toHaveBeenCalledWith({ requestSortKey: "time", requestSortDirection: "desc" });
+
+    rerender(renderExplorerElement(
+      { ...defaultViewState, expandedTurnIds: ["turn-alpha"], requestSortDirection: "desc" },
+      onChangeViewState,
+      { run: turnRun() }
+    ));
+
+    const turnRows = screen.getAllByLabelText(/Turn \d+/);
+    expect(within(turnRows[0]!).getByRole("heading", { name: "Requests without turn identity" })).toBeInTheDocument();
+    expect(within(turnRows[1]!).getByRole("heading", { name: "Refactor capture flow" })).toBeInTheDocument();
   });
 });
 
@@ -139,6 +174,7 @@ function turnRun(): DashboardRun {
   const alphaRequests: DashboardTurnGroup["requests"] = [
     {
       request_id: "req-alpha-1",
+      timestamp: "2026-06-29T12:00:00.000Z",
       display_title: "Wiring turn identity through recording",
       title_source: "assistant_preview",
       chronology_index: 0,
@@ -149,11 +185,17 @@ function turnRun(): DashboardRun {
     },
     {
       request_id: "req-alpha-2",
+      timestamp: "2026-06-29T12:05:00.000Z",
       display_title: "Apply patch to recording",
       title_source: "action_label",
       chronology_index: 1,
       availability: firstRequest.availability,
-      usage: firstRequest.usage,
+      usage: firstRequest.usage ? {
+        ...firstRequest.usage,
+        uncached_input_tokens: firstRequest.usage.uncached_input_tokens + 10,
+        output_tokens: firstRequest.usage.output_tokens + 10,
+        total_tokens: firstRequest.usage.total_tokens + 20
+      } : undefined,
       artifact_inclusions: [],
       caveats: []
     }
@@ -190,6 +232,7 @@ function turnRun(): DashboardRun {
       artifact_ids: [],
       requests: [{
         request_id: "req-missing",
+        timestamp: "2026-06-29T12:10:00.000Z",
         display_title: "Requests without turn identity",
         title_source: "turn_title",
         chronology_index: 2,

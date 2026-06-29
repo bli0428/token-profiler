@@ -7,7 +7,7 @@ export type DashboardSortKey =
   | "estimated_cached_input_tokens"
   | "estimated_uncached_input_tokens";
 
-export type RequestSortKey = "time" | "input" | "output" | "cached_read" | "total_tokens" | "artifacts";
+export type RequestSortKey = "time" | "input" | "output" | "cached_read" | "total_tokens" | "requests";
 
 export type DashboardViewState = {
   selectedRunId?: string;

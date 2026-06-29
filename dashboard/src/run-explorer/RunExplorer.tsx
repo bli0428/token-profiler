@@ -48,8 +48,14 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
           artifactRows={run.artifacts}
           expandedTurnIds={viewState.expandedTurnIds}
           expandedRequestIds={viewState.expandedRequestIds}
+          requestSortKey={viewState.requestSortKey}
+          requestSortDirection={viewState.requestSortDirection}
           selectedArtifactId={viewState.selectedArtifactId}
           onSelectArtifact={(selectedArtifactId) => onChangeViewState({ selectedArtifactId })}
+          onChangeRequestSort={(next) => onChangeViewState({
+            requestSortKey: next.sortKey ?? viewState.requestSortKey,
+            requestSortDirection: next.sortDirection ?? viewState.requestSortDirection
+          })}
           onToggleRequest={toggleRequest}
           onToggleTurn={toggleTurn}
         />

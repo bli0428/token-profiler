@@ -158,6 +158,7 @@ function buildTurnRequest(
   const title = selectRequestTitle(row, turnTitle, legibility);
   return {
     request_id: row.request_id,
+    ...(row.timestamp !== undefined ? { timestamp: row.timestamp } : {}),
     display_title: title.display_title,
     title_source: title.title_source,
     chronology_index: row.chronology_index,

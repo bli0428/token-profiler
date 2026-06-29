@@ -186,6 +186,7 @@ export type TurnRequestTitleSource = "assistant_preview" | "action_label" | "tur
 
 export type DashboardTurnRequest = {
   request_id: string;
+  timestamp?: string;
   display_title: string;
   title_source: TurnRequestTitleSource;
   chronology_index: number;

@@ -1,5 +1,5 @@
 import type { DashboardArtifactRow, DashboardTurnGroup } from "../api/types";
-import { formatTokens } from "./request-format";
+import { formatTimestamp, turnMetricEntries } from "./request-format";
 import { RequestRow } from "./RequestRow";
 
 type Props = {
@@ -28,6 +28,7 @@ export function TurnRow({
   const panelId = `turn-${safeDomId(turn.turn_id)}-requests`;
   const toggle = () => onToggleTurn(turn.turn_id);
   const fallback = turn.grouping_source !== "direct_turn_id" || turn.confidence === "fallback";
+  const firstRequest = [...turn.requests].sort((left, right) => left.chronology_index - right.chronology_index)[0];
 
   return (
     <article
@@ -48,15 +49,15 @@ export function TurnRow({
       <header className="turn-row-header">
         <div>
           <h3>{turn.display_title}</h3>
-          <p className="turn-meta">
-            {titleSourceLabel(turn.title_source)} · {turn.requests.length} request{turn.requests.length === 1 ? "" : "s"} · {turn.artifact_ids.length} artifacts
-          </p>
           {fallback ? <p className="turn-fallback-label">{fallbackLabel(turn.grouping_source)}</p> : null}
         </div>
+        <time className="request-time turn-time" dateTime={firstRequest?.timestamp}>
+          {formatTimestamp(firstRequest?.timestamp, firstRequest?.chronology_index ?? index)}
+        </time>
         <dl className="turn-metrics" aria-label="Turn token totals">
-          <Metric label="Input" value={formatTokens(turn.metrics.uncached_input_tokens)} />
-          <Metric label="Output" value={formatTokens(turn.metrics.output_tokens)} />
-          <Metric label="Cached Read" value={formatTokens(turn.metrics.cached_input_tokens)} />
+          {turnMetricEntries(turn.metrics, turn.requests.length).map((entry) => (
+            <Metric key={entry.label} label={entry.label} value={entry.value} />
+          ))}
         </dl>
       </header>
       <div className="turn-actions">
@@ -103,13 +104,6 @@ function Metric({ label, value }: { label: string; value: string }) {
       <dd>{value}</dd>
     </div>
   );
-}
-
-function titleSourceLabel(source: DashboardTurnGroup["title_source"]): string {
-  if (source === "user_preview") return "User preview";
-  if (source === "safe_summary") return "Safe summary";
-  if (source === "turn_id") return "Turn ID";
-  return "Fallback";
 }
 
 function fallbackLabel(source: DashboardTurnGroup["grouping_source"]): string {

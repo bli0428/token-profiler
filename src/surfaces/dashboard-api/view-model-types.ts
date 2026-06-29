@@ -178,6 +178,7 @@ export type DashboardViewTaskGroup = {
 
 export type DashboardViewTurnRequest = {
   request_id: string;
+  timestamp?: string | undefined;
   display_title: string;
   title_source: TurnRequestTitleSource;
   chronology_index: number;

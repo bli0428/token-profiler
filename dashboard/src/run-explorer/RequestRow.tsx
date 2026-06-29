@@ -40,8 +40,6 @@ export function RequestRow({ request, artifactRows, expanded, selectedArtifactId
       <header className="request-row-header">
         <div>
           <h3>{requestTitle}</h3>
-          {requestTitle !== request.request_id ? <p className="request-id-fallback">{request.request_id}</p> : null}
-          {"title_source" in request ? <p className="request-title-source">{titleSourceLabel(request.title_source)}</p> : null}
         </div>
         <time className="request-time" dateTime={timestamp}>{formatTimestamp(timestamp, request.chronology_index)}</time>
       </header>
@@ -86,11 +84,4 @@ export function RequestRow({ request, artifactRows, expanded, selectedArtifactId
       </div>
     </article>
   );
-}
-
-function titleSourceLabel(source: DashboardTurnRequest["title_source"]): string {
-  if (source === "assistant_preview") return "Assistant preview";
-  if (source === "action_label") return "Action label";
-  if (source === "turn_title") return "Turn title";
-  return "Request ID";
 }

@@ -49,6 +49,21 @@ export function requestMetricEntries(usage: ProviderRequestUsage | undefined, ar
   ];
 }
 
+export function turnMetricEntries(metrics: {
+  uncached_input_tokens?: number;
+  output_tokens?: number;
+  cached_input_tokens?: number;
+  total_tokens?: number;
+}, requestCount: number): Array<{ label: string; value: string }> {
+  return [
+    { label: "Input", value: formatTokens(metrics.uncached_input_tokens) },
+    { label: "Output", value: formatTokens(metrics.output_tokens) },
+    { label: "Cached Read", value: formatTokens(metrics.cached_input_tokens) },
+    { label: "Total Tokens", value: formatTokens(metrics.total_tokens) },
+    { label: "Requests", value: formatTokens(requestCount) }
+  ];
+}
+
 export function privacyDisplayState(privacy: DashboardPrivacyState): "hidden" | "unavailable" | "preview" | "raw_available" {
   if (privacy.raw_content_available && privacy.raw_content_revealed) return "raw_available";
   if (privacy.preview_fields.length > 0) return "preview";

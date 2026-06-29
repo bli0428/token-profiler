@@ -393,6 +393,7 @@ function dashboardTurns(turns: TurnGroup[]): DashboardViewTurnGroup[] {
 function toDashboardTurnRequest(request: TurnRequest): DashboardViewTurnRequest {
   return {
     request_id: request.request_id,
+    ...(request.timestamp !== undefined ? { timestamp: request.timestamp } : {}),
     display_title: request.display_title,
     title_source: request.title_source,
     chronology_index: request.chronology_index,
