@@ -19,7 +19,9 @@ import {
   type DashboardApiRunOverview,
   type DashboardApiSession,
   type DashboardApiStatus,
-  type DashboardApiTaskGroup
+  type DashboardApiTaskGroup,
+  type DashboardApiTurnGroup,
+  type DashboardApiTurnRequest
 } from "./types.ts";
 
 type ProxyState = {
@@ -137,6 +139,8 @@ type DashboardOverviewSource = DashboardViewSource["overview"];
 type DashboardArtifactRowSource = DashboardViewSource["artifacts"][number];
 type DashboardArtifactDetailSource = DashboardViewSource["artifact_details"][string];
 type DashboardTaskGroupSource = DashboardViewSource["task_groups"][number];
+type DashboardTurnGroupSource = DashboardViewSource["turns"][number];
+type DashboardTurnRequestSource = DashboardTurnGroupSource["requests"][number];
 type DashboardPrivacySource = DashboardViewSource["privacy"];
 type DashboardFilterSource = DashboardViewSource["filters"];
 type DashboardMetadataSectionSource = DashboardArtifactDetailSource["metadata_sections"][number];
@@ -182,6 +186,7 @@ function toApiRun(view: DashboardViewSource, runId: string): DashboardApiRun {
       Object.entries(view.artifact_details).map(([artifactId, detail]) => [artifactId, toApiArtifactDetail(detail)])
     ),
     task_groups: view.task_groups.map(toApiTaskGroup),
+    turns: view.turns.map(toApiTurnGroup),
     filters: toApiFilters(view.filters),
     privacy: toApiPrivacy(view.privacy),
     caveats: view.caveats
@@ -365,6 +370,60 @@ function toApiTaskGroup(group: DashboardTaskGroupSource): DashboardApiTaskGroup 
     },
     privacy: toApiPrivacy(group.privacy),
     caveats: [...group.caveats]
+  };
+}
+
+function toApiTurnGroup(group: DashboardTurnGroupSource): DashboardApiTurnGroup {
+  return {
+    turn_id: group.turn_id,
+    display_title: group.display_title,
+    title_source: group.title_source,
+    grouping_source: group.grouping_source,
+    confidence: group.confidence,
+    request_ids: [...group.request_ids],
+    artifact_ids: [...group.artifact_ids],
+    requests: group.requests.map(toApiTurnRequest),
+    metrics: {
+      ...(group.metrics.input_tokens !== undefined ? { input_tokens: group.metrics.input_tokens } : {}),
+      ...(group.metrics.cached_input_tokens !== undefined ? { cached_input_tokens: group.metrics.cached_input_tokens } : {}),
+      ...(group.metrics.uncached_input_tokens !== undefined ? { uncached_input_tokens: group.metrics.uncached_input_tokens } : {}),
+      ...(group.metrics.output_tokens !== undefined ? { output_tokens: group.metrics.output_tokens } : {}),
+      ...(group.metrics.total_tokens !== undefined ? { total_tokens: group.metrics.total_tokens } : {}),
+      total_local_artifact_tokens: group.metrics.total_local_artifact_tokens,
+      artifact_count: group.metrics.artifact_count
+    },
+    privacy: toApiPrivacy(group.privacy),
+    caveats: [...group.caveats]
+  };
+}
+
+function toApiTurnRequest(request: DashboardTurnRequestSource): DashboardApiTurnRequest {
+  return {
+    request_id: request.request_id,
+    display_title: request.display_title,
+    title_source: request.title_source,
+    chronology_index: request.chronology_index,
+    availability: {
+      status: request.availability.status,
+      usage_status: request.availability.usage_status,
+      attribution_status: request.availability.attribution_status,
+      missing_facts: [...request.availability.missing_facts],
+      limitations: [...request.availability.limitations],
+      ...(request.availability.reason !== undefined ? { reason: request.availability.reason } : {})
+    },
+    ...(request.usage !== undefined ? {
+      usage: {
+        input_tokens: request.usage.input_tokens,
+        cached_input_tokens: request.usage.cached_input_tokens,
+        uncached_input_tokens: request.usage.uncached_input_tokens,
+        output_tokens: request.usage.output_tokens,
+        total_tokens: request.usage.total_tokens,
+        ...(request.usage.response_id !== undefined ? { response_id: request.usage.response_id } : {}),
+        source: request.usage.source
+      }
+    } : {}),
+    artifact_inclusions: request.artifact_inclusions.map(toApiRequestArtifactInclusion),
+    caveats: [...request.caveats]
   };
 }
 

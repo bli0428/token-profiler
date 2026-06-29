@@ -2,8 +2,11 @@ import type {
   AnalysisCaveat,
   ArtifactDetail,
   ReadableArtifact,
+  RequestArtifactInclusion,
   RunAnalysisSummary,
-  TaskGroup
+  TaskGroup,
+  TurnGroup,
+  TurnRequest
 } from "../../analysis/types.ts";
 import type { JsonObject } from "../../core/events/types.ts";
 import { dashboardPrivacyState, metadataRow, safeSearchText } from "./privacy.ts";
@@ -17,6 +20,8 @@ import type {
   DashboardViewRunOverview,
   DashboardViewSession,
   DashboardViewTaskGroup,
+  DashboardViewTurnGroup,
+  DashboardViewTurnRequest,
   DashboardViewModel
 } from "./view-model-types.ts";
 
@@ -25,6 +30,7 @@ export function createDashboardViewModel(
   options: { session?: DashboardViewSession; runDir?: string } = {}
 ): DashboardViewModel {
   const taskGroups = dashboardTaskGroups(summary.task_groups ?? [], summary);
+  const turns = dashboardTurns(summary.turns ?? []);
   const taskIdsByArtifact = mapTaskIdsByArtifact(taskGroups);
   const artifacts = dashboardArtifactRows(summary, taskIdsByArtifact);
   const details = dashboardArtifactDetails(summary.legibility?.details ?? [], taskIdsByArtifact);
@@ -53,6 +59,7 @@ export function createDashboardViewModel(
     artifacts,
     artifact_details: Object.fromEntries(details.map((detail) => [detail.artifact_id, detail])),
     task_groups: taskGroups,
+    turns,
     filters: {
       categories,
       task_groups: taskGroups.map((group) => ({
@@ -116,7 +123,7 @@ function dashboardRequestAccounting(summary: RunAnalysisSummary): DashboardViewR
   };
 }
 
-function toDashboardRequestArtifactInclusion(inclusion: import("../../analysis/types.ts").RequestArtifactInclusion): DashboardViewRequestArtifactInclusion {
+function toDashboardRequestArtifactInclusion(inclusion: RequestArtifactInclusion): DashboardViewRequestArtifactInclusion {
   const privacy = dashboardPrivacyState({
     storageMode: inclusion.privacy.storage_mode,
     previewState: inclusion.privacy.preview_state,
@@ -352,6 +359,65 @@ function dashboardTaskGroups(groups: TaskGroup[], summary: RunAnalysisSummary): 
     const requestB = summary.requests.findIndex((request) => request.request_id === b.request_ids[0]);
     return (requestA - requestB) || a.task_group_id.localeCompare(b.task_group_id);
   });
+}
+
+function dashboardTurns(turns: TurnGroup[]): DashboardViewTurnGroup[] {
+  return turns.map((turn) => ({
+    turn_id: turn.turn_id,
+    display_title: turn.display_title,
+    title_source: turn.title_source,
+    grouping_source: turn.grouping_source,
+    confidence: turn.confidence,
+    request_ids: [...turn.request_ids],
+    artifact_ids: [...turn.artifact_ids],
+    requests: turn.requests.map(toDashboardTurnRequest),
+    metrics: {
+      ...(turn.metrics.input_tokens !== undefined ? { input_tokens: turn.metrics.input_tokens } : {}),
+      ...(turn.metrics.cached_input_tokens !== undefined ? { cached_input_tokens: turn.metrics.cached_input_tokens } : {}),
+      ...(turn.metrics.uncached_input_tokens !== undefined ? { uncached_input_tokens: turn.metrics.uncached_input_tokens } : {}),
+      ...(turn.metrics.output_tokens !== undefined ? { output_tokens: turn.metrics.output_tokens } : {}),
+      ...(turn.metrics.total_tokens !== undefined ? { total_tokens: turn.metrics.total_tokens } : {}),
+      total_local_artifact_tokens: turn.metrics.total_local_artifact_tokens,
+      artifact_count: turn.metrics.artifact_count
+    },
+    privacy: dashboardPrivacyState({
+      storageMode: turn.privacy.preview_state === "hidden" ? "metadata" : "preview",
+      previewState: turn.privacy.preview_state,
+      hiddenFields: turn.privacy.prompt_available ? [] : ["prompt"],
+      caveats: turn.caveats.filter((caveat) => caveat.code.includes("privacy"))
+    }),
+    caveats: uniqueCaveats(turn.caveats)
+  }));
+}
+
+function toDashboardTurnRequest(request: TurnRequest): DashboardViewTurnRequest {
+  return {
+    request_id: request.request_id,
+    display_title: request.display_title,
+    title_source: request.title_source,
+    chronology_index: request.chronology_index,
+    availability: {
+      status: request.availability.status,
+      usage_status: request.availability.usage_status,
+      attribution_status: request.availability.attribution_status,
+      missing_facts: [...request.availability.missing_facts],
+      limitations: [...request.availability.limitations],
+      ...(request.availability.reason !== undefined ? { reason: request.availability.reason } : {})
+    },
+    ...(request.usage !== undefined ? {
+      usage: {
+        input_tokens: request.usage.input_tokens,
+        cached_input_tokens: request.usage.cached_input_tokens,
+        uncached_input_tokens: request.usage.uncached_input_tokens,
+        output_tokens: request.usage.output_tokens,
+        total_tokens: request.usage.total_tokens,
+        ...(request.usage.response_id !== undefined ? { response_id: request.usage.response_id } : {}),
+        source: request.usage.source
+      }
+    } : {}),
+    artifact_inclusions: request.artifact_inclusions.map(toDashboardRequestArtifactInclusion),
+    caveats: uniqueCaveats(request.caveats)
+  };
 }
 
 function mapTaskIdsByArtifact(groups: DashboardViewTaskGroup[]): Map<string, string[]> {

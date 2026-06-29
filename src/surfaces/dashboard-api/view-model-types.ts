@@ -6,6 +6,10 @@ import type {
   RequestUsageAvailability,
   SessionIdentityMapping,
   PreviewState,
+  TurnConfidence,
+  TurnGroupingSource,
+  TurnRequestTitleSource,
+  TurnTitleSource,
   ToolCallLink
 } from "../../analysis/types.ts";
 
@@ -172,6 +176,39 @@ export type DashboardViewTaskGroup = {
   caveats: DashboardViewCaveat[];
 };
 
+export type DashboardViewTurnRequest = {
+  request_id: string;
+  display_title: string;
+  title_source: TurnRequestTitleSource;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage | undefined;
+  artifact_inclusions: DashboardViewRequestArtifactInclusion[];
+  caveats: DashboardViewCaveat[];
+};
+
+export type DashboardViewTurnGroup = {
+  turn_id: string;
+  display_title: string;
+  title_source: TurnTitleSource;
+  grouping_source: TurnGroupingSource;
+  confidence: TurnConfidence;
+  request_ids: string[];
+  artifact_ids: string[];
+  requests: DashboardViewTurnRequest[];
+  metrics: {
+    input_tokens?: number | undefined;
+    cached_input_tokens?: number | undefined;
+    uncached_input_tokens?: number | undefined;
+    output_tokens?: number | undefined;
+    total_tokens?: number | undefined;
+    total_local_artifact_tokens: number;
+    artifact_count: number;
+  };
+  privacy: DashboardViewPrivacyState;
+  caveats: DashboardViewCaveat[];
+};
+
 export type DashboardViewFilterOptions = {
   categories: string[];
   task_groups: Array<{ task_group_id: string; display_name: string }>;
@@ -189,6 +226,7 @@ export type DashboardViewModel = {
   artifacts: DashboardViewArtifactRow[];
   artifact_details: Record<string, DashboardViewArtifactDetail>;
   task_groups: DashboardViewTaskGroup[];
+  turns: DashboardViewTurnGroup[];
   filters: DashboardViewFilterOptions;
   privacy: DashboardViewPrivacyState;
   caveats: DashboardViewCaveat[];

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -9,6 +9,11 @@ import {
   requestArtifactInclusionEvents
 } from "./helpers/request-accounting-fixtures.js";
 import { artifact, usage } from "./helpers/analyzer-fixtures.js";
+
+async function fixture(name) {
+  const text = await readFile(new URL(`./fixtures/events/${name}`, import.meta.url), "utf8");
+  return text.trim().split("\n").map((line) => JSON.parse(line));
+}
 
 test("dashboard API exposes request accounting capability and run request rows", async () => {
   const root = tempRoot("request-accounting");
@@ -112,6 +117,51 @@ test("dashboard API exposes request-scoped artifact inclusions", async () => {
   assert.equal(detail.artifact_inclusions[0].privacy.hidden_fields.includes("raw_content"), true);
   assert.equal(detail.artifact_inclusions[1].estimated_uncached_input_tokens, 12);
   assert.equal(detail.artifact_inclusions[1].caveats.some((caveat) => caveat.code === "local_artifact_attribution_estimate"), true);
+});
+
+test("dashboard API exposes run detail turns collection", async () => {
+  const root = tempRoot("turns");
+  await writeRun(root, "selected", await fixture("turn-hierarchy.jsonl"));
+
+  const response = await handleDashboardApiRequest("GET", "/api/runs/selected", { rootDir: root });
+  const turns = response.body.data.turns;
+
+  assert.equal(response.status, 200);
+  assert.equal(turns.length, 3);
+  assert.equal(turns[0].turn_id, "turn_alpha");
+  assert.equal(turns[0].display_title, "Refactor capture flow");
+  assert.equal(turns[0].title_source, "user_preview");
+  assert.equal(turns[0].grouping_source, "direct_turn_id");
+  assert.deepEqual(turns[0].request_ids, ["req_1", "req_2"]);
+  assert.deepEqual(turns[0].requests.map((request) => request.request_id), ["req_1", "req_2"]);
+});
+
+test("dashboard API keeps artifact details keyed by artifact id for turn references", async () => {
+  const root = tempRoot("turn-artifact-details");
+  await writeRun(root, "selected", await fixture("turn-hierarchy.jsonl"));
+
+  const response = await handleDashboardApiRequest("GET", "/api/runs/selected", { rootDir: root });
+  const patchId = "PATCH:alpha";
+  const turnPatch = response.body.data.turns[0].requests[1].artifact_inclusions
+    .find((inclusion) => inclusion.artifact_id === patchId);
+
+  assert.ok(turnPatch);
+  assert.ok(response.body.data.artifact_details[patchId]);
+  assert.equal(response.body.data.artifact_details[patchId].artifact_id, patchId);
+});
+
+test("dashboard API labels fallback turn grouping", async () => {
+  const root = tempRoot("turn-fallback");
+  await writeRun(root, "selected", await fixture("turn-hierarchy.jsonl"));
+
+  const response = await handleDashboardApiRequest("GET", "/api/runs/selected", { rootDir: root });
+  const fallback = response.body.data.turns.find((turn) => turn.grouping_source === "missing_turn_id");
+
+  assert.ok(fallback);
+  assert.equal(fallback.turn_id, "turn:fallback:missing");
+  assert.equal(fallback.confidence, "fallback");
+  assert.equal(fallback.title_source, "fallback");
+  assert.ok(fallback.caveats.some((caveat) => caveat.code === "turn_identity_missing"));
 });
 
 function tempRoot(name) {

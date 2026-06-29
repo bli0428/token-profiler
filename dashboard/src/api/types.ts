@@ -179,6 +179,44 @@ export type DashboardRequestAccounting = {
   caveats: DashboardCaveat[];
 };
 
+export type TurnTitleSource = "user_preview" | "safe_summary" | "fallback" | "turn_id";
+export type TurnGroupingSource = "direct_turn_id" | "missing_turn_id" | "fallback";
+export type TurnConfidence = "complete" | "partial" | "fallback";
+export type TurnRequestTitleSource = "assistant_preview" | "action_label" | "turn_title" | "request_id";
+
+export type DashboardTurnRequest = {
+  request_id: string;
+  display_title: string;
+  title_source: TurnRequestTitleSource;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage;
+  artifact_inclusions: DashboardRequestArtifactInclusion[];
+  caveats: DashboardCaveat[];
+};
+
+export type DashboardTurnGroup = {
+  turn_id: string;
+  display_title: string;
+  title_source: TurnTitleSource;
+  grouping_source: TurnGroupingSource;
+  confidence: TurnConfidence;
+  request_ids: string[];
+  artifact_ids: string[];
+  requests: DashboardTurnRequest[];
+  metrics: {
+    input_tokens?: number;
+    cached_input_tokens?: number;
+    uncached_input_tokens?: number;
+    output_tokens?: number;
+    total_tokens?: number;
+    total_local_artifact_tokens: number;
+    artifact_count: number;
+  };
+  privacy: DashboardPrivacyState;
+  caveats: DashboardCaveat[];
+};
+
 export type DashboardSessionsData = {
   sessions: DashboardSession[];
 };
@@ -251,6 +289,7 @@ export type DashboardRun = {
   artifacts: DashboardArtifactRow[];
   artifact_details: Record<string, DashboardArtifactDetail>;
   task_groups: DashboardTaskGroup[];
+  turns: DashboardTurnGroup[];
   filters: DashboardFilterOptions;
   privacy: DashboardPrivacyState;
   caveats: DashboardCaveat[];

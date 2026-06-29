@@ -61787,7 +61787,152 @@
           }
         }
       ]
-    }
+    },
+    "turns": [
+      {
+        "turn_id": "turn:fallback:fixture",
+        "display_title": "Fixture turn grouping unavailable",
+        "title_source": "fallback",
+        "grouping_source": "fallback",
+        "confidence": "fallback",
+        "request_ids": [
+          "fixture-request-001"
+        ],
+        "artifact_ids": [
+          "USER_MESSAGE:message:user:6:16",
+          "USER_MESSAGE:message:user:6:9"
+        ],
+        "requests": [
+          {
+            "request_id": "fixture-request-001",
+            "display_title": "fixture-request-001",
+            "title_source": "request_id",
+            "chronology_index": 0,
+            "availability": {
+              "status": "complete",
+              "usage_status": "reported",
+              "attribution_status": "complete",
+              "missing_facts": [],
+              "limitations": []
+            },
+            "usage": {
+              "input_tokens": 563810,
+              "cached_input_tokens": 424832,
+              "uncached_input_tokens": 138978,
+              "output_tokens": 1076,
+              "total_tokens": 564886,
+              "source": "provider_reported"
+            },
+            "artifact_inclusions": [
+              {
+                "artifact_id": "USER_MESSAGE:message:user:6:16",
+                "stable_short_id": "ageuser616",
+                "artifact_type": "user_message",
+                "display_name": "User message",
+                "display_category": "user_message",
+                "request_order": 0,
+                "local_token_count": 1642,
+                "estimated_cached_input_tokens": 13786.961615341392,
+                "estimated_uncached_input_tokens": 4727.344822541534,
+                "attribution_state": "estimated",
+                "privacy": {
+                  "storage_mode": "metadata",
+                  "raw_content_available": false,
+                  "raw_content_revealed": false,
+                  "preview_fields": [],
+                  "hidden_fields": [
+                    "raw_content"
+                  ],
+                  "unavailable_fields": [],
+                  "caveats": []
+                },
+                "caveats": [
+                  {
+                    "code": "local_artifact_attribution_estimate",
+                    "severity": "info",
+                    "message": "Artifact-level attribution is estimated from local tokenization. Provider-reported request totals remain authoritative when present.",
+                    "applies_to": {
+                      "analyzer_id": "request-accounting"
+                    }
+                  }
+                ]
+              },
+              {
+                "artifact_id": "USER_MESSAGE:message:user:6:9",
+                "stable_short_id": "sageuser69",
+                "artifact_type": "user_message",
+                "display_name": "User message",
+                "display_category": "user_message",
+                "request_order": 1,
+                "local_token_count": 1628,
+                "estimated_cached_input_tokens": 13669.41139450412,
+                "estimated_uncached_input_tokens": 4687.038593847516,
+                "attribution_state": "estimated",
+                "privacy": {
+                  "storage_mode": "metadata",
+                  "raw_content_available": false,
+                  "raw_content_revealed": false,
+                  "preview_fields": [],
+                  "hidden_fields": [
+                    "raw_content"
+                  ],
+                  "unavailable_fields": [],
+                  "caveats": []
+                },
+                "caveats": [
+                  {
+                    "code": "local_artifact_attribution_estimate",
+                    "severity": "info",
+                    "message": "Artifact-level attribution is estimated from local tokenization. Provider-reported request totals remain authoritative when present.",
+                    "applies_to": {
+                      "analyzer_id": "request-accounting"
+                    }
+                  }
+                ]
+              }
+            ],
+            "caveats": [
+              {
+                "code": "local_artifact_attribution_estimate",
+                "severity": "info",
+                "message": "Artifact-level attribution is estimated from local tokenization. Provider-reported request totals remain authoritative when present.",
+                "applies_to": {
+                  "analyzer_id": "request-accounting"
+                }
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "input_tokens": 563810,
+          "cached_input_tokens": 424832,
+          "uncached_input_tokens": 138978,
+          "output_tokens": 1076,
+          "total_tokens": 564886,
+          "total_local_artifact_tokens": 3270,
+          "artifact_count": 2
+        },
+        "privacy": {
+          "storage_mode": "metadata",
+          "raw_content_available": false,
+          "raw_content_revealed": false,
+          "preview_fields": [],
+          "hidden_fields": [
+            "prompt",
+            "raw_content"
+          ],
+          "unavailable_fields": [],
+          "caveats": []
+        },
+        "caveats": [
+          {
+            "code": "fixture_turn_identity_unavailable",
+            "severity": "info",
+            "message": "Captured fixture predates first-class turn identity; this fallback turn exists only to satisfy the current API contract."
+          }
+        ]
+      }
+    ]
   },
   "caveats": [
     {

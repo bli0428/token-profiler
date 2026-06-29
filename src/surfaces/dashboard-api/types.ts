@@ -5,6 +5,10 @@ import type {
   RequestCacheAttributionSummary,
   RequestUsageAvailability,
   PreviewState,
+  TurnConfidence,
+  TurnGroupingSource,
+  TurnRequestTitleSource,
+  TurnTitleSource,
   ToolCallLink
 } from "../../analysis/types.ts";
 
@@ -99,6 +103,7 @@ export type DashboardApiRun = {
   artifacts: DashboardApiArtifactRow[];
   artifact_details: Record<string, DashboardApiArtifactDetail>;
   task_groups: DashboardApiTaskGroup[];
+  turns: DashboardApiTurnGroup[];
   filters: DashboardApiFilterOptions;
   privacy: DashboardApiPrivacyState;
   caveats: DashboardApiCaveat[];
@@ -244,6 +249,39 @@ export type DashboardApiTaskGroup = {
     output_tokens?: number | undefined;
     total_exposure: number;
     repeated_exposure: number;
+  };
+  privacy: DashboardApiPrivacyState;
+  caveats: DashboardApiCaveat[];
+};
+
+export type DashboardApiTurnRequest = {
+  request_id: string;
+  display_title: string;
+  title_source: TurnRequestTitleSource;
+  chronology_index: number;
+  availability: RequestUsageAvailability;
+  usage?: ProviderRequestUsage | undefined;
+  artifact_inclusions: DashboardApiRequestArtifactInclusion[];
+  caveats: DashboardApiCaveat[];
+};
+
+export type DashboardApiTurnGroup = {
+  turn_id: string;
+  display_title: string;
+  title_source: TurnTitleSource;
+  grouping_source: TurnGroupingSource;
+  confidence: TurnConfidence;
+  request_ids: string[];
+  artifact_ids: string[];
+  requests: DashboardApiTurnRequest[];
+  metrics: {
+    input_tokens?: number | undefined;
+    cached_input_tokens?: number | undefined;
+    uncached_input_tokens?: number | undefined;
+    output_tokens?: number | undefined;
+    total_tokens?: number | undefined;
+    total_local_artifact_tokens: number;
+    artifact_count: number;
   };
   privacy: DashboardApiPrivacyState;
   caveats: DashboardApiCaveat[];

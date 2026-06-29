@@ -121,6 +121,17 @@ test("analysis prefers assistant preview for request titles", async () => {
   assert.equal(secondRequest.title_source, "assistant_preview");
 });
 
+test("dashboard model preserves turn request title sources", async () => {
+  const summary = analyzeEvents(await fixture("turn-hierarchy.jsonl"));
+  const model = createDashboardViewModel(summary);
+  const alpha = model.turns.find((turn) => turn.turn_id === "turn_alpha");
+  const beta = model.turns.find((turn) => turn.turn_id === "turn_beta");
+
+  assert.equal(alpha.requests.find((request) => request.request_id === "req_2").title_source, "assistant_preview");
+  assert.equal(beta.requests[0].title_source, "action_label");
+  assert.equal(alpha.requests.find((request) => request.request_id === "req_2").display_title, "Wiring turn identity through recording");
+});
+
 test("analysis groups missing turn identity under explicit fallback", async () => {
   const summary = analyzeEvents(await fixture("turn-hierarchy.jsonl"));
   const fallback = summary.turns.find((turn) => turn.grouping_source === "missing_turn_id");
