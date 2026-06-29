@@ -69,7 +69,8 @@ export function createProfilerProxy({
             requestId,
             payload,
             requestPath: request.url,
-            sessionSource: session?.source
+            sessionSource: session?.source,
+            turnIdentity: session?.turnIdentity
           });
         }
       }

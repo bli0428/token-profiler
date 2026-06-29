@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -65,6 +65,12 @@ test("parses Codex turn metadata and safe header shape", () => {
 
   assert.equal(envelope.turnMetadata.header.session_id, "019f06aa-c64a-70f0-a6ef-968b5954ef7f");
   assert.equal(envelope.turnMetadata.header.extra.workspace_kind, "project");
+  assert.deepEqual(envelope.turnIdentity, {
+    turnId: "019f0a51-9e25-7a61-9e6a-2e2c14c0c7d8",
+    turnIdentitySource: "direct_turn_id",
+    turnStartedAt: "2026-06-27T18:22:28.904Z",
+    caveats: []
+  });
   assert.deepEqual(envelope.transportHeaders.betaFeatures, ["remote_compaction_v2"]);
   assert.equal(envelope.transportHeaders.accountHeaderPresent, true);
   assert.equal(envelope.transportHeaders.attestationPresent, true);
@@ -72,6 +78,96 @@ test("parses Codex turn metadata and safe header shape", () => {
   assert.equal(envelope.compatibility.headers.sessionId, "019f06aa-c64a-70f0-a6ef-968b5954ef7f");
   assert.equal(envelope.observedHeaderKeys.includes("authorization"), true);
   assert.deepEqual(envelope.observedClientMetadataKeys, []);
+});
+
+test("routes direct Codex turn_id alongside session identity", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "session-router-test-"));
+  const router = new SessionRouter({ rootDir });
+
+  try {
+    const session = router.resolve({
+      payload: {
+        client_metadata: {
+          "x-codex-turn-metadata": JSON.stringify({
+            session_id: "direct-session",
+            thread_id: "direct-thread",
+            turn_id: "turn-direct-1",
+            turn_started_at_unix_ms: 1782584548904
+          })
+        }
+      }
+    });
+
+    assert.equal(session.sessionId, "codex-direct-session");
+    assert.equal(session.turnIdentity.turnId, "turn-direct-1");
+    assert.equal(session.turnIdentity.turnIdentitySource, "direct_turn_id");
+    assert.equal(session.turnIdentity.turnStartedAt, "2026-06-27T18:22:28.904Z");
+  } finally {
+    await rm(rootDir, { recursive: true, force: true });
+  }
+});
+
+test("keeps missing Codex turn identity explicit without fallback ids", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "session-router-test-"));
+  const router = new SessionRouter({ rootDir });
+
+  try {
+    const session = router.resolve({
+      payload: {
+        client_metadata: {
+          "x-codex-turn-metadata": JSON.stringify({
+            session_id: "missing-turn-session",
+            thread_id: "missing-turn-thread"
+          })
+        },
+        prompt_cache_key: "do-not-use-as-turn-id"
+      }
+    });
+
+    assert.equal(session.sessionId, "codex-missing-turn-session");
+    assert.equal(session.turnIdentity.turnIdentitySource, "missing");
+    assert.equal("turnId" in session.turnIdentity, false);
+    assert.equal(session.turnIdentity.caveats[0].code, "turn_identity_missing");
+  } finally {
+    await rm(rootDir, { recursive: true, force: true });
+  }
+});
+
+test("keeps malformed Codex turn identity explicit without fallback ids", () => {
+  const envelope = parseCodexRequestEnvelope({
+    headers: {
+      "x-codex-turn-metadata": "{not-json"
+    },
+    payload: {
+      prompt_cache_key: "do-not-use-as-turn-id"
+    }
+  });
+
+  assert.equal(envelope.turnIdentity.turnIdentitySource, "malformed");
+  assert.equal("turnId" in envelope.turnIdentity, false);
+  assert.equal(envelope.turnIdentity.caveats[0].code, "turn_identity_malformed");
+});
+
+test("fixture documents canonical request-level turn identity events", async () => {
+  const raw = await readFile(
+    join(process.cwd(), "test", "fixtures", "events", "turn-identity.jsonl"),
+    "utf8"
+  );
+  const events = raw.trim().split("\n").map(JSON.parse);
+
+  assert.deepEqual(events.map((event) => event.event_kind), [
+    "request_turn_identity",
+    "request_turn_identity",
+    "request_turn_identity"
+  ]);
+  assert.deepEqual(events.map((event) => event.turn_identity_source), [
+    "direct_turn_id",
+    "missing",
+    "malformed"
+  ]);
+  assert.equal(events[0].turn_id, "turn_direct_1");
+  assert.equal("turn_id" in events[1], false);
+  assert.equal("turn_id" in events[2], false);
 });
 
 test("prefers client_metadata Codex turn metadata over compatibility headers", () => {

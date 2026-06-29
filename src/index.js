@@ -2,7 +2,7 @@ export { ARTIFACT_TYPES, TokenProfiler } from "./core/capture/index.ts";
 export { aggregateEvents } from "./analysis/aggregate.ts";
 export { analyzeEvents, exportAnalysisResult } from "./analysis/pipeline.ts";
 export { enrichProfilerSessions, importCodexRolloutUsage, readCodexSessionMetadata } from "./adapters/codex/log-import/index.ts";
-export { createArtifactEvent, createRequestUsageEvent, validateEvent } from "./core/events/index.ts";
+export { createArtifactEvent, createRequestTurnIdentityEvent, createRequestUsageEvent, validateEvent } from "./core/events/index.ts";
 export { applyStorageMode, createContentPreview, normalizeStorageMode } from "./core/privacy/index.ts";
 export { countTokens, estimateTokens } from "./core/tokenization/index.ts";
 export { JsonlEventStore } from "./core/store/index.ts";

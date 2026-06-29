@@ -238,18 +238,21 @@ test("proxy forwards auth and streaming bytes but stores only artifact metadata 
       .trim()
       .split("\n")
       .map(JSON.parse);
-    assert.equal(events.length, 2);
-    assert.equal(events.every((event) => event.event_kind === "artifact"), true);
-    assert.equal(events.every((event) => event.storage_mode === "metadata"), true);
-    assert.equal(events.every((event) => Number.isFinite(event.local_token_count)), true);
-    assert.equal(events.some((event) => "content" in event), false);
-    assert.equal(events.some((event) => "preview" in event), false);
-    assert.equal(events[0].artifact_index, 0);
-    assert.equal(events[0].token_start, 0);
-    assert.equal(events[0].token_end, events[0].local_token_count);
-    assert.equal(events[1].artifact_index, 1);
-    assert.equal(events[1].token_start, events[0].token_end);
-    assert.equal(events[1].token_end, events[0].local_token_count + events[1].local_token_count);
+    const turnIdentity = events.find((event) => event.event_kind === "request_turn_identity");
+    const artifacts = events.filter((event) => event.event_kind === "artifact");
+    assert.equal(events.length, 3);
+    assert.equal(turnIdentity.turn_identity_source, "missing");
+    assert.equal(artifacts.length, 2);
+    assert.equal(artifacts.every((event) => event.storage_mode === "metadata"), true);
+    assert.equal(artifacts.every((event) => Number.isFinite(event.local_token_count)), true);
+    assert.equal(artifacts.some((event) => "content" in event), false);
+    assert.equal(artifacts.some((event) => "preview" in event), false);
+    assert.equal(artifacts[0].artifact_index, 0);
+    assert.equal(artifacts[0].token_start, 0);
+    assert.equal(artifacts[0].token_end, artifacts[0].local_token_count);
+    assert.equal(artifacts[1].artifact_index, 1);
+    assert.equal(artifacts[1].token_start, artifacts[0].token_end);
+    assert.equal(artifacts[1].token_end, artifacts[0].local_token_count + artifacts[1].local_token_count);
     assert.equal(JSON.stringify(events).includes("secret-token"), false);
     assert.equal(JSON.stringify(events).includes("secret system text"), false);
   } finally {

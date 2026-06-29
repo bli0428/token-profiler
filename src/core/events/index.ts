@@ -1,6 +1,6 @@
 import { sha256 } from "../hash/index.ts";
 import { applyStorageMode, STORAGE_MODES } from "../privacy/index.ts";
-import type { ArtifactEvent, CanonicalEvent, RequestUsageEvent } from "./types.ts";
+import type { ArtifactEvent, CanonicalEvent, RequestTurnIdentityEvent, RequestUsageEvent } from "./types.ts";
 
 export const ARTIFACT_TYPES = Object.freeze([
   "SYSTEM_PROMPT",
@@ -98,10 +98,39 @@ export function createRequestUsageEvent({
   });
 }
 
+export function createRequestTurnIdentityEvent({
+  runId,
+  requestId,
+  turnId,
+  turnIdentitySource,
+  turnStartedAt,
+  caveats = [],
+  timestamp
+}: any) {
+  if (!runId) throw new Error("Request turn identity event requires runId.");
+  if (!requestId) throw new Error("Request turn identity event requires requestId.");
+
+  const event: Record<string, any> = {
+    schema_version: 1,
+    event_kind: "request_turn_identity",
+    run_id: runId,
+    request_id: requestId,
+    turn_identity_source: turnIdentitySource,
+    caveats,
+    timestamp
+  };
+
+  if (typeof turnId === "string" && turnId.length > 0) event.turn_id = turnId;
+  if (typeof turnStartedAt === "string" && turnStartedAt.length > 0) event.turn_started_at = turnStartedAt;
+
+  return validateRequestTurnIdentityEvent(event);
+}
+
 export function validateEvent(event: unknown): CanonicalEvent {
   const candidate = event as any;
   if (candidate?.event_kind === "artifact") return validateArtifactEvent(candidate);
   if (candidate?.event_kind === "request_usage") return validateRequestUsageEvent(candidate);
+  if (candidate?.event_kind === "request_turn_identity") return validateRequestTurnIdentityEvent(candidate);
   throw new Error(`Unsupported event_kind "${candidate?.event_kind}".`);
 }
 
@@ -149,6 +178,26 @@ export function validateRequestUsageEvent(event: any): RequestUsageEvent {
   return event;
 }
 
+export function validateRequestTurnIdentityEvent(event: any): RequestTurnIdentityEvent {
+  requireField(event, "schema_version");
+  requireExact(event, "event_kind", "request_turn_identity");
+  requireString(event, "run_id");
+  requireString(event, "request_id");
+  requireString(event, "turn_identity_source");
+  if (!["direct_turn_id", "missing", "malformed"].includes(event.turn_identity_source)) {
+    throw new Error("Request turn identity event requires valid turn_identity_source.");
+  }
+  if (event.turn_identity_source === "direct_turn_id") requireString(event, "turn_id");
+  if (event.turn_id !== undefined) requireString(event, "turn_id");
+  if (event.turn_started_at !== undefined) requireString(event, "turn_started_at");
+  if (!Array.isArray(event.caveats)) {
+    throw new Error("Request turn identity event requires caveats array.");
+  }
+  for (const caveat of event.caveats) validateCaveat(caveat);
+  requireString(event, "timestamp");
+  return event;
+}
+
 function requireField(event: any, key: string) {
   if (event?.[key] === undefined) throw new Error(`Event requires ${key}.`);
 }
@@ -175,4 +224,15 @@ function requireStorageMode(event: any) {
   if (!STORAGE_MODES.includes(event?.storage_mode)) {
     throw new Error("Artifact event requires valid storage_mode.");
   }
+}
+
+function validateCaveat(caveat: any) {
+  if (!caveat || typeof caveat !== "object" || Array.isArray(caveat)) {
+    throw new Error("Event caveats must be objects.");
+  }
+  requireString(caveat, "code");
+  if (!["info", "warning"].includes(caveat.severity)) {
+    throw new Error("Event caveat requires valid severity.");
+  }
+  requireString(caveat, "message");
 }

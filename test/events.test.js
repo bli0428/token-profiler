@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createArtifactEvent, createRequestUsageEvent, validateEvent } from "../src/core/events/index.ts";
+import { createArtifactEvent, createRequestTurnIdentityEvent, createRequestUsageEvent, validateEvent } from "../src/core/events/index.ts";
 
 test("creates strict metadata-only artifact events", () => {
   const event = createArtifactEvent({
@@ -41,6 +41,23 @@ test("validates usage events from provider usage", () => {
   assert.equal(event.event_kind, "request_usage");
   assert.equal(event.cached_input_tokens, 40);
   assert.equal(event.uncached_input_tokens, 60);
+  assert.equal(validateEvent(event), event);
+});
+
+test("validates request-level turn identity facts", () => {
+  const event = createRequestTurnIdentityEvent({
+    runId: "run_1",
+    requestId: "req_1",
+    turnId: "turn_1",
+    turnIdentitySource: "direct_turn_id",
+    turnStartedAt: "2026-06-25T12:00:00.000Z",
+    timestamp: "2026-06-25T12:00:01.000Z"
+  });
+
+  assert.equal(event.event_kind, "request_turn_identity");
+  assert.equal(event.turn_id, "turn_1");
+  assert.equal(event.turn_identity_source, "direct_turn_id");
+  assert.deepEqual(event.caveats, []);
   assert.equal(validateEvent(event), event);
 });
 

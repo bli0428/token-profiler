@@ -8,6 +8,7 @@ import { randomUUID } from "node:crypto";
 import { TokenProfiler } from "../../../core/capture/index.ts";
 import { sha256 } from "../../../core/hash/index.ts";
 import { normalizeStorageMode } from "../../../core/privacy/index.ts";
+import type { CodexRequestEnvelope, CodexRequestTurnIdentity } from "./codex-envelope.ts";
 import { codexSessionRoute, parseCodexRequestEnvelope } from "./codex-envelope.ts";
 
 const SESSION_HEADER = "x-token-profiler-session";
@@ -24,6 +25,7 @@ type ResolvedSession = {
   sessionId: string;
   source: string;
   timestamp: string;
+  turnIdentity: CodexRequestTurnIdentity;
 };
 
 type FingerprintSession = {
@@ -76,29 +78,31 @@ export class SessionRouter {
    */
   resolve({ headers = {}, payload = {} }: { headers?: Record<string, unknown>; payload?: Record<string, any> }): ResolvedSession {
     const now = this.clock();
+    const envelope = parseCodexRequestEnvelopeSafe({ headers, payload });
+    const turnIdentity = envelope.turnIdentity;
     const explicit = headerValue(headers[SESSION_HEADER]);
-    if (explicit) return this.result(explicit, "header", now);
+    if (explicit) return this.result(explicit, "header", now, turnIdentity);
 
-    const codexRoute = codexSessionRoute(parseCodexRequestEnvelope({ headers, payload }));
-    if (codexRoute) return this.result(codexRoute.sessionId, codexRoute.source, now);
+    const codexRoute = codexSessionRoute(envelope);
+    if (codexRoute) return this.result(codexRoute.sessionId, codexRoute.source, now, turnIdentity);
 
     const conversationId = payload.conversation?.id
       ?? payload.metadata?.session_id
       ?? payload.metadata?.conversation_id;
-    if (conversationId) return this.result(`codex-${conversationId}`, "conversation", now);
+    if (conversationId) return this.result(`codex-${conversationId}`, "conversation", now, turnIdentity);
 
     if (payload.prompt_cache_key) {
-      return this.result(`codex-cache-${shortHash(payload.prompt_cache_key)}`, "prompt_cache_key", now);
+      return this.result(`codex-cache-${shortHash(payload.prompt_cache_key)}`, "prompt_cache_key", now, turnIdentity);
     }
 
     const priorSession = this.responseSessions.get(payload.previous_response_id);
-    if (priorSession) return this.result(priorSession, "previous_response_id", now);
+    if (priorSession) return this.result(priorSession, "previous_response_id", now, turnIdentity);
 
     const fingerprint = requestFingerprint(payload);
     const existing = fingerprint ? this.fingerprintSessions.get(fingerprint) : null;
     if (existing && now.getTime() - existing.lastSeenAt <= this.idleMs) {
       existing.lastSeenAt = now.getTime();
-      return this.result(existing.sessionId, "prompt_fingerprint", now);
+      return this.result(existing.sessionId, "prompt_fingerprint", now, turnIdentity);
     }
 
     const sessionId = this.fallbackSessionId ?? createSessionId(now);
@@ -108,7 +112,7 @@ export class SessionRouter {
         lastSeenAt: now.getTime()
       });
     }
-    return this.result(sessionId, this.fallbackSessionId ? "fallback" : "generated", now);
+    return this.result(sessionId, this.fallbackSessionId ? "fallback" : "generated", now, turnIdentity);
   }
 
   /**
@@ -119,11 +123,12 @@ export class SessionRouter {
    * @param now - Timestamp for the resolution.
    * @returns Sanitized session result suitable for metadata and profiler lookup.
    */
-  result(sessionId: unknown, source: string, now: Date): ResolvedSession {
+  result(sessionId: unknown, source: string, now: Date, turnIdentity: CodexRequestTurnIdentity = missingTurnIdentity()): ResolvedSession {
     return {
       sessionId: sanitizeSessionId(sessionId),
       source,
-      timestamp: now.toISOString()
+      timestamp: now.toISOString(),
+      turnIdentity
     };
   }
 
@@ -222,4 +227,47 @@ function shortHash(value: unknown): string {
 function headerValue(value: unknown): string | undefined {
   const candidate = Array.isArray(value) ? value[0] : value;
   return typeof candidate === "string" && candidate.length > 0 ? candidate : undefined;
+}
+
+function missingTurnIdentity(): CodexRequestTurnIdentity {
+  return {
+    turnIdentitySource: "missing",
+    caveats: [{
+      code: "turn_identity_missing",
+      severity: "info",
+      message: "Codex request metadata did not include a direct turn identity."
+    }]
+  };
+}
+
+function parseCodexRequestEnvelopeSafe({ headers, payload }: { headers: Record<string, unknown>; payload: Record<string, any> }): CodexRequestEnvelope {
+  try {
+    return parseCodexRequestEnvelope({ headers, payload });
+  } catch {
+    return {
+      body: {
+        include: [],
+        hasInstructions: false,
+        inputItemTypes: [],
+        toolNames: [],
+        observedBodyKeys: [],
+        unknownBodyKeys: []
+      },
+      turnMetadata: {},
+      turnIdentity: missingTurnIdentity(),
+      compatibility: {
+        clientMetadata: {},
+        headers: {}
+      },
+      transportHeaders: {
+        betaFeatures: [],
+        accountHeaderPresent: false,
+        attestationPresent: false
+      },
+      observedHeaderKeys: [],
+      observedClientMetadataKeys: [],
+      unknownCodexHeaderKeys: [],
+      unknownCodexClientMetadataKeys: []
+    };
+  }
 }

@@ -6,7 +6,8 @@
  * receive only artifact counts or appended canonical usage events.
  */
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
-import { createRequestUsageEvent } from "../../../core/events/index.ts";
+import { createRequestTurnIdentityEvent, createRequestUsageEvent } from "../../../core/events/index.ts";
+import type { CodexRequestTurnIdentity } from "./codex-envelope.ts";
 import { extractResponsesArtifacts, toCaptureRecord } from "./artifacts/index.ts";
 
 /**
@@ -49,9 +50,16 @@ export async function recordPayloadArtifacts({
   requestId,
   payload,
   requestPath,
-  sessionSource
+  sessionSource,
+  turnIdentity
 }: any) {
   if (!profiler) return 0;
+
+  await recordRequestTurnIdentityEvent({
+    profiler,
+    requestId,
+    turnIdentity: turnIdentity ?? missingTurnIdentity()
+  });
 
   const artifacts = extractResponsesArtifacts(payload);
   let tokenCursor = 0;
@@ -80,6 +88,26 @@ export async function recordPayloadArtifacts({
     });
   }
   return artifacts.length;
+}
+
+export async function recordRequestTurnIdentityEvent({
+  profiler,
+  requestId,
+  turnIdentity
+}: {
+  profiler: any;
+  requestId: string;
+  turnIdentity: CodexRequestTurnIdentity;
+}) {
+  await profiler.store.append(createRequestTurnIdentityEvent({
+    runId: profiler.runId,
+    requestId,
+    turnId: turnIdentity.turnId,
+    turnIdentitySource: turnIdentity.turnIdentitySource,
+    turnStartedAt: turnIdentity.turnStartedAt,
+    caveats: turnIdentity.caveats,
+    timestamp: profiler.clock().toISOString()
+  }));
 }
 
 /**
@@ -134,4 +162,15 @@ function decodeBody(body: Buffer, contentEncoding: unknown): Buffer {
   if (encoding === "br") return brotliDecompressSync(body);
   if (encoding === "deflate") return inflateSync(body);
   throw new Error(`Unsupported content encoding: ${encoding}`);
+}
+
+function missingTurnIdentity(): CodexRequestTurnIdentity {
+  return {
+    turnIdentitySource: "missing",
+    caveats: [{
+      code: "turn_identity_missing",
+      severity: "info",
+      message: "Codex request metadata did not include a direct turn identity."
+    }]
+  };
 }

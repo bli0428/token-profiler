@@ -12,6 +12,17 @@ export type CodexRequestHeaders = z.infer<typeof CodexRequestHeadersSchema>;
 export type CodexResponsesApiRequest = z.infer<typeof CodexResponsesApiRequestSchema>;
 export type CodexRequestShape = z.infer<typeof CodexRequestShapeSchema>;
 
+export type CodexRequestTurnIdentity = {
+  turnId?: string | undefined;
+  turnIdentitySource: "direct_turn_id" | "missing" | "malformed";
+  turnStartedAt?: string | undefined;
+  caveats: Array<{
+    code: string;
+    severity: "info" | "warning";
+    message: string;
+  }>;
+};
+
 export type CodexCompatibilityHeaders = {
   installationId?: string | undefined;
   sessionId?: string | undefined;
@@ -56,6 +67,7 @@ export type CodexRequestEnvelope = {
     clientMetadata?: CodexTurnMetadata | undefined;
     header?: CodexTurnMetadata | undefined;
   };
+  turnIdentity: CodexRequestTurnIdentity;
   compatibility: {
     clientMetadata: CodexCompatibilityHeaders;
     headers: CodexCompatibilityHeaders;
@@ -66,6 +78,11 @@ export type CodexRequestEnvelope = {
   unknownCodexHeaderKeys: string[];
   unknownCodexClientMetadataKeys: string[];
 };
+
+type ParsedCodexTurnMetadata =
+  | { status: "absent" }
+  | { status: "malformed" }
+  | { status: "parsed"; metadata: CodexTurnMetadata };
 
 const KNOWN_CODEX_HEADERS = new Set([
   "x-codex-beta-features",
@@ -341,9 +358,10 @@ export function normalizeCodexRequestShape(request: CodexRequestShape): CodexReq
         .sort()
     },
     turnMetadata: {
-      ...(clientMetadataTurn ? { clientMetadata: clientMetadataTurn } : {}),
-      ...(headerTurn ? { header: headerTurn } : {})
+      ...(clientMetadataTurn.status === "parsed" ? { clientMetadata: clientMetadataTurn.metadata } : {}),
+      ...(headerTurn.status === "parsed" ? { header: headerTurn.metadata } : {})
     },
+    turnIdentity: resolveTurnIdentity({ clientMetadata, clientMetadataTurn, headerTurn }),
     compatibility: {
       clientMetadata: {
         installationId: clientMetadata?.["x-codex-installation-id"],
@@ -433,16 +451,97 @@ function headerValue(value: unknown): string | undefined {
   return stringValue(candidate);
 }
 
-function parseTurnMetadata(value: string | undefined): CodexTurnMetadata | undefined {
-  if (!value) return undefined;
+function parseTurnMetadata(value: string | undefined): ParsedCodexTurnMetadata {
+  if (!value) return { status: "absent" };
 
   try {
     const parsed = JSON.parse(value);
     const result = CodexTurnMetadataSchema.safeParse(parsed);
-    return result.success ? result.data : undefined;
+    return result.success
+      ? { status: "parsed", metadata: result.data }
+      : { status: "malformed" };
   } catch {
-    return undefined;
+    return { status: "malformed" };
   }
+}
+
+function resolveTurnIdentity({
+  clientMetadata,
+  clientMetadataTurn,
+  headerTurn
+}: {
+  clientMetadata?: CodexClientMetadata | undefined;
+  clientMetadataTurn: ParsedCodexTurnMetadata;
+  headerTurn: ParsedCodexTurnMetadata;
+}): CodexRequestTurnIdentity {
+  if (clientMetadataTurn.status === "malformed") {
+    return malformedTurnIdentity("Codex client_metadata turn metadata could not be parsed.");
+  }
+  const clientTurnMetadata = clientMetadataTurn.status === "parsed" ? clientMetadataTurn.metadata : undefined;
+  const clientTurnId = nonEmptyString(clientTurnMetadata?.turn_id);
+  if (clientTurnId) {
+    return {
+      turnId: clientTurnId,
+      turnIdentitySource: "direct_turn_id",
+      turnStartedAt: unixMsToIso(clientTurnMetadata?.turn_started_at_unix_ms),
+      caveats: []
+    };
+  }
+
+  if (headerTurn.status === "malformed") {
+    return malformedTurnIdentity("Codex header turn metadata could not be parsed.");
+  }
+  const headerTurnMetadata = headerTurn.status === "parsed" ? headerTurn.metadata : undefined;
+  const headerTurnId = nonEmptyString(headerTurnMetadata?.turn_id);
+  if (headerTurnId) {
+    return {
+      turnId: headerTurnId,
+      turnIdentitySource: "direct_turn_id",
+      turnStartedAt: unixMsToIso(headerTurnMetadata?.turn_started_at_unix_ms),
+      caveats: []
+    };
+  }
+
+  const directClientTurnId = nonEmptyString(clientMetadata?.turn_id);
+  if (directClientTurnId) {
+    return {
+      turnId: directClientTurnId,
+      turnIdentitySource: "direct_turn_id",
+      caveats: []
+    };
+  }
+
+  return {
+    turnIdentitySource: "missing",
+    caveats: [{
+      code: "turn_identity_missing",
+      severity: "info",
+      message: "Codex request metadata did not include a direct turn identity."
+    }]
+  };
+}
+
+function malformedTurnIdentity(message: string): CodexRequestTurnIdentity {
+  return {
+    turnIdentitySource: "malformed",
+    caveats: [{
+      code: "turn_identity_malformed",
+      severity: "warning",
+      message
+    }]
+  };
+}
+
+function nonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function unixMsToIso(value: unknown): string | undefined {
+  if (!Number.isFinite(value)) return undefined;
+  const date = new Date(value as number);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
 function betaFeatures(value: string | undefined): string[] {

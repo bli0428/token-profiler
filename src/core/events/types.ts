@@ -35,7 +35,30 @@ export type RequestUsageEvent = {
   timestamp: string;
 };
 
-export type CanonicalEvent = ArtifactEvent | RequestUsageEvent;
+export type EventCaveat = {
+  code: string;
+  severity: "info" | "warning";
+  message: string;
+  applies_to?: {
+    analyzer_id?: string;
+    request_id?: string;
+    artifact_id?: string;
+  };
+};
+
+export type RequestTurnIdentityEvent = {
+  schema_version: number;
+  event_kind: "request_turn_identity";
+  run_id: string;
+  request_id: string;
+  turn_id?: string;
+  turn_identity_source: "direct_turn_id" | "missing" | "malformed";
+  turn_started_at?: string;
+  caveats: EventCaveat[];
+  timestamp: string;
+};
+
+export type CanonicalEvent = ArtifactEvent | RequestUsageEvent | RequestTurnIdentityEvent;
 
 export type RequestArtifactSummary = {
   artifact_id: string;
