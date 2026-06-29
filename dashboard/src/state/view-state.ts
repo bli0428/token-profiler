@@ -13,6 +13,7 @@ export type DashboardViewState = {
   selectedRunId?: string;
   selectedTaskGroupId?: string;
   selectedArtifactId?: string;
+  expandedTurnIds: string[];
   expandedRequestIds: string[];
   categoryFilter: string | "all";
   searchQuery: string;
@@ -24,6 +25,7 @@ export type DashboardViewState = {
 };
 
 export const defaultViewState: DashboardViewState = {
+  expandedTurnIds: [],
   expandedRequestIds: [],
   categoryFilter: "all",
   searchQuery: "",
@@ -40,7 +42,21 @@ export function withSelectedRun(state: DashboardViewState, selectedRunId: string
     selectedRunId,
     selectedTaskGroupId: undefined,
     selectedArtifactId: undefined,
+    expandedTurnIds: [],
     expandedRequestIds: []
+  };
+}
+
+export function toggleExpandedTurn(state: DashboardViewState, turnId: string): DashboardViewState {
+  const expanded = new Set(state.expandedTurnIds);
+  if (expanded.has(turnId)) {
+    expanded.delete(turnId);
+  } else {
+    expanded.add(turnId);
+  }
+  return {
+    ...state,
+    expandedTurnIds: Array.from(expanded)
   };
 }
 

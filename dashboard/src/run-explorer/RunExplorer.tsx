@@ -1,8 +1,8 @@
 import type { ArtifactDetailResponse, DashboardRun, DashboardSession } from "../api/types";
 import type { DashboardViewState } from "../state/view-state";
 import { ArtifactDetailPanel } from "./ArtifactDetailPanel";
-import { RequestList } from "./RequestList";
 import { RunOverview } from "./RunOverview";
+import { TurnList } from "./TurnList";
 
 type Props = {
   run: DashboardRun;
@@ -19,6 +19,16 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
   const title = session?.label ?? session?.identity.codex_label ?? run.run_id;
   const timestamp = session?.updated_at ?? lastUpdatedAt;
 
+  const toggleTurn = (turnId: string) => {
+    const expanded = new Set(viewState.expandedTurnIds);
+    if (expanded.has(turnId)) {
+      expanded.delete(turnId);
+    } else {
+      expanded.add(turnId);
+    }
+    onChangeViewState({ expandedTurnIds: Array.from(expanded) });
+  };
+
   const toggleRequest = (requestId: string) => {
     const expanded = new Set(viewState.expandedRequestIds);
     if (expanded.has(requestId)) {
@@ -33,20 +43,15 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
     <section className="run-explorer" aria-label="Run explorer">
       <div className="run-main">
         <RunOverview overview={run.overview} title={title} timestamp={timestamp} />
-        <RequestList
-          requests={run.requests}
+        <TurnList
+          turns={run.turns}
           artifactRows={run.artifacts}
-          artifactDetails={run.artifact_details}
+          expandedTurnIds={viewState.expandedTurnIds}
           expandedRequestIds={viewState.expandedRequestIds}
           selectedArtifactId={viewState.selectedArtifactId}
-          sortKey={viewState.requestSortKey}
-          sortDirection={viewState.requestSortDirection}
           onSelectArtifact={(selectedArtifactId) => onChangeViewState({ selectedArtifactId })}
-          onChangeSort={(next) => onChangeViewState({
-            requestSortKey: next.sortKey ?? viewState.requestSortKey,
-            requestSortDirection: next.sortDirection ?? viewState.requestSortDirection
-          })}
-          onToggleExpanded={toggleRequest}
+          onToggleRequest={toggleRequest}
+          onToggleTurn={toggleTurn}
         />
       </div>
       <ArtifactDetailPanel detail={detail?.data} loading={detailLoading} errorMessage={detailError} />

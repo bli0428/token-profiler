@@ -13,6 +13,7 @@ describe("refresh reconciliation", () => {
       selectedRunId: session.run_id,
       selectedTaskGroupId: task.task_group_id,
       selectedArtifactId: artifact.artifact_id,
+      expandedTurnIds: [apiRealFixtures.run.data.turns[0]!.turn_id],
       expandedRequestIds: [apiRealFixtures.run.data.requests.rows[0]!.request_id],
       categoryFilter: artifact.display_category,
       sortKey: "display_name" as const
@@ -26,12 +27,14 @@ describe("refresh reconciliation", () => {
       selectedRunId: "missing",
       selectedTaskGroupId: "missing-task",
       selectedArtifactId: "missing-artifact",
+      expandedTurnIds: ["missing-turn"],
       expandedRequestIds: ["missing-request"]
     };
     const next = reconcileRun(reconcileSessions(state, apiRealFixtures.sessions.data.sessions), apiRealFixtures.run.data);
     expect(next.selectedRunId).toBeUndefined();
     expect(next.selectedTaskGroupId).toBeUndefined();
     expect(next.selectedArtifactId).toBeUndefined();
+    expect(next.expandedTurnIds).toEqual([]);
     expect(next.expandedRequestIds).toEqual([]);
   });
 
@@ -40,9 +43,11 @@ describe("refresh reconciliation", () => {
     const state = {
       ...defaultViewState,
       selectedRunId: apiRealFixtures.run.data.run_id,
+      expandedTurnIds: [apiRealFixtures.run.data.turns[0]!.turn_id, "missing-turn"],
       expandedRequestIds: [request.request_id, "missing-request"]
     };
     const next = reconcileRun(state, apiRealFixtures.run.data);
+    expect(next.expandedTurnIds).toEqual([apiRealFixtures.run.data.turns[0]!.turn_id]);
     expect(next.expandedRequestIds).toEqual([request.request_id]);
   });
 });

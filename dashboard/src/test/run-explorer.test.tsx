@@ -5,7 +5,7 @@ import { defaultViewState, type DashboardViewState } from "../state/view-state";
 import { apiRealFixtures } from "../../test/helpers/contract-fixtures";
 
 describe("run explorer", () => {
-  it("renders run overview and chronological requests", () => {
+  it("renders run overview and turn drilldown", () => {
     renderExplorer();
     expect(screen.getByText(apiRealFixtures.sessions.data.sessions[0]!.label ?? apiRealFixtures.sessions.data.sessions[0]!.run_id)).toBeInTheDocument();
     expect(screen.queryByText(apiRealFixtures.run.data.overview.scope)).not.toBeInTheDocument();
@@ -18,8 +18,8 @@ describe("run explorer", () => {
     expect(screen.queryByText("Total exposure")).not.toBeInTheDocument();
     expect(screen.queryByText(apiRealFixtures.run.data.overview.availability.status)).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Task groups")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Requests")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: apiRealFixtures.run.data.requests.rows[0]!.request_id })).toBeInTheDocument();
+    expect(screen.getByLabelText("Turns")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: apiRealFixtures.run.data.turns[0]!.display_title })).toBeInTheDocument();
   });
 
   it("uses the selected session title in the run overview header", () => {
@@ -46,7 +46,7 @@ describe("run explorer", () => {
     expect(screen.queryByLabelText("Search")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Task groups")).not.toBeInTheDocument();
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
-    expect(screen.getByLabelText("Requests")).toBeInTheDocument();
+    expect(screen.getByLabelText("Turns")).toBeInTheDocument();
   });
 
   it("opens artifact detail", () => {
@@ -54,16 +54,17 @@ describe("run explorer", () => {
     expect(within(screen.getByLabelText("Artifact detail")).getAllByText("Identity").length).toBeGreaterThan(0);
   });
 
-  it("keeps request-first view as the main workflow when artifact detail is selected", () => {
+  it("keeps turn drilldown as the main workflow when artifact detail is selected", () => {
     renderExplorer({
       viewState: {
         ...defaultViewState,
+        expandedTurnIds: [apiRealFixtures.run.data.turns[0]!.turn_id],
         expandedRequestIds: ["fixture-request-001"],
         selectedArtifactId: "USER_MESSAGE:message:user:6:16"
       },
       detail: apiRealFixtures.artifactDetail
     });
-    expect(screen.getByLabelText("Requests")).toBeInTheDocument();
+    expect(screen.getByLabelText("Turns")).toBeInTheDocument();
     expect(within(screen.getByLabelText("Artifact detail")).getAllByText("Identity").length).toBeGreaterThan(0);
   });
 });
