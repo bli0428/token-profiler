@@ -87,10 +87,19 @@ export type CodexArtifactType =
   | "CODEX_USAGE";
 
 export type CodexArtifactMetadata =
+  | CodexMessageMetadata
   | CodexToolCallMetadata
   | CodexPatchMetadata
   | CodexToolOutputMetadata
   | CodexUnknownInputMetadata;
+
+export type CodexMessageMetadata = {
+  content_kind: "assistant_message" | "system_message" | "user_message";
+  role: string;
+  message_source: "agent_context" | "conversation_history" | "current_turn" | "system_context" | "unknown";
+  title_candidate: boolean;
+  part_index: number;
+};
 
 export type CodexToolCallMetadata = {
   tool_name: string;
@@ -156,6 +165,7 @@ export type CodexMessageArtifact = CodexArtifactBase & {
   artifactType: "SYSTEM_PROMPT" | "USER_MESSAGE" | "SUMMARY";
   role: string;
   partIndex: number;
+  metadata: CodexMessageMetadata;
 };
 
 export type CodexToolCallArtifact = CodexArtifactBase & {

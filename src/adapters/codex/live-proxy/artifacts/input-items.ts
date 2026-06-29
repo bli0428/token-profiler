@@ -35,6 +35,7 @@ type InputItemContext = {
   item: CodexResponsesInputItem;
   index: number;
   callsById: Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>;
+  titleCandidateKeys: Set<string>;
 };
 
 export function extractInstructionsArtifact(request: CodexResponsesRequest): CodexExtractedArtifact[] {
@@ -76,9 +77,17 @@ export function indexToolCalls(inputs: CodexResponsesInputItem[]): Map<string, C
 export function extractInputItemArtifacts({
   item,
   index,
-  callsById
+  callsById,
+  titleCandidateKeys
 }: InputItemContext): CodexExtractedArtifact[] {
-  if (typeof item === "string") return [messageArtifact("user", index, 0, item)];
+  if (typeof item === "string") {
+    return [messageArtifact("user", index, 0, item, titleCandidateKeys.has(messageKey(index, "user")), messageSource({
+      role: "user",
+      index,
+      titleCandidate: titleCandidateKeys.has(messageKey(index, "user")),
+      contextMessage: isContextMessageText(item)
+    }))];
+  }
   if (!isProviderItem(item)) return [];
 
   if (isFunctionCallItem(item)) {
@@ -105,9 +114,20 @@ export function extractInputItemArtifacts({
       (content) => customToolCallOutputArtifact(item, index, callsById, content)
     );
   }
-  if (isMessageItem(item)) return messageArtifacts(item, index);
-  if (item.role) return messageArtifacts(item, index);
+  if (isMessageItem(item)) return messageArtifacts(item, index, titleCandidateKeys);
+  if (item.role) return messageArtifacts(item, index, titleCandidateKeys);
   return artifactFromContent(item, (content) => unknownInputArtifact(item, index, content));
+}
+
+export function titleCandidateMessageKeys(inputs: CodexResponsesInputItem[]): Set<string> {
+  const candidates = new Map<string, string>();
+  for (const [index, item] of inputs.entries()) {
+    const role = messageRole(item);
+    if (role !== "user" && role !== "assistant") continue;
+    if (isContextMessageInput(item)) continue;
+    candidates.set(role, messageKey(index, role));
+  }
+  return new Set(candidates.values());
 }
 
 function codexSystemArtifact(content: string): CodexExtractedArtifact {
@@ -202,16 +222,30 @@ function customToolCallOutputArtifact(
   };
 }
 
-function messageArtifacts(item: CodexProviderItem, index: number): CodexExtractedArtifact[] {
+function messageArtifacts(item: CodexProviderItem, index: number, titleCandidateKeys: Set<string>): CodexExtractedArtifact[] {
   const role = stringValue(item.role) ?? "unknown";
+  const titleCandidate = titleCandidateKeys.has(messageKey(index, role));
+  const source = messageSource({
+    role,
+    index,
+    titleCandidate,
+    contextMessage: isContextMessageInput(item)
+  });
   return asArray(item.content).flatMap((part, partIndex) => {
     const partItem = asProviderItem(part);
     const text = typeof part === "string" ? part : stringValue(partItem.text);
-    return artifactFromContent(text, (content) => messageArtifact(role, index, partIndex, content));
+    return artifactFromContent(text, (content) => messageArtifact(role, index, partIndex, content, titleCandidate, source));
   });
 }
 
-function messageArtifact(role: string, index: number, partIndex: number, content: string): CodexExtractedArtifact {
+function messageArtifact(
+  role: string,
+  index: number,
+  partIndex: number,
+  content: string,
+  titleCandidate: boolean,
+  source: "agent_context" | "conversation_history" | "current_turn" | "system_context" | "unknown"
+): CodexExtractedArtifact {
   const artifactType = messageArtifactType(role);
   return {
     kind: "message",
@@ -220,7 +254,14 @@ function messageArtifact(role: string, index: number, partIndex: number, content
     artifactId: `${artifactType}:message:${role}:${index}:${partIndex}`,
     role,
     partIndex,
-    content
+    content,
+    metadata: {
+      content_kind: messageContentKind(role),
+      role,
+      message_source: source,
+      title_candidate: titleCandidate,
+      part_index: partIndex
+    }
   };
 }
 
@@ -228,6 +269,60 @@ function messageArtifactType(role: string): "SYSTEM_PROMPT" | "USER_MESSAGE" | "
   if (role === "system" || role === "developer") return "SYSTEM_PROMPT";
   if (role === "user") return "USER_MESSAGE";
   return "SUMMARY";
+}
+
+function messageContentKind(role: string): "assistant_message" | "system_message" | "user_message" {
+  if (role === "assistant") return "assistant_message";
+  if (role === "system" || role === "developer") return "system_message";
+  return "user_message";
+}
+
+function messageRole(item: CodexResponsesInputItem): string | undefined {
+  if (typeof item === "string") return "user";
+  return stringValue(item.role);
+}
+
+function messageKey(index: number, role: string): string {
+  return `${index}:${role}`;
+}
+
+function messageSource({
+  role,
+  index,
+  titleCandidate,
+  contextMessage
+}: {
+  role: string;
+  index: number;
+  titleCandidate: boolean;
+  contextMessage: boolean;
+}): "agent_context" | "conversation_history" | "current_turn" | "system_context" | "unknown" {
+  if (role === "system" || role === "developer") return "system_context";
+  if (contextMessage) return "agent_context";
+  if (titleCandidate) return "current_turn";
+  if (role === "user" || role === "assistant") return "conversation_history";
+  return "unknown";
+}
+
+function isContextMessageInput(item: CodexResponsesInputItem): boolean {
+  if (typeof item === "string") return isContextMessageText(item);
+  return isContextMessageText(asArray(item.content)
+    .map((part) => {
+      if (typeof part === "string") return part;
+      return stringValue(asProviderItem(part).text) ?? "";
+    })
+    .join("\n"));
+}
+
+function isContextMessageText(text: string): boolean {
+  const trimmed = text.trimStart();
+  return trimmed.startsWith("# AGENTS.md instructions")
+    || trimmed.startsWith("<environment_context>")
+    || trimmed.startsWith("<permissions instructions>")
+    || trimmed.startsWith("<app-context>")
+    || trimmed.startsWith("<collaboration_mode>")
+    || trimmed.startsWith("<skills_instructions>")
+    || trimmed.startsWith("<plugins_instructions>");
 }
 
 function toolCallArtifact({

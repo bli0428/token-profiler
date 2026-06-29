@@ -178,6 +178,12 @@
   margin: 0;
 }
 
+.turn-metrics {
+  flex: 0 1 390px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: min(100%, 300px);
+}
+
 .turn-metrics div,
 .request-metrics div,
 .request-artifact-metrics div {

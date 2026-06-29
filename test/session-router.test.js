@@ -148,6 +148,29 @@ test("keeps malformed Codex turn identity explicit without fallback ids", () => 
   assert.equal(envelope.turnIdentity.caveats[0].code, "turn_identity_malformed");
 });
 
+test("keeps malformed client_metadata Codex turn identity explicit without fallback ids", () => {
+  const envelope = parseCodexRequestEnvelope({
+    headers: {
+      "x-codex-turn-metadata": JSON.stringify({
+        session_id: "header-session",
+        turn_id: "header-turn"
+      })
+    },
+    payload: {
+      client_metadata: {
+        "x-codex-turn-metadata": "{not-json",
+        turn_id: "compat-client-turn"
+      },
+      prompt_cache_key: "do-not-use-as-turn-id"
+    }
+  });
+
+  assert.equal(envelope.turnIdentity.turnIdentitySource, "malformed");
+  assert.equal("turnId" in envelope.turnIdentity, false);
+  assert.equal(envelope.turnIdentity.caveats[0].code, "turn_identity_malformed");
+  assert.equal(envelope.turnIdentity.caveats[0].message, "Codex client_metadata turn metadata could not be parsed.");
+});
+
 test("fixture documents canonical request-level turn identity events", async () => {
   const raw = await readFile(
     join(process.cwd(), "test", "fixtures", "events", "turn-identity.jsonl"),

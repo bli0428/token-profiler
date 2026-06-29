@@ -177,7 +177,7 @@ function selectTurnTitle(
 ): { display_title: string; title_source: TurnTitleSource } {
   const readable = readableArtifactsForRows(rows, legibility);
   const userDetails = readable
-    .filter((row) => row.display_category === "user_message")
+    .filter((row) => row.display_category === "user_message" && row.title_candidate === true)
     .map((row) => ({
       row,
       detail: legibility.details.find((detail) => detail.artifact_id === row.artifact_id)
@@ -207,7 +207,7 @@ function selectRequestTitle(
 ): { display_title: string; title_source: TurnRequestTitleSource } {
   const readable = readableArtifactsForRows([row], legibility);
   const assistantDetails = readable
-    .filter((artifact) => artifact.display_category === "assistant_message")
+    .filter((artifact) => artifact.display_category === "assistant_message" && artifact.title_candidate === true)
     .map((artifact) => ({
       artifact,
       detail: legibility.details.find((detail) => detail.artifact_id === artifact.artifact_id)

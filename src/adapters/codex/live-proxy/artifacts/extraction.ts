@@ -3,7 +3,8 @@ import {
   extractInputItemArtifacts,
   extractInstructionsArtifact,
   extractToolDefinitionArtifacts,
-  indexToolCalls
+  indexToolCalls,
+  titleCandidateMessageKeys
 } from "./input-items.ts";
 import type { CodexExtractedArtifact } from "./types.ts";
 
@@ -11,6 +12,7 @@ export function extractResponsesArtifacts(payload: unknown): CodexExtractedArtif
   const request = asResponsesRequest(payload);
   const inputs = asResponsesInputItems(request.input);
   const callsById = indexToolCalls(inputs);
+  const titleCandidateKeys = titleCandidateMessageKeys(inputs);
 
   return [
     ...extractInstructionsArtifact(request),
@@ -18,7 +20,8 @@ export function extractResponsesArtifacts(payload: unknown): CodexExtractedArtif
     ...inputs.flatMap((item, index) => extractInputItemArtifacts({
       item,
       index,
-      callsById
+      callsById,
+      titleCandidateKeys
     }))
   ];
 }

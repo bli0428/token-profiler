@@ -142,6 +142,8 @@ function readableArtifact(
     attribution_state: artifact.estimated_cache_attributed_tokens > 0 ? "estimated" : undefined,
     storage_mode: storageMode,
     preview_state: preview,
+    title_candidate: booleanValue(metadata.title_candidate),
+    message_source: stringValue(metadata.message_source),
     specificity: metadataSpecificity(metadata, category),
     source_facts: sourceFacts(metadata, category),
     caveats
@@ -340,7 +342,7 @@ function metadataSpecificity(metadata: JsonObject, category: DisplayCategory): n
 
 function sourceFacts(metadata: JsonObject, category: DisplayCategory): string[] {
   const facts: string[] = [category];
-  for (const key of ["display_name", "tool_name", "call_id", "command", "workdir", "output_preview", "touched_files"]) {
+  for (const key of ["display_name", "tool_name", "call_id", "command", "workdir", "output_preview", "touched_files", "message_source", "title_candidate"]) {
     if (metadata[key] !== undefined) facts.push(key);
   }
   return facts;
@@ -391,6 +393,10 @@ function contentForDetail(previewState: PreviewState, event: ArtifactEvent | und
 
 function stringValue(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function booleanValue(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
 }
 
 function numberValue(value: unknown): number | undefined {

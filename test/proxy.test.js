@@ -17,6 +17,7 @@ test("extracts instructions, tool definitions, messages, and tool output", () =>
     tools: [{ type: "function", name: "search_docs", parameters: { type: "object" } }],
     input: [
       { type: "message", role: "user", content: [{ type: "input_text", text: "Find it" }] },
+      { type: "message", role: "assistant", content: [{ type: "output_text", text: "I will search the docs." }] },
       { type: "function_call", name: "search_docs", call_id: "call_1", arguments: "{}" },
       { type: "function_call_output", call_id: "call_1", output: "Search result" }
     ]
@@ -27,10 +28,19 @@ test("extracts instructions, tool definitions, messages, and tool output", () =>
     "SYSTEM_PROMPT",
     "USER_MESSAGE",
     "SUMMARY",
+    "SUMMARY",
     "SEARCH_RESULT"
   ]);
-  assert.equal(artifacts[4].artifactName, "tool:search_docs:call_1");
-  assert.equal(artifacts[4].metadata.tool_name, "search_docs");
+  assert.equal(artifacts[2].metadata.content_kind, "user_message");
+  assert.equal(artifacts[2].metadata.role, "user");
+  assert.equal(artifacts[2].metadata.message_source, "current_turn");
+  assert.equal(artifacts[2].metadata.title_candidate, true);
+  assert.equal(artifacts[3].metadata.content_kind, "assistant_message");
+  assert.equal(artifacts[3].metadata.role, "assistant");
+  assert.equal(artifacts[3].metadata.message_source, "current_turn");
+  assert.equal(artifacts[3].metadata.title_candidate, true);
+  assert.equal(artifacts[5].artifactName, "tool:search_docs:call_1");
+  assert.equal(artifacts[5].metadata.tool_name, "search_docs");
 });
 
 test("tool output inherits command metadata from its paired function call", () => {
@@ -153,6 +163,28 @@ test("extracts unsupported input items as explicit unknown artifacts", () => {
   assert.deepEqual(artifacts[0].metadata.observed_keys, ["text", "type"]);
 });
 
+test("marks injected Codex context messages as ineligible for titles", () => {
+  const artifacts = extractResponsesArtifacts({
+    input: [
+      {
+        type: "message",
+        role: "user",
+        content: [{ type: "input_text", text: "# AGENTS.md instructions for /repo\n\n<INSTRUCTIONS>Read the plan.</INSTRUCTIONS>" }]
+      },
+      {
+        type: "message",
+        role: "user",
+        content: [{ type: "input_text", text: "Fix the dashboard request title preview." }]
+      }
+    ]
+  });
+
+  assert.equal(artifacts[0].metadata.message_source, "agent_context");
+  assert.equal(artifacts[0].metadata.title_candidate, false);
+  assert.equal(artifacts[1].metadata.message_source, "current_turn");
+  assert.equal(artifacts[1].metadata.title_candidate, true);
+});
+
 test("joins upstream and incoming paths without duplicating a shared base", () => {
   assert.equal(
     buildUpstreamUrl("https://api.openai.com/v1", "/responses?stream=true").toString(),
@@ -221,7 +253,10 @@ test("proxy forwards auth and streaming bytes but stores only artifact metadata 
     const body = JSON.stringify({
       model: "gpt-test",
       instructions: "secret system text",
-      input: "secret user text",
+      input: [
+        { type: "message", role: "user", content: [{ type: "input_text", text: "secret user text" }] },
+        { type: "message", role: "assistant", content: [{ type: "output_text", text: "secret assistant text" }] }
+      ],
       stream: true
     });
     const result = await request({
@@ -240,13 +275,23 @@ test("proxy forwards auth and streaming bytes but stores only artifact metadata 
       .map(JSON.parse);
     const turnIdentity = events.find((event) => event.event_kind === "request_turn_identity");
     const artifacts = events.filter((event) => event.event_kind === "artifact");
-    assert.equal(events.length, 3);
+    assert.equal(events.length, 4);
     assert.equal(turnIdentity.turn_identity_source, "missing");
-    assert.equal(artifacts.length, 2);
+    assert.equal(artifacts.length, 3);
     assert.equal(artifacts.every((event) => event.storage_mode === "metadata"), true);
     assert.equal(artifacts.every((event) => Number.isFinite(event.local_token_count)), true);
     assert.equal(artifacts.some((event) => "content" in event), false);
     assert.equal(artifacts.some((event) => "preview" in event), false);
+    assert.deepEqual(artifacts.map((event) => event.metadata.content_kind), [
+      undefined,
+      "user_message",
+      "assistant_message"
+    ]);
+    assert.deepEqual(artifacts.map((event) => event.metadata.title_candidate), [
+      undefined,
+      true,
+      true
+    ]);
     assert.equal(artifacts[0].artifact_index, 0);
     assert.equal(artifacts[0].token_start, 0);
     assert.equal(artifacts[0].token_end, artifacts[0].local_token_count);
@@ -255,6 +300,8 @@ test("proxy forwards auth and streaming bytes but stores only artifact metadata 
     assert.equal(artifacts[1].token_end, artifacts[0].local_token_count + artifacts[1].local_token_count);
     assert.equal(JSON.stringify(events).includes("secret-token"), false);
     assert.equal(JSON.stringify(events).includes("secret system text"), false);
+    assert.equal(JSON.stringify(events).includes("secret user text"), false);
+    assert.equal(JSON.stringify(events).includes("secret assistant text"), false);
   } finally {
     await proxy.close();
     await new Promise((resolve) => upstream.close(resolve));

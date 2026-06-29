@@ -79,7 +79,8 @@ export type CodexRequestEnvelope = {
   unknownCodexClientMetadataKeys: string[];
 };
 
-type ParsedCodexTurnMetadata =
+// Adapter-local parse state for the JSON string Codex sends in turn metadata fields.
+type CodexTurnMetadataParseResult =
   | { status: "absent" }
   | { status: "malformed" }
   | { status: "parsed"; metadata: CodexTurnMetadata };
@@ -332,8 +333,8 @@ export function toCodexRequestShape({
 
 export function normalizeCodexRequestShape(request: CodexRequestShape): CodexRequestEnvelope {
   const clientMetadata = request.body.client_metadata;
-  const clientMetadataTurn = parseTurnMetadata(clientMetadata?.["x-codex-turn-metadata"]);
-  const headerTurn = parseTurnMetadata(request.headers["x-codex-turn-metadata"]);
+  const clientMetadataTurn = parseCodexTurnMetadataField(clientMetadata?.["x-codex-turn-metadata"]);
+  const headerTurn = parseCodexTurnMetadataField(request.headers["x-codex-turn-metadata"]);
 
   return {
     body: {
@@ -451,7 +452,7 @@ function headerValue(value: unknown): string | undefined {
   return stringValue(candidate);
 }
 
-function parseTurnMetadata(value: string | undefined): ParsedCodexTurnMetadata {
+function parseCodexTurnMetadataField(value: string | undefined): CodexTurnMetadataParseResult {
   if (!value) return { status: "absent" };
 
   try {
@@ -471,8 +472,8 @@ function resolveTurnIdentity({
   headerTurn
 }: {
   clientMetadata?: CodexClientMetadata | undefined;
-  clientMetadataTurn: ParsedCodexTurnMetadata;
-  headerTurn: ParsedCodexTurnMetadata;
+  clientMetadataTurn: CodexTurnMetadataParseResult;
+  headerTurn: CodexTurnMetadataParseResult;
 }): CodexRequestTurnIdentity {
   if (clientMetadataTurn.status === "malformed") {
     return malformedTurnIdentity("Codex client_metadata turn metadata could not be parsed.");

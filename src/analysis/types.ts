@@ -210,6 +210,8 @@ export type ReadableArtifact = {
   attribution_state?: string | undefined;
   storage_mode: string;
   preview_state: PreviewState;
+  title_candidate?: boolean | undefined;
+  message_source?: string | undefined;
   specificity: number;
   source_facts: string[];
   caveats: AnalysisCaveat[];

@@ -121,6 +121,186 @@ test("analysis prefers assistant preview for request titles", async () => {
   assert.equal(secondRequest.title_source, "assistant_preview");
 });
 
+test("analysis uses captured assistant message metadata before command labels", () => {
+  const summary = analyzeEvents([
+    {
+      schema_version: 1,
+      event_kind: "request_turn_identity",
+      run_id: "run_adapter_message_metadata",
+      request_id: "req_with_assistant_preview",
+      turn_id: "turn_with_assistant_preview",
+      turn_identity_source: "direct_turn_id",
+      caveats: [],
+      timestamp: "2026-06-29T12:00:00.000Z"
+    },
+    {
+      schema_version: 1,
+      event_kind: "artifact",
+      run_id: "run_adapter_message_metadata",
+      request_id: "req_with_assistant_preview",
+      artifact_id: "SUMMARY:message:assistant:0:0",
+      artifact_type: "SUMMARY",
+      artifact_name: "message:assistant:0:0",
+      content_hash: "hash_assistant_preview",
+      local_token_count: 7,
+      tokenizer: "o200k_base",
+      storage_mode: "preview",
+      artifact_index: 0,
+      token_start: 0,
+      token_end: 7,
+      metadata: {
+        content_kind: "assistant_message",
+        role: "assistant",
+        message_source: "current_turn",
+        title_candidate: true,
+        part_index: 0
+      },
+      preview: {
+        head: "I'll inspect the dashboard title path.",
+        tail: "",
+        char_count: 38,
+        line_count: 1,
+        truncated: false
+      },
+      timestamp: "2026-06-29T12:00:01.000Z"
+    },
+    {
+      schema_version: 1,
+      event_kind: "artifact",
+      run_id: "run_adapter_message_metadata",
+      request_id: "req_with_assistant_preview",
+      artifact_id: "SUMMARY:tool-call:call_sed",
+      artifact_type: "SUMMARY",
+      artifact_name: "exec_command: sed -n '1,220p' src/analysis/turn-groups.ts",
+      content_hash: "hash_sed_command",
+      local_token_count: 12,
+      tokenizer: "o200k_base",
+      storage_mode: "metadata",
+      artifact_index: 1,
+      token_start: 7,
+      token_end: 19,
+      metadata: {
+        content_kind: "command",
+        tool_name: "exec_command",
+        call_id: "call_sed",
+        command: "sed -n '1,220p' src/analysis/turn-groups.ts",
+        display_name: "exec_command: sed -n '1,220p' src/analysis/turn-groups.ts"
+      },
+      timestamp: "2026-06-29T12:00:02.000Z"
+    },
+    {
+      schema_version: 1,
+      event_kind: "request_usage",
+      run_id: "run_adapter_message_metadata",
+      request_id: "req_with_assistant_preview",
+      input_tokens: 19,
+      cached_input_tokens: 0,
+      uncached_input_tokens: 19,
+      output_tokens: 3,
+      total_tokens: 22,
+      timestamp: "2026-06-29T12:00:03.000Z"
+    }
+  ]);
+  const turn = summary.turns.find((candidate) => candidate.turn_id === "turn_with_assistant_preview");
+  const request = turn.requests.find((candidate) => candidate.request_id === "req_with_assistant_preview");
+
+  assert.equal(request.display_title, "I'll inspect the dashboard title path.");
+  assert.equal(request.title_source, "assistant_preview");
+});
+
+test("analysis ignores non-title context messages for turn titles", () => {
+  const summary = analyzeEvents([
+    {
+      schema_version: 1,
+      event_kind: "request_turn_identity",
+      run_id: "run_context_title_filter",
+      request_id: "req_context_title_filter",
+      turn_id: "turn_context_title_filter",
+      turn_identity_source: "direct_turn_id",
+      caveats: [],
+      timestamp: "2026-06-29T12:00:00.000Z"
+    },
+    {
+      schema_version: 1,
+      event_kind: "artifact",
+      run_id: "run_context_title_filter",
+      request_id: "req_context_title_filter",
+      artifact_id: "USER_MESSAGE:message:user:1:0",
+      artifact_type: "USER_MESSAGE",
+      artifact_name: "message:user:1:0",
+      content_hash: "hash_agent_context",
+      local_token_count: 12,
+      tokenizer: "o200k_base",
+      storage_mode: "preview",
+      artifact_index: 0,
+      token_start: 0,
+      token_end: 12,
+      metadata: {
+        content_kind: "user_message",
+        role: "user",
+        message_source: "agent_context",
+        title_candidate: false,
+        part_index: 0
+      },
+      preview: {
+        head: "# AGENTS.md instructions for /repo",
+        tail: "",
+        char_count: 32,
+        line_count: 1,
+        truncated: false
+      },
+      timestamp: "2026-06-29T12:00:01.000Z"
+    },
+    {
+      schema_version: 1,
+      event_kind: "artifact",
+      run_id: "run_context_title_filter",
+      request_id: "req_context_title_filter",
+      artifact_id: "USER_MESSAGE:message:user:2:0",
+      artifact_type: "USER_MESSAGE",
+      artifact_name: "message:user:2:0",
+      content_hash: "hash_current_prompt",
+      local_token_count: 8,
+      tokenizer: "o200k_base",
+      storage_mode: "preview",
+      artifact_index: 1,
+      token_start: 12,
+      token_end: 20,
+      metadata: {
+        content_kind: "user_message",
+        role: "user",
+        message_source: "current_turn",
+        title_candidate: true,
+        part_index: 0
+      },
+      preview: {
+        head: "Fix the dashboard request title preview.",
+        tail: "",
+        char_count: 40,
+        line_count: 1,
+        truncated: false
+      },
+      timestamp: "2026-06-29T12:00:02.000Z"
+    },
+    {
+      schema_version: 1,
+      event_kind: "request_usage",
+      run_id: "run_context_title_filter",
+      request_id: "req_context_title_filter",
+      input_tokens: 20,
+      cached_input_tokens: 0,
+      uncached_input_tokens: 20,
+      output_tokens: 3,
+      total_tokens: 23,
+      timestamp: "2026-06-29T12:00:03.000Z"
+    }
+  ]);
+  const turn = summary.turns.find((candidate) => candidate.turn_id === "turn_context_title_filter");
+
+  assert.equal(turn.display_title, "Fix the dashboard request title preview.");
+  assert.equal(turn.title_source, "user_preview");
+});
+
 test("dashboard model preserves turn request title sources", async () => {
   const summary = analyzeEvents(await fixture("turn-hierarchy.jsonl"));
   const model = createDashboardViewModel(summary);
