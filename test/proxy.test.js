@@ -193,7 +193,7 @@ test("Codex config disable refuses to overwrite a later manual change", () => {
   );
 });
 
-test("proxy forwards auth and streaming bytes but stores only artifact metadata", async () => {
+test("proxy forwards auth and streaming bytes but stores only artifact metadata in metadata mode", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "token-profiler-test-"));
   let receivedAuth;
   const upstream = http.createServer((request, response) => {
@@ -208,7 +208,7 @@ test("proxy forwards auth and streaming bytes but stores only artifact metadata"
   await listen(upstream);
 
   const upstreamPort = upstream.address().port;
-  const profiler = new TokenProfiler({ runId: "integration", rootDir });
+  const profiler = new TokenProfiler({ runId: "integration", rootDir, storageMode: "metadata" });
   const proxy = createProfilerProxy({
     profiler,
     upstream: `http://127.0.0.1:${upstreamPort}`,

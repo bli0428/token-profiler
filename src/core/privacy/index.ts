@@ -1,13 +1,13 @@
 export const STORAGE_MODES = Object.freeze(["metadata", "preview", "raw"]);
 
 const DEFAULT_PREVIEW_CHARS = 800;
+const DEFAULT_STORAGE_MODE: StorageMode = "preview";
 
 export type StorageMode = typeof STORAGE_MODES[number];
 
 export function normalizeStorageMode({
-  storageMode,
-  storeContent
-}: { storageMode?: StorageMode; storeContent?: boolean } = {}): StorageMode {
+  storageMode
+}: { storageMode?: StorageMode } = {}): StorageMode {
   if (storageMode !== undefined) {
     if (!STORAGE_MODES.includes(storageMode)) {
       throw new Error(`Unsupported storage mode "${storageMode}".`);
@@ -15,7 +15,7 @@ export function normalizeStorageMode({
     return storageMode;
   }
 
-  return storeContent ? "raw" : "metadata";
+  return DEFAULT_STORAGE_MODE;
 }
 
 export function applyStorageMode(event: Record<string, any>, content: unknown, storageMode: StorageMode) {

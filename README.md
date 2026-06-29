@@ -107,7 +107,7 @@ For exact prompt exposure, attach the `TokenProfiler` API to code that assembles
 
 ## Local Codex Proxy
 
-The local proxy observes the JSON request body Codex sends to the Responses API, records prompt artifacts, and streams the upstream response back unchanged. It listens on loopback only and does not store raw prompt content by default.
+The local proxy observes the JSON request body Codex sends to the Responses API, records prompt artifacts, and streams the upstream response back unchanged. It listens on loopback only and stores bounded previews by default, not full raw prompt content.
 
 Each `codex run` invocation receives a unique session ID automatically. A reused background proxy routes events into separate session directories using the wrapper header, Codex conversation/cache identifiers, or a short-lived prompt fingerprint fallback. List recent sessions with:
 
@@ -237,7 +237,7 @@ node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js daemon stop
 node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js daemon ensure
 ```
 
-The proxy sees authorization headers only long enough to forward the request. It never records them. The default storage mode is `metadata`, which records operational facts without raw prompt text. Use `--storage-mode preview` for bounded excerpts or `--storage-mode raw` when you intentionally want full prompt text included in the local event log. `--store-content` remains as a backward-compatible alias for raw storage.
+The proxy sees authorization headers only long enough to forward the request. It never records them. The default storage mode is `preview`, which records bounded excerpts without full raw prompt text. Use `--storage-mode metadata` for operational facts only or `--storage-mode raw` when you intentionally want full prompt text included in the local event log.
 
 ChatGPT authentication is the default mode and forwards to the Codex account endpoint. Use `--auth api` on both `proxy start` and `codex enable` when Codex is logged in with an API key. The managed provider uses HTTP streaming so every request passes through the profiler without WebSocket retry delays.
 

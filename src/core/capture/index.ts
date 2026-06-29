@@ -15,7 +15,6 @@ type CaptureWriterOptions = {
   tokenizerName?: string;
   store?: { append(event: unknown): Promise<void> };
   clock?: () => Date;
-  storeContent?: boolean;
   storageMode?: string;
 };
 
@@ -47,7 +46,6 @@ export class TokenProfiler {
     tokenizerName = "o200k_base",
     store = new JsonlEventStore({ rootDir, runId }),
     clock = () => new Date(),
-    storeContent = false,
     storageMode
   }: CaptureWriterOptions = {}) {
     this.runId = runId;
@@ -55,7 +53,7 @@ export class TokenProfiler {
     this.tokenizerName = tokenizerName;
     this.store = store;
     this.clock = clock;
-    this.storageMode = normalizeStorageMode({ storageMode: storageMode as any, storeContent });
+    this.storageMode = normalizeStorageMode({ storageMode: storageMode as any });
     this.pendingWrites = [];
   }
 

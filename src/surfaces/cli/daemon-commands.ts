@@ -27,10 +27,17 @@ type DaemonOptions = {
   dashboardPort: number;
   dashboardOrigin: string;
   proxyArgs: string[];
+  dashboardArgs: string[];
 };
 
 export async function runDaemon(args: string[]): Promise<void> {
   const [action = "status", ...optionArgs] = args;
+
+  if (action === "help" || action === "--help" || action === "-h") {
+    printDaemonHelp();
+    return;
+  }
+
   const options = parseOptions(optionArgs);
   const daemonOptions = parseDaemonOptions(options);
   const statePath = join(daemonOptions.rootDir, "daemon-state.json");
@@ -55,7 +62,7 @@ export async function runDaemon(args: string[]): Promise<void> {
     return;
   }
 
-  throw new Error("Use: daemon start|stop|status|ensure [--auth chatgpt|api] [--data-dir <path>] [--host <host>] [--proxy-port <port>] [--dashboard-port <port>]");
+  throw new Error(daemonUsage());
 }
 
 async function startDaemon(options: DaemonOptions, statePath: string, ensure: boolean): Promise<void> {
@@ -104,14 +111,7 @@ async function ensureDashboardApi(options: DaemonOptions, statePath: string, ens
     cliPath,
     "dashboard-api",
     "serve",
-    "--host",
-    options.host,
-    "--port",
-    String(options.dashboardPort),
-    "--origin",
-    options.dashboardOrigin,
-    "--data-dir",
-    options.rootDir
+    ...options.dashboardArgs
   ], {
     detached: true,
     stdio: ["ignore", logFd, logFd] as const,
@@ -203,12 +203,28 @@ function parseDaemonOptions(options: Record<string, string | boolean>): DaemonOp
     "--data-dir",
     rootDir
   ];
+  const dashboardArgs = [
+    "--host",
+    host,
+    "--port",
+    String(dashboardPort),
+    "--origin",
+    dashboardOrigin,
+    "--data-dir",
+    rootDir
+  ];
 
+  if (typeof options.upstream === "string") {
+    proxyArgs.push("--upstream", options.upstream);
+  }
   if (typeof options["storage-mode"] === "string") {
     proxyArgs.push("--storage-mode", options["storage-mode"]);
   }
-  if (options["store-content"]) {
-    proxyArgs.push("--store-content");
+  if (typeof options["codex-home"] === "string") {
+    dashboardArgs.push("--codex-home", options["codex-home"]);
+  }
+  if (options["no-codex"]) {
+    dashboardArgs.push("--no-codex");
   }
 
   return {
@@ -218,8 +234,51 @@ function parseDaemonOptions(options: Record<string, string | boolean>): DaemonOp
     proxyPort,
     dashboardPort,
     dashboardOrigin,
-    proxyArgs
+    proxyArgs,
+    dashboardArgs
   };
+}
+
+export function printDaemonHelp(): void {
+  console.log(`Token Profiler Daemon
+
+${daemonUsage()}
+
+Options:
+  --auth chatgpt|api
+    Select the upstream auth mode. Defaults to chatgpt.
+
+  --data-dir <path>
+    Store daemon state, logs, and captured runs under this root.
+
+  --host <host>
+    Bind both local services to this host. Defaults to 127.0.0.1.
+
+  --proxy-port <port>
+    Proxy listen port. Defaults to 8787.
+
+  --dashboard-port <port>
+    Dashboard API listen port. Defaults to 8788.
+
+  --origin <origin>
+    Allowed dashboard frontend origin for CORS. Defaults to http://127.0.0.1:5173.
+
+  --upstream <url>
+    Override the proxy upstream URL.
+
+  --storage-mode metadata|preview|raw
+    Select capture privacy mode for proxy events. Defaults to preview.
+
+  --codex-home <path>
+    Read Codex dashboard title metadata from this Codex home.
+
+  --no-codex
+    Disable Codex session-title enrichment in the dashboard API.
+`);
+}
+
+function daemonUsage(): string {
+  return "Use: daemon start|stop|status|ensure|help [--auth chatgpt|api] [--data-dir <path>] [--host <host>] [--proxy-port <port>] [--dashboard-port <port>] [--origin <origin>] [--upstream <url>] [--storage-mode metadata|preview|raw] [--codex-home <path>] [--no-codex]";
 }
 
 function parsePort(value: string | boolean | number, name: string): number {

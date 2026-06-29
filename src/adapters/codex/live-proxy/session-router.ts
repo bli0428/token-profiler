@@ -14,7 +14,6 @@ const SESSION_HEADER = "x-token-profiler-session";
 
 type SessionRouterOptions = {
   rootDir: string;
-  storeContent?: boolean;
   storageMode?: string;
   fallbackSessionId?: string | null;
   idleMs?: number;
@@ -46,7 +45,6 @@ export class SessionRouter {
    * Creates a router for resolving Codex traffic into profiler sessions.
    *
    * @param rootDir - Root directory where per-session profiler stores are written.
-   * @param storeContent - Legacy boolean privacy option folded into `storageMode`.
    * @param storageMode - Explicit storage mode for created profilers.
    * @param fallbackSessionId - Optional run ID used when no session hint is available.
    * @param idleMs - Time window for reusing prompt-fingerprint sessions.
@@ -54,14 +52,13 @@ export class SessionRouter {
    */
   constructor({
     rootDir,
-    storeContent = false,
     storageMode,
     fallbackSessionId,
     idleMs = 30 * 60 * 1000,
     clock = () => new Date()
   }: SessionRouterOptions) {
     this.rootDir = rootDir;
-    this.storageMode = normalizeStorageMode({ storageMode: storageMode as any, storeContent });
+    this.storageMode = normalizeStorageMode({ storageMode: storageMode as any });
     this.fallbackSessionId = fallbackSessionId ? sanitizeSessionId(fallbackSessionId) : null;
     this.idleMs = idleMs;
     this.clock = clock;

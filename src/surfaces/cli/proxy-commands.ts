@@ -54,8 +54,7 @@ export async function runProxy(args: string[]): Promise<void> {
       ? { storageMode: options["storage-mode"] }
       : {};
     const storageMode = normalizeStorageMode({
-      ...storageModeOption,
-      storeContent: Boolean(options["store-content"])
+      ...storageModeOption
     });
     await startProxyDaemon({ optionArgs, rootDir, statePath, runId, upstream, host, port, storageMode });
     return;
@@ -98,8 +97,7 @@ export async function runProxy(args: string[]): Promise<void> {
     ? { storageMode: options["storage-mode"] }
     : {};
   const storageMode = normalizeStorageMode({
-    ...storageModeOption,
-    storeContent: Boolean(options["store-content"])
+    ...storageModeOption
   });
   const sessionRouter = new SessionRouter({
     rootDir,
@@ -312,8 +310,7 @@ async function runCodexThroughProxy(args: string[]): Promise<void> {
     ? { storageMode: options["storage-mode"] }
     : {};
   const storageMode = normalizeStorageMode({
-    ...storageModeOption,
-    storeContent: Boolean(options["store-content"])
+    ...storageModeOption
   });
 
   if (existing && isProcessRunning(existing.pid)) {
@@ -324,7 +321,6 @@ async function runCodexThroughProxy(args: string[]): Promise<void> {
     const proxyArgs = ["--auth", authMode, "--port", String(port)];
     if (typeof options["data-dir"] === "string") proxyArgs.push("--data-dir", options["data-dir"]);
     if (typeof options["storage-mode"] === "string") proxyArgs.push("--storage-mode", options["storage-mode"]);
-    if (options["store-content"]) proxyArgs.push("--store-content");
     await startProxyDaemon({
       optionArgs: proxyArgs,
       rootDir,

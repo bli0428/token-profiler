@@ -37,10 +37,12 @@ test("raw mode stores full content explicitly", () => {
   assert.equal("preview" in event, false);
 });
 
-test("storeContent maps to raw for existing callers", () => {
-  assert.equal(normalizeStorageMode({ storeContent: true }), "raw");
-  assert.equal(normalizeStorageMode({ storeContent: false }), "metadata");
-  assert.equal(normalizeStorageMode({ storageMode: "preview", storeContent: true }), "preview");
+test("default storage mode is preview", () => {
+  assert.equal(normalizeStorageMode(), "preview");
+});
+
+test("raw storage is selected explicitly", () => {
+  assert.equal(normalizeStorageMode({ storageMode: "raw" }), "raw");
 });
 
 test("content preview captures short text without truncation", () => {
