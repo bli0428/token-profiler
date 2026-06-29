@@ -130,6 +130,11 @@
   color: var(--color-muted);
 }
 
+.request-id-fallback {
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
 .request-sort-controls {
   display: flex;
   flex-wrap: wrap;

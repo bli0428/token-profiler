@@ -217,6 +217,10 @@ export type ArtifactDetail = {
     updates?: number | undefined;
     deletes?: number | undefined;
   };
+  content?: {
+    preview?: string | undefined;
+    raw?: string | undefined;
+  };
   privacy: {
     storage_mode: string;
     preview_state: PreviewState;

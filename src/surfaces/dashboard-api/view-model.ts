@@ -281,9 +281,14 @@ function dashboardArtifactDetails(
       });
     }
 
-    const preview = detail.command?.output_preview;
-    const content = privacy.storage_mode !== "metadata" && preview
-      ? { preview, raw_reveal_required: detail.privacy.preview_state === "raw_available" }
+    const preview = detail.content?.preview ?? detail.command?.output_preview;
+    const raw = detail.content?.raw;
+    const content = privacy.storage_mode !== "metadata" && (preview || raw)
+      ? {
+          ...(preview ? { preview } : {}),
+          ...(raw ? { raw } : {}),
+          raw_reveal_required: detail.privacy.preview_state === "raw_available"
+        }
       : undefined;
 
     return {

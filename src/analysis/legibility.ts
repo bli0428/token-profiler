@@ -255,6 +255,9 @@ function artifactDetail(
     };
   }
 
+  const content = contentForDetail(row.preview_state, events[events.length - 1]);
+  if (content) detail.content = content;
+
   if (row.display_category === "patch") {
     detail.patch = {
       touched_files: stringArrayValue(metadata.touched_files),
@@ -377,6 +380,13 @@ function previewText(event: ArtifactEvent | undefined): string | undefined {
   const head = stringValue(event.preview.head) ?? "";
   const tail = stringValue(event.preview.tail) ?? "";
   return `${head}${tail ? `...${tail}` : ""}` || undefined;
+}
+
+function contentForDetail(previewState: PreviewState, event: ArtifactEvent | undefined): ArtifactDetail["content"] | undefined {
+  if (previewState === "hidden" || previewState === "unavailable") return undefined;
+  if (previewState === "raw_available" && event?.content) return { raw: event.content };
+  const preview = previewText(event);
+  return preview ? { preview } : undefined;
 }
 
 function stringValue(value: unknown): string | undefined {

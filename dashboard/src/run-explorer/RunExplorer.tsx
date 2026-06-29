@@ -36,6 +36,7 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
         <RequestList
           requests={run.requests}
           artifactRows={run.artifacts}
+          artifactDetails={run.artifact_details}
           expandedRequestIds={viewState.expandedRequestIds}
           selectedArtifactId={viewState.selectedArtifactId}
           sortKey={viewState.requestSortKey}

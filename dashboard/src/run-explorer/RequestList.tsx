@@ -1,4 +1,4 @@
-import type { DashboardArtifactRow, DashboardRequestAccounting, DashboardRequestAccountingRow } from "../api/types";
+import type { DashboardArtifactDetail, DashboardArtifactRow, DashboardRequestAccounting, DashboardRequestAccountingRow } from "../api/types";
 import { EmptyState } from "../components/EmptyState";
 import type { RequestSortKey } from "../state/view-state";
 import { collectionAvailabilityLabel } from "./request-format";
@@ -7,6 +7,7 @@ import { RequestRow } from "./RequestRow";
 type Props = {
   requests?: DashboardRequestAccounting;
   artifactRows: DashboardArtifactRow[];
+  artifactDetails?: Record<string, DashboardArtifactDetail>;
   expandedRequestIds: string[];
   selectedArtifactId?: string;
   sortKey: RequestSortKey;
@@ -28,6 +29,7 @@ const sortOptions: Array<{ value: RequestSortKey; label: string }> = [
 export function RequestList({
   requests,
   artifactRows,
+  artifactDetails = {},
   expandedRequestIds,
   selectedArtifactId,
   sortKey,
@@ -86,6 +88,7 @@ export function RequestList({
         {sortedRows.map((request) => (
           <RequestRow
             artifactRows={artifactRows}
+            artifactDetails={artifactDetails}
             expanded={expandedRequestIds.includes(request.request_id)}
             key={request.request_id}
             request={request}

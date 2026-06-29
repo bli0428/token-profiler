@@ -20,6 +20,16 @@ describe("request-first dashboard", () => {
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 
+  it("uses the richest request artifact preview as the request title before falling back to proxy ids", () => {
+    const run = withRequestPreviewTitle(apiRealFixtures.run.data);
+    renderExplorer({ run });
+
+    const requestList = screen.getByLabelText("Requests");
+    expect(within(requestList).getByRole("heading", { name: "Move the storage mode pill into the dashboard navbar" })).toBeInTheDocument();
+    expect(within(requestList).getByText("proxy_fccc22f5-6865-4220-bfba-ef540d2e8ae9")).toBeInTheDocument();
+    expect(within(requestList).queryByRole("heading", { name: "instructions" })).not.toBeInTheDocument();
+  });
+
   it("shows provider token totals and unavailable labels without expanding", () => {
     const run = withAdditionalRequest(apiRealFixtures.run.data, { missingUsage: true });
     renderExplorer({ run });
@@ -189,6 +199,73 @@ function withAdditionalRequest(run: DashboardRun, options: { missingUsage?: bool
         usage_incomplete_count: options.missingUsage ? run.requests.summary.usage_incomplete_count + 1 : run.requests.summary.usage_incomplete_count
       },
       rows: [first, second]
+    }
+  };
+}
+
+function withRequestPreviewTitle(run: DashboardRun): DashboardRun {
+  const first = run.requests.rows[0]!;
+  const artifactId = "USER_MESSAGE:preview-title";
+  const instructionsId = "SYSTEM_PROMPT:instructions";
+  return {
+    ...run,
+    artifacts: [
+      {
+        ...run.artifacts[0]!,
+        artifact_id: instructionsId,
+        display_name: "instructions",
+        display_category: "system_prompt",
+        summary: "instructions"
+      },
+      {
+        ...run.artifacts[0]!,
+        artifact_id: artifactId,
+        display_name: "User message",
+        display_category: "user_message",
+        summary: "Add a storage mode indicator to the dashboard header"
+      },
+      ...run.artifacts
+    ],
+    artifact_details: {
+      ...run.artifact_details,
+      [artifactId]: {
+        ...run.artifact_details[run.requests.rows[0]!.artifact_inclusions[0]!.artifact_id]!,
+        artifact_id: artifactId,
+        title: "User message",
+        identity: {
+          ...run.artifact_details[run.requests.rows[0]!.artifact_inclusions[0]!.artifact_id]!.identity,
+          display_category: "user_message"
+        },
+        content: {
+          preview: "Move the storage mode pill into the dashboard navbar",
+          raw_reveal_required: false
+        }
+      }
+    },
+    requests: {
+      ...run.requests,
+      rows: [
+        {
+          ...first,
+          request_id: "proxy_fccc22f5-6865-4220-bfba-ef540d2e8ae9",
+          artifact_inclusions: [
+            {
+              ...first.artifact_inclusions[0]!,
+              artifact_id: instructionsId,
+              display_name: "instructions",
+              display_category: "system_prompt",
+              request_order: 0
+            },
+            {
+              ...first.artifact_inclusions[0]!,
+              artifact_id: artifactId,
+              display_name: "User message",
+              display_category: "user_message",
+              request_order: 1
+            }
+          ]
+        }
+      ]
     }
   };
 }

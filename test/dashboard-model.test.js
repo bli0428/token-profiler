@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { analyzeEvents } from "../src/analysis/pipeline.ts";
 import { createDashboardViewModel, dashboardOverview } from "../src/surfaces/dashboard-api/view-model.ts";
 import { dashboardSummary } from "./helpers/dashboard-fixtures.js";
 
@@ -43,6 +44,40 @@ test("dashboard maps artifact details and task memberships", () => {
   assert.equal(detail.tool_links[0].match_state, "exact");
   assert.deepEqual(detail.task_group_ids, ["task:req_1:req_2"]);
   assert.ok(detail.metadata_sections.some((section) => section.title === "Command"));
+});
+
+test("dashboard forwards preview-mode user message content to artifact details", () => {
+  const summary = analyzeEvents([
+    {
+      schema_version: 1,
+      run_id: "run_preview",
+      request_id: "proxy_fccc22f5-6865-4220-bfba-ef540d2e8ae9",
+      artifact_id: "MSG:user:preview",
+      artifact_type: "MESSAGE",
+      artifact_name: "message:user:1:0",
+      content_hash: "hash_preview_message",
+      local_token_count: 12,
+      tokenizer: "o200k_base",
+      storage_mode: "preview",
+      event_kind: "artifact",
+      metadata: {
+        content_kind: "user_message",
+        role: "user"
+      },
+      preview: {
+        head: "Move the storage mode pill into the dashboard navbar",
+        tail: "",
+        char_count: 52,
+        line_count: 1,
+        truncated: false
+      },
+      timestamp: "2026-06-23T12:00:01.000Z"
+    }
+  ]);
+  const model = createDashboardViewModel(summary);
+  const detail = model.artifact_details["MSG:user:preview"];
+
+  assert.equal(detail.content.preview, "Move the storage mode pill into the dashboard navbar");
 });
 
 test("dashboard can derive task-scoped overview without mutating run data", () => {
