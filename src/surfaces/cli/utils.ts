@@ -139,9 +139,15 @@ Commands:
   proxy start|stop|status [--auth chatgpt|api] [--run <id>] [--upstream <url>] [--port <port>] [--data-dir <path>] [--storage-mode metadata|preview|raw] [--store-content]
     Manage the background loopback Responses API profiler proxy.
 
+  daemon start|stop|status|ensure [--auth chatgpt|api] [--data-dir <path>] [--host <host>] [--proxy-port <port>] [--dashboard-port <port>]
+    Manage the local profiler proxy and dashboard API together.
+
   codex enable [--auth chatgpt|api] [--url <proxy-url>] [--config <path>]
   codex disable [--config <path>]
     Enable or disable proxy routing in the user-level Codex config.
+
+  setup codex [--auth chatgpt|api] [--autostart] [--data-dir <path>] [--config <path>]
+    Configure Codex routing and optionally install login autostart for the daemon.
 
   codex run [--cwd <path>] [--run <id>] [--auth chatgpt|api] [--storage-mode metadata|preview|raw] -- <prompt>
     Start or reuse the proxy and run one Codex CLI task through it.

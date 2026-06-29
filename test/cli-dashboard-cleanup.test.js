@@ -1,12 +1,15 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { launchAgentPlist } from "../src/surfaces/cli/setup-commands.ts";
 import { printHelp } from "../src/surfaces/cli/utils.ts";
 
 test("CLI help points to dashboard API workflow instead of static dashboard files", () => {
   const output = captureConsole(() => printHelp());
 
   assert.match(output, /dashboard-api serve/);
+  assert.match(output, /daemon start\|stop\|status\|ensure/);
+  assert.match(output, /setup codex/);
   assert.match(output, /local read-only dashboard HTTP API/);
   assert.doesNotMatch(output, /\n\s*html \[run_dir\]/);
   assert.doesNotMatch(output, /\n\s*dashboard \[--limit/);
@@ -21,6 +24,26 @@ test("CLI dispatch no longer includes static dashboard commands", async () => {
   assert.doesNotMatch(source, /\brunHtml\b/);
   assert.doesNotMatch(source, /\brunDashboard\b(?!Api)/);
   assert.match(source, /command === "dashboard-api"/);
+  assert.match(source, /command === "daemon"/);
+  assert.match(source, /command === "setup"/);
+});
+
+test("setup codex autostart plist runs daemon ensure", () => {
+  const plist = launchAgentPlist({
+    nodePath: "/usr/local/bin/node",
+    cliPath: "/usr/local/bin/token-profiler",
+    authMode: "chatgpt",
+    rootDir: "/Users/example/.token-profiler",
+    host: "127.0.0.1",
+    proxyPort: "8787",
+    dashboardPort: "8788",
+    origin: "http://127.0.0.1:5173"
+  });
+
+  assert.match(plist, /<string>daemon<\/string>/);
+  assert.match(plist, /<string>ensure<\/string>/);
+  assert.match(plist, /<string>--auth<\/string>\s*<string>chatgpt<\/string>/);
+  assert.match(plist, /<key>RunAtLoad<\/key>\s*<true\/>/);
 });
 
 function captureConsole(fn) {

@@ -218,6 +218,25 @@ Restart Codex and begin a new session. Provider routing must be configured at us
 node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js codex disable
 ```
 
+To set up both Codex routing and local service autostart in one step on macOS:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js setup codex \
+  --auth chatgpt \
+  --autostart
+```
+
+This enables the `token-profiler` Codex model provider, installs a user
+LaunchAgent that runs `daemon ensure` at login, and starts the local proxy plus
+dashboard API for the current session. You can manage both local services
+together with:
+
+```bash
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js daemon status
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js daemon stop
+node /Users/brandonli/Documents/TokenEfficiencyTracker/src/cli.js daemon ensure
+```
+
 The proxy sees authorization headers only long enough to forward the request. It never records them. The default storage mode is `metadata`, which records operational facts without raw prompt text. Use `--storage-mode preview` for bounded excerpts or `--storage-mode raw` when you intentionally want full prompt text included in the local event log. `--store-content` remains as a backward-compatible alias for raw storage.
 
 ChatGPT authentication is the default mode and forwards to the Codex account endpoint. Use `--auth api` on both `proxy start` and `codex enable` when Codex is logged in with an API key. The managed provider uses HTTP streaming so every request passes through the profiler without WebSocket retry delays.

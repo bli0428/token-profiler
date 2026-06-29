@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { runCodexImport, runCommand, runDemo, runRecord, runWatch } from "./capture-commands.ts";
+import { runDaemon } from "./daemon-commands.ts";
 import { runDashboardApi } from "./dashboard-api-commands.ts";
 import { runCodexConfig, runProxy } from "./proxy-commands.ts";
 import { runExplain, runLegibility, runSessions, runSummarize } from "./report-commands.ts";
+import { runSetup } from "./setup-commands.ts";
 import { printHelp } from "./utils.ts";
 
 const [, , command = "help", ...args] = process.argv;
@@ -20,8 +22,12 @@ try {
     await runCodexImport(args);
   } else if (command === "proxy") {
     await runProxy(args);
+  } else if (command === "daemon") {
+    await runDaemon(args);
   } else if (command === "codex") {
     await runCodexConfig(args);
+  } else if (command === "setup") {
+    await runSetup(args);
   } else if (command === "summarize") {
     await runSummarize(args);
   } else if (command === "legibility") {
