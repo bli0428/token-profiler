@@ -31,6 +31,7 @@ export type RequestUsageEvent = {
   cached_input_tokens: number;
   uncached_input_tokens: number;
   output_tokens: number;
+  reasoning_tokens?: number;
   total_tokens: number;
   timestamp: string;
 };
@@ -82,6 +83,7 @@ export type RequestSummary = {
     cached_input_tokens: number;
     uncached_input_tokens: number;
     output_tokens: number;
+    reasoning_tokens?: number;
     cache_hit_ratio: number;
   };
   cache_attribution?: JsonObject;

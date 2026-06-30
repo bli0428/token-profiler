@@ -82,6 +82,7 @@ export function createRequestUsageEvent({
       ?? usage?.cached_input_tokens
   ) || 0;
   const outputTokens = Number(usage?.output_tokens ?? usage?.completion_tokens) || 0;
+  const reasoningTokens = Number(usage?.output_tokens_details?.reasoning_tokens) || 0;
 
   return validateRequestUsageEvent({
     schema_version: 1,
@@ -93,6 +94,7 @@ export function createRequestUsageEvent({
     cached_input_tokens: cachedTokens,
     uncached_input_tokens: Math.max(0, inputTokens - cachedTokens),
     output_tokens: outputTokens,
+    ...(reasoningTokens > 0 ? { reasoning_tokens: reasoningTokens } : {}),
     total_tokens: Number(usage?.total_tokens) || inputTokens + outputTokens,
     timestamp
   });
@@ -173,6 +175,7 @@ export function validateRequestUsageEvent(event: any): RequestUsageEvent {
   requireNumber(event, "cached_input_tokens");
   requireNumber(event, "uncached_input_tokens");
   requireNumber(event, "output_tokens");
+  if (event.reasoning_tokens !== undefined) requireNumber(event, "reasoning_tokens");
   requireNumber(event, "total_tokens");
   requireString(event, "timestamp");
   return event;

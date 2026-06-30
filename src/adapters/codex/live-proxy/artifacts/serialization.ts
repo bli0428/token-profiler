@@ -56,6 +56,14 @@ export function toCaptureRecord(artifact: CodexExtractedArtifact): CodexCaptureR
         content: artifact.content,
         metadata: artifact.metadata
       };
+    case "reasoning_state":
+      return {
+        artifactType: artifact.artifactType,
+        artifactName: artifact.artifactName,
+        artifactId: artifact.artifactId,
+        content: artifact.content,
+        metadata: artifact.metadata
+      };
     default:
       return assertNever(artifact);
   }

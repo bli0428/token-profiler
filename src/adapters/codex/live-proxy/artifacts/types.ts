@@ -91,7 +91,8 @@ export type CodexArtifactMetadata =
   | CodexToolCallMetadata
   | CodexPatchMetadata
   | CodexToolOutputMetadata
-  | CodexUnknownInputMetadata;
+  | CodexUnknownInputMetadata
+  | CodexReasoningStateMetadata;
 
 export type CodexMessageMetadata = {
   content_kind: "assistant_message" | "system_message" | "user_message";
@@ -144,6 +145,13 @@ export type CodexUnknownInputMetadata = {
   observed_keys: string[];
 };
 
+export type CodexReasoningStateMetadata = {
+  content_kind: "reasoning_state";
+  provider_type: "reasoning";
+  reason: "opaque_reasoning_state";
+  observed_keys: string[];
+};
+
 type CodexArtifactBase = {
   artifactName: string;
   artifactId: string;
@@ -192,6 +200,12 @@ export type CodexUnknownArtifact = CodexArtifactBase & {
   metadata: CodexUnknownInputMetadata;
 };
 
+export type CodexReasoningStateArtifact = CodexArtifactBase & {
+  kind: "reasoning_state";
+  artifactType: "SUMMARY";
+  metadata: CodexReasoningStateMetadata;
+};
+
 export type CodexExtractedArtifact =
   | CodexSystemArtifact
   | CodexToolDefinitionArtifact
@@ -199,7 +213,8 @@ export type CodexExtractedArtifact =
   | CodexToolCallArtifact
   | CodexPatchArtifact
   | CodexToolOutputArtifact
-  | CodexUnknownArtifact;
+  | CodexUnknownArtifact
+  | CodexReasoningStateArtifact;
 
 export type CodexCaptureRecord = {
   artifactType: CodexArtifactType;

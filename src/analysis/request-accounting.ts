@@ -37,6 +37,7 @@ export function analyzeRequestAccounting(
         cached_input_tokens: Number(usage.cached_input_tokens) || 0,
         uncached_input_tokens: Number(usage.uncached_input_tokens) || 0,
         output_tokens: Number(usage.output_tokens) || 0,
+        ...(usage.reasoning_tokens !== undefined ? { reasoning_tokens: Number(usage.reasoning_tokens) || 0 } : {}),
         cache_hit_ratio: ratio(usage.cached_input_tokens, usage.input_tokens)
       }
     });
@@ -164,6 +165,7 @@ function providerUsage(usage: PreparedRunData["usageEvents"][number]): ProviderR
     cached_input_tokens: Number(usage.cached_input_tokens) || 0,
     uncached_input_tokens: Number(usage.uncached_input_tokens) || 0,
     output_tokens: Number(usage.output_tokens) || 0,
+    ...(usage.reasoning_tokens !== undefined ? { reasoning_tokens: Number(usage.reasoning_tokens) || 0 } : {}),
     total_tokens: Number(usage.total_tokens) || 0,
     ...(usage.response_id ? { response_id: usage.response_id } : {}),
     source: "provider_reported"

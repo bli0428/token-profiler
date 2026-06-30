@@ -69,3 +69,37 @@ and analyzer outputs. This should be explicit rather than hidden inside the UI.
 
 - Public hosted API.
 - Authentication beyond local-only protections unless later required.
+
+## 010 Opaque Reasoning State Attribution
+
+**Why**: Reasoning state artifacts are now displayed as opaque carried provider
+state, and the dashboard hides their artifact-level token metric. However,
+cache attribution still normalizes every artifact with token offsets, so
+reasoning state can still affect request-level estimated artifact attribution
+internally. That makes the analyzer less consistent than the product rule:
+encrypted reasoning state should not be smeared into ordinary artifact token
+estimates.
+
+**Scope**:
+
+- Teach artifact attribution to classify `reasoning_state` as opaque input
+  state that is excluded from user-facing artifact token estimates.
+- Keep provider request totals authoritative, including `input_tokens`,
+  `cached_input_tokens`, `uncached_input_tokens`, `output_tokens`, and optional
+  `reasoning_tokens`.
+- Preserve reasoning-state offsets only for internal reconciliation/debugging,
+  not for ordinary artifact-level `Tokens` estimates.
+- Make request attribution intentionally under-attributed when opaque reasoning
+  state accounts for part of provider input, instead of scaling/smearing that
+  state across visible artifacts.
+- Add analyzer tests covering a request with ordinary artifacts plus reasoning
+  state, verifying visible artifact estimates exclude the reasoning-state
+  range and attribution coverage reflects the excluded opaque portion.
+- Update `docs/reasoning-token-accounting.md` with the implemented attribution
+  behavior once this is built.
+
+**Not Included**:
+
+- Recovering plaintext reasoning content.
+- Estimating semantic reasoning-token counts from encrypted payload size.
+- Changing provider-reported request totals.

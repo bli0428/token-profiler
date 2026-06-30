@@ -57,4 +57,45 @@ describe("privacy rendering", () => {
     expect(screen.queryByText("Attribution")).not.toBeInTheDocument();
     expect(screen.queryByText(/raw prompt|command output|patch|file content|message body/i)).not.toBeInTheDocument();
   });
+
+  it("does not render reasoning state as an artifact token total", () => {
+    render(
+      <RequestArtifacts
+        artifacts={[{
+          artifact_id: "SUMMARY:input:reasoning:3",
+          stable_short_id: "reason3",
+          artifact_type: "SUMMARY",
+          display_name: "Reasoning state",
+          display_category: "reasoning_state",
+          request_order: 3,
+          local_token_count: 801,
+          estimated_cached_input_tokens: 801,
+          estimated_uncached_input_tokens: 0,
+          attribution_state: "estimated",
+          privacy: apiRealFixtures.run.data.privacy,
+          caveats: []
+        }]}
+        artifactRows={[{
+          artifact_id: "SUMMARY:input:reasoning:3",
+          stable_short_id: "reason3",
+          display_name: "Reasoning state",
+          display_category: "reasoning_state",
+          task_group_ids: [],
+          total_exposure: 1,
+          repeated_exposure: 0,
+          inclusion_count: 1,
+          preview_state: "hidden",
+          detail_available: false,
+          search_text: "Reasoning state",
+          caveats: []
+        }]}
+        onSelectArtifact={() => undefined}
+      />
+    );
+
+    expect(screen.getByRole("heading", { name: "Reasoning state" })).toBeInTheDocument();
+    expect(screen.getByText("Reasoning state", { selector: "p" })).toBeInTheDocument();
+    expect(screen.queryByText("Tokens")).not.toBeInTheDocument();
+    expect(screen.queryByText("801")).not.toBeInTheDocument();
+  });
 });

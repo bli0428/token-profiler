@@ -163,6 +163,25 @@ test("extracts unsupported input items as explicit unknown artifacts", () => {
   assert.deepEqual(artifacts[0].metadata.observed_keys, ["text", "type"]);
 });
 
+test("extracts reasoning input items as opaque reasoning state artifacts", () => {
+  const artifacts = extractResponsesArtifacts({
+    input: [
+      {
+        type: "reasoning",
+        summary: [],
+        encrypted_content: "opaque-state"
+      }
+    ]
+  });
+
+  assert.equal(artifacts[0].kind, "reasoning_state");
+  assert.equal(artifacts[0].artifactName, "Reasoning state");
+  assert.equal(artifacts[0].metadata.content_kind, "reasoning_state");
+  assert.equal(artifacts[0].metadata.provider_type, "reasoning");
+  assert.equal(artifacts[0].metadata.reason, "opaque_reasoning_state");
+  assert.deepEqual(artifacts[0].metadata.observed_keys, ["encrypted_content", "summary", "type"]);
+});
+
 test("marks injected Codex context messages as ineligible for titles", () => {
   const artifacts = extractResponsesArtifacts({
     input: [

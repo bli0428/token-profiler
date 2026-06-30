@@ -257,7 +257,7 @@ function artifactDetail(
     };
   }
 
-  const content = contentForDetail(row.preview_state, events[events.length - 1]);
+  const content = contentForDetail(row.preview_state, events[events.length - 1], row.display_category);
   if (content) detail.content = content;
 
   if (row.display_category === "patch") {
@@ -285,8 +285,10 @@ function displayCategory(artifact: ArtifactAggregate, metadata: JsonObject): Dis
   if (kind === "assistant_message") return "assistant_message";
   if (kind === "file_context") return "file_context";
   if (kind === "request_metadata") return "request_metadata";
+  if (kind === "reasoning_state") return "reasoning_state";
   const type = artifact.artifact_type.toLowerCase();
   const name = artifact.artifact_name.toLowerCase();
+  if (/^summary:input:reasoning:\d+$/i.test(artifact.artifact_id) || /^input:reasoning:\d+$/i.test(artifact.artifact_name)) return "reasoning_state";
   if (stringValue(metadata.command)) return name.startsWith("tool:") ? "command_output" : "command";
   if (stringArrayValue(metadata.touched_files).length > 0) return "patch";
   if (type.includes("message")) return stringValue(metadata.role) === "assistant" ? "assistant_message" : "user_message";
@@ -300,6 +302,7 @@ function displayNameForArtifact(artifact: ArtifactAggregate, metadata: JsonObjec
   const command = stringValue(metadata.command);
   if (category === "user_message") return stringValue(metadata.prompt_summary) ?? "User message";
   if (category === "assistant_message") return stringValue(metadata.response_summary) ?? "Assistant message";
+  if (category === "reasoning_state") return "Reasoning state";
   if ((category === "command" || category === "command_output") && command) {
     return `${stringValue(metadata.tool_name) ?? "command"}: ${command}`;
   }
@@ -323,6 +326,7 @@ function detailSummary(row: ArtifactAggregate, category: DisplayCategory): strin
   if (touchedFiles.length > 0) return `${touchedFiles[0]}${touchedFiles.length > 1 ? ` (+${touchedFiles.length - 1} files)` : ""}`;
   const outputPreview = stringValue(metadata.output_preview);
   if (outputPreview) return outputPreview;
+  if (category === "reasoning_state") return "Opaque provider state carried between requests.";
   const callId = stringValue(metadata.call_id);
   if (callId) return callId;
   return category === "unknown" ? "Readable metadata unavailable" : row.artifact_id;
@@ -384,7 +388,8 @@ function previewText(event: ArtifactEvent | undefined): string | undefined {
   return `${head}${tail ? `...${tail}` : ""}` || undefined;
 }
 
-function contentForDetail(previewState: PreviewState, event: ArtifactEvent | undefined): ArtifactDetail["content"] | undefined {
+function contentForDetail(previewState: PreviewState, event: ArtifactEvent | undefined, category?: DisplayCategory): ArtifactDetail["content"] | undefined {
+  if (category === "reasoning_state") return undefined;
   if (previewState === "hidden" || previewState === "unavailable") return undefined;
   if (previewState === "raw_available" && event?.content) return { raw: event.content };
   const preview = previewText(event);

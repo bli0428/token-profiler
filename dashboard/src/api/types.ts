@@ -121,6 +121,7 @@ export type ProviderRequestUsage = {
   cached_input_tokens: number;
   uncached_input_tokens: number;
   output_tokens: number;
+  reasoning_tokens?: number;
   total_tokens: number;
   response_id?: string;
   source: "provider_reported";

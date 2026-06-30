@@ -411,6 +411,7 @@ function toDashboardTurnRequest(request: TurnRequest): DashboardViewTurnRequest 
         cached_input_tokens: request.usage.cached_input_tokens,
         uncached_input_tokens: request.usage.uncached_input_tokens,
         output_tokens: request.usage.output_tokens,
+        ...(request.usage.reasoning_tokens !== undefined ? { reasoning_tokens: request.usage.reasoning_tokens } : {}),
         total_tokens: request.usage.total_tokens,
         ...(request.usage.response_id !== undefined ? { response_id: request.usage.response_id } : {}),
         source: request.usage.source

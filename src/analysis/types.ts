@@ -60,6 +60,7 @@ export type ProviderRequestUsage = {
   cached_input_tokens: number;
   uncached_input_tokens: number;
   output_tokens: number;
+  reasoning_tokens?: number | undefined;
   total_tokens: number;
   response_id?: string | undefined;
   source: "provider_reported";
@@ -193,6 +194,7 @@ export type DisplayCategory =
   | "user_message"
   | "file_context"
   | "request_metadata"
+  | "reasoning_state"
   | "unknown";
 
 export type ReadableArtifact = {

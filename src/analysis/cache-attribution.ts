@@ -46,6 +46,7 @@ export function analyzeCacheAttribution(
       cached_input_tokens: Number(usage.cached_input_tokens) || 0,
       uncached_input_tokens: Number(usage.uncached_input_tokens) || 0,
       output_tokens: Number(usage.output_tokens) || 0,
+      ...(usage.reasoning_tokens !== undefined ? { reasoning_tokens: Number(usage.reasoning_tokens) || 0 } : {}),
       cache_hit_ratio: ratio(usage.cached_input_tokens, usage.input_tokens)
     };
 

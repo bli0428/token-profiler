@@ -17,6 +17,8 @@ import type {
   CodexPatchArtifact,
   CodexPatchMetadata,
   CodexProviderItem,
+  CodexReasoningStateArtifact,
+  CodexReasoningStateMetadata,
   CodexResponsesFunctionCallItem,
   CodexResponsesFunctionCallOutputItem,
   CodexResponsesCustomToolCallItem,
@@ -358,6 +360,7 @@ function toolCallArtifact({
 
 function unknownInputArtifact(item: CodexResponsesUnknownInputObject, index: number, content: string): CodexExtractedArtifact {
   const providerType = stringValue(item.type) ?? "unknown";
+  if (providerType === "reasoning") return reasoningStateArtifact(item, index, content);
   const metadata: CodexUnknownInputMetadata = {
     content_kind: "unknown_input",
     provider_type: providerType,
@@ -369,6 +372,23 @@ function unknownInputArtifact(item: CodexResponsesUnknownInputObject, index: num
     artifactType: "SUMMARY",
     artifactName: `input:${providerType}:${index}`,
     artifactId: `SUMMARY:input:${providerType}:${index}`,
+    content,
+    metadata
+  };
+}
+
+function reasoningStateArtifact(item: CodexResponsesUnknownInputObject, index: number, content: string): CodexReasoningStateArtifact {
+  const metadata: CodexReasoningStateMetadata = {
+    content_kind: "reasoning_state",
+    provider_type: "reasoning",
+    reason: "opaque_reasoning_state",
+    observed_keys: Object.keys(item).sort()
+  };
+  return {
+    kind: "reasoning_state",
+    artifactType: "SUMMARY",
+    artifactName: "Reasoning state",
+    artifactId: `SUMMARY:input:reasoning:${index}`,
     content,
     metadata
   };

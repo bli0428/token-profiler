@@ -33,6 +33,7 @@ test("validates usage events from provider usage", () => {
       input_tokens: 100,
       input_tokens_details: { cached_tokens: 40 },
       output_tokens: 9,
+      output_tokens_details: { reasoning_tokens: 3 },
       total_tokens: 109
     },
     timestamp: "2026-06-25T12:00:01.000Z"
@@ -41,6 +42,7 @@ test("validates usage events from provider usage", () => {
   assert.equal(event.event_kind, "request_usage");
   assert.equal(event.cached_input_tokens, 40);
   assert.equal(event.uncached_input_tokens, 60);
+  assert.equal(event.reasoning_tokens, 3);
   assert.equal(validateEvent(event), event);
 });
 

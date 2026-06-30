@@ -15,13 +15,17 @@ export function ArtifactDetailPanel({ detail, loading, errorMessage, inline = fa
   if (!detail) return <EmptyState title="No artifact selected" message="Select an artifact row to inspect metadata and metrics." />;
 
   const content = availableContent(detail);
+  const sections = detail.metadata_sections.filter((section) => section.title !== "Identity");
+  const relationshipRowsForDetail = relationshipRows(detail);
+  const hasVisibleDetail = sections.length > 0 || relationshipRowsForDetail.length > 0 || Boolean(content.text);
   return (
     <section className={`detail-panel ${inline ? "detail-panel-inline" : ""}`} aria-label="Artifact detail">
-      {detail.metadata_sections.filter((section) => section.title !== "Identity").map((section) => (
+      {sections.map((section) => (
         <Section key={section.title} title={section.title} rows={section.rows} />
       ))}
-      <Section title="Relationships" rows={relationshipRows(detail)} />
+      <Section title="Relationships" rows={relationshipRowsForDetail} />
       {content.text ? <pre className="preview">{content.text}</pre> : null}
+      {!hasVisibleDetail ? <p className="request-empty-note">No inspectable artifact content is available.</p> : null}
     </section>
   );
 }

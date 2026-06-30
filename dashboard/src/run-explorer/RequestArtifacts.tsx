@@ -33,6 +33,7 @@ export function RequestArtifacts({
         const detailAvailable = detailAvailability.get(artifact.artifact_id) ?? false;
         const selected = selectedArtifactId === artifact.artifact_id;
         const selectedDetail = selected && artifactDetail?.artifact_id === artifact.artifact_id ? artifactDetail : undefined;
+        const showTokenMetric = !isReasoningState(artifact);
         return (
           <article
             className={`request-artifact ${selectedArtifactId === artifact.artifact_id ? "is-selected" : ""}`}
@@ -41,12 +42,14 @@ export function RequestArtifacts({
             <div className="request-artifact-main">
               <div>
                 <h4>{artifact.display_name}</h4>
-                <p>{artifact.display_category}</p>
+                <p>{formatArtifactCategory(artifact.display_category)}</p>
               </div>
             </div>
-            <dl className="request-artifact-metrics">
-              <Metric label="Tokens" value={formatEstimatedTokens(normalizedTokenCount(artifact))} />
-            </dl>
+            {showTokenMetric ? (
+              <dl className="request-artifact-metrics">
+                <Metric label="Tokens" value={formatEstimatedTokens(normalizedTokenCount(artifact))} />
+              </dl>
+            ) : null}
             {detailAvailable ? (
               <button className="link-button" type="button" onClick={() => onSelectArtifact(selected ? undefined : artifact.artifact_id)}>
                 {selected ? "Collapse artifact" : "Expand artifact"}
@@ -69,9 +72,18 @@ export function RequestArtifacts({
   );
 }
 
+function isReasoningState(artifact: DashboardRequestArtifactInclusion): boolean {
+  return artifact.display_category === "reasoning_state" || /^SUMMARY:input:reasoning:\d+$/.test(artifact.artifact_id);
+}
+
 function normalizedTokenCount(artifact: DashboardRequestArtifactInclusion): number | undefined {
   if (artifact.estimated_cached_input_tokens === undefined || artifact.estimated_uncached_input_tokens === undefined) return undefined;
   return artifact.estimated_cached_input_tokens + artifact.estimated_uncached_input_tokens;
+}
+
+function formatArtifactCategory(category: string): string {
+  if (category === "reasoning_state") return "Reasoning state";
+  return category.replace(/_/g, " ");
 }
 
 function Metric({ label, value }: { label: string; value: string }) {
