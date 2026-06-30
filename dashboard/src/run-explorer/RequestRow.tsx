@@ -1,4 +1,4 @@
-import type { DashboardArtifactRow, DashboardRequestAccountingRow, DashboardTurnRequest } from "../api/types";
+import type { DashboardArtifactDetail, DashboardArtifactRow, DashboardRequestAccountingRow, DashboardTurnRequest } from "../api/types";
 import {
   formatTimestamp,
   requestMetricEntries
@@ -10,11 +10,24 @@ type Props = {
   artifactRows: DashboardArtifactRow[];
   expanded: boolean;
   selectedArtifactId?: string;
+  artifactDetail?: DashboardArtifactDetail;
+  artifactDetailLoading?: boolean;
+  artifactDetailError?: string;
   onToggleExpanded: (requestId: string) => void;
-  onSelectArtifact: (artifactId: string) => void;
+  onSelectArtifact: (artifactId: string | undefined) => void;
 };
 
-export function RequestRow({ request, artifactRows, expanded, selectedArtifactId, onToggleExpanded, onSelectArtifact }: Props) {
+export function RequestRow({
+  request,
+  artifactRows,
+  expanded,
+  selectedArtifactId,
+  artifactDetail,
+  artifactDetailLoading = false,
+  artifactDetailError,
+  onToggleExpanded,
+  onSelectArtifact
+}: Props) {
   const panelId = `request-${request.request_id}-artifacts`;
   const hasArtifacts = request.artifact_inclusions.length > 0;
   const requestTitle = "display_title" in request ? request.display_title : request.request_id;
@@ -27,7 +40,7 @@ export function RequestRow({ request, artifactRows, expanded, selectedArtifactId
       aria-label={`Request ${request.chronology_index + 1}`}
       tabIndex={0}
       onClick={(event) => {
-        if ((event.target as HTMLElement).closest("button, a, input, select, textarea")) return;
+        if ((event.target as HTMLElement).closest("button, a, input, select, textarea, article.request-artifact")) return;
         toggle();
       }}
       onKeyDown={(event) => {
@@ -75,6 +88,9 @@ export function RequestRow({ request, artifactRows, expanded, selectedArtifactId
               artifacts={request.artifact_inclusions}
               artifactRows={artifactRows}
               selectedArtifactId={selectedArtifactId}
+              artifactDetail={artifactDetail}
+              artifactDetailLoading={artifactDetailLoading}
+              artifactDetailError={artifactDetailError}
               onSelectArtifact={onSelectArtifact}
             />
           ) : (

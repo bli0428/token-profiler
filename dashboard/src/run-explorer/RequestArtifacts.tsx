@@ -1,15 +1,26 @@
-import type { DashboardArtifactRow, DashboardRequestArtifactInclusion } from "../api/types";
-import { getPrivacyDisplay } from "../policy/privacy-display";
-import { formatEstimatedTokens, privacyDisplayState } from "./request-format";
+import type { DashboardArtifactDetail, DashboardArtifactRow, DashboardRequestArtifactInclusion } from "../api/types";
+import { ArtifactDetailPanel } from "./ArtifactDetailPanel";
+import { formatEstimatedTokens } from "./request-format";
 
 type Props = {
   artifacts: DashboardRequestArtifactInclusion[];
   artifactRows: DashboardArtifactRow[];
   selectedArtifactId?: string;
-  onSelectArtifact: (artifactId: string) => void;
+  artifactDetail?: DashboardArtifactDetail;
+  artifactDetailLoading?: boolean;
+  artifactDetailError?: string;
+  onSelectArtifact: (artifactId: string | undefined) => void;
 };
 
-export function RequestArtifacts({ artifacts, artifactRows, selectedArtifactId, onSelectArtifact }: Props) {
+export function RequestArtifacts({
+  artifacts,
+  artifactRows,
+  selectedArtifactId,
+  artifactDetail,
+  artifactDetailLoading = false,
+  artifactDetailError,
+  onSelectArtifact
+}: Props) {
   const detailAvailability = new Map(artifactRows.map((artifact) => [artifact.artifact_id, artifact.detail_available]));
 
   if (artifacts.length === 0) {
@@ -19,8 +30,9 @@ export function RequestArtifacts({ artifacts, artifactRows, selectedArtifactId, 
   return (
     <div className="request-artifacts" aria-label="Request artifacts">
       {artifacts.map((artifact) => {
-        const privacy = getPrivacyDisplay(privacyDisplayState(artifact.privacy));
         const detailAvailable = detailAvailability.get(artifact.artifact_id) ?? false;
+        const selected = selectedArtifactId === artifact.artifact_id;
+        const selectedDetail = selected && artifactDetail?.artifact_id === artifact.artifact_id ? artifactDetail : undefined;
         return (
           <article
             className={`request-artifact ${selectedArtifactId === artifact.artifact_id ? "is-selected" : ""}`}
@@ -29,32 +41,37 @@ export function RequestArtifacts({ artifacts, artifactRows, selectedArtifactId, 
             <div className="request-artifact-main">
               <div>
                 <h4>{artifact.display_name}</h4>
-                <p>
-                  {artifact.display_category} · {artifact.stable_short_id}
-                </p>
+                <p>{artifact.display_category}</p>
               </div>
-              <span className={`privacy privacy-${privacy.tone}`} title={privacy.description}>
-                {privacy.label}
-              </span>
             </div>
             <dl className="request-artifact-metrics">
-              <Metric label="Local Tokens" value={formatEstimatedTokens(artifact.local_token_count)} />
-              <Metric label="Cached Read" value={formatEstimatedTokens(artifact.estimated_cached_input_tokens)} />
-              <Metric label="Input" value={formatEstimatedTokens(artifact.estimated_uncached_input_tokens)} />
-              <Metric label="Attribution" value={artifact.attribution_state.replaceAll("_", " ")} />
+              <Metric label="Tokens" value={formatEstimatedTokens(normalizedTokenCount(artifact))} />
             </dl>
             {detailAvailable ? (
-              <button className="link-button" type="button" onClick={() => onSelectArtifact(artifact.artifact_id)}>
-                Open artifact detail
+              <button className="link-button" type="button" onClick={() => onSelectArtifact(selected ? undefined : artifact.artifact_id)}>
+                {selected ? "Collapse artifact" : "Expand artifact"}
               </button>
             ) : (
               <span className="request-empty-note">Artifact detail unavailable</span>
             )}
+            {selected ? (
+              <ArtifactDetailPanel
+                detail={selectedDetail}
+                loading={artifactDetailLoading || (!selectedDetail && !artifactDetailError)}
+                errorMessage={artifactDetailError}
+                inline
+              />
+            ) : null}
           </article>
         );
       })}
     </div>
   );
+}
+
+function normalizedTokenCount(artifact: DashboardRequestArtifactInclusion): number | undefined {
+  if (artifact.estimated_cached_input_tokens === undefined || artifact.estimated_uncached_input_tokens === undefined) return undefined;
+  return artifact.estimated_cached_input_tokens + artifact.estimated_uncached_input_tokens;
 }
 
 function Metric({ label, value }: { label: string; value: string }) {

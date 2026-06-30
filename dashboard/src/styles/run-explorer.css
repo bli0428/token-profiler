@@ -1,7 +1,5 @@
 .run-explorer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
-  gap: var(--space-5);
+  display: block;
 }
 
 .run-main {

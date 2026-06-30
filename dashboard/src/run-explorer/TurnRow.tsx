@@ -1,5 +1,5 @@
-import type { DashboardArtifactRow, DashboardTurnGroup } from "../api/types";
-import { formatTimestamp, turnMetricEntries } from "./request-format";
+import type { DashboardArtifactDetail, DashboardArtifactRow, DashboardTurnGroup } from "../api/types";
+import { formatPreviewTitle, formatTimestamp, turnMetricEntries } from "./request-format";
 import { RequestRow } from "./RequestRow";
 
 type Props = {
@@ -9,9 +9,12 @@ type Props = {
   expanded: boolean;
   expandedRequestIds: string[];
   selectedArtifactId?: string;
+  artifactDetail?: DashboardArtifactDetail;
+  artifactDetailLoading?: boolean;
+  artifactDetailError?: string;
   onToggleTurn: (turnId: string) => void;
   onToggleRequest: (requestId: string) => void;
-  onSelectArtifact: (artifactId: string) => void;
+  onSelectArtifact: (artifactId: string | undefined) => void;
 };
 
 export function TurnRow({
@@ -21,6 +24,9 @@ export function TurnRow({
   expanded,
   expandedRequestIds,
   selectedArtifactId,
+  artifactDetail,
+  artifactDetailLoading = false,
+  artifactDetailError,
   onToggleTurn,
   onToggleRequest,
   onSelectArtifact
@@ -48,7 +54,7 @@ export function TurnRow({
     >
       <header className="turn-row-header">
         <div>
-          <h3>{turn.display_title}</h3>
+          <h3 title={turn.display_title}>{formatPreviewTitle(turn.display_title)}</h3>
           {fallback ? <p className="turn-fallback-label">{fallbackLabel(turn.grouping_source)}</p> : null}
         </div>
         <time className="request-time turn-time" dateTime={firstRequest?.timestamp}>
@@ -83,6 +89,9 @@ export function TurnRow({
                   key={request.request_id}
                   request={request}
                   selectedArtifactId={selectedArtifactId}
+                  artifactDetail={artifactDetail}
+                  artifactDetailLoading={artifactDetailLoading}
+                  artifactDetailError={artifactDetailError}
                   onSelectArtifact={onSelectArtifact}
                   onToggleExpanded={onToggleRequest}
                 />

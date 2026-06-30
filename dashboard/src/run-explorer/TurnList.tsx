@@ -1,4 +1,4 @@
-import type { DashboardArtifactRow, DashboardTurnGroup } from "../api/types";
+import type { DashboardArtifactDetail, DashboardArtifactRow, DashboardTurnGroup } from "../api/types";
 import { EmptyState } from "../components/EmptyState";
 import type { RequestSortKey } from "../state/view-state";
 import { TurnRow } from "./TurnRow";
@@ -11,10 +11,13 @@ type Props = {
   requestSortKey: RequestSortKey;
   requestSortDirection: "asc" | "desc";
   selectedArtifactId?: string;
+  artifactDetail?: DashboardArtifactDetail;
+  artifactDetailLoading?: boolean;
+  artifactDetailError?: string;
   onChangeRequestSort: (next: { sortKey?: RequestSortKey; sortDirection?: "asc" | "desc" }) => void;
   onToggleTurn: (turnId: string) => void;
   onToggleRequest: (requestId: string) => void;
-  onSelectArtifact: (artifactId: string) => void;
+  onSelectArtifact: (artifactId: string | undefined) => void;
 };
 
 const sortOptions: Array<{ value: RequestSortKey; label: string }> = [
@@ -34,6 +37,9 @@ export function TurnList({
   requestSortKey,
   requestSortDirection,
   selectedArtifactId,
+  artifactDetail,
+  artifactDetailLoading = false,
+  artifactDetailError,
   onChangeRequestSort,
   onToggleTurn,
   onToggleRequest,
@@ -85,6 +91,9 @@ export function TurnList({
             index={index}
             key={turn.turn_id}
             selectedArtifactId={selectedArtifactId}
+            artifactDetail={artifactDetail}
+            artifactDetailLoading={artifactDetailLoading}
+            artifactDetailError={artifactDetailError}
             turn={turn}
             onSelectArtifact={onSelectArtifact}
             onToggleRequest={onToggleRequest}

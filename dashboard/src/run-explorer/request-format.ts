@@ -1,5 +1,12 @@
 import type { AvailabilityState, DashboardPrivacyState, ProviderRequestUsage, RequestUsageAvailability } from "../api/types";
 
+const TITLE_PREVIEW_MAX_CHARS = 100;
+
+export function formatPreviewTitle(value: string): string {
+  if (value.length <= TITLE_PREVIEW_MAX_CHARS) return value;
+  return `${value.slice(0, TITLE_PREVIEW_MAX_CHARS).trimEnd()}...`;
+}
+
 export function formatTokens(value: number | undefined): string {
   if (value === undefined) return "Unavailable";
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value);

@@ -1,6 +1,5 @@
 import type { ArtifactDetailResponse, DashboardRun, DashboardSession } from "../api/types";
 import type { DashboardViewState } from "../state/view-state";
-import { ArtifactDetailPanel } from "./ArtifactDetailPanel";
 import { RunOverview } from "./RunOverview";
 import { TurnList } from "./TurnList";
 
@@ -51,6 +50,9 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
           requestSortKey={viewState.requestSortKey}
           requestSortDirection={viewState.requestSortDirection}
           selectedArtifactId={viewState.selectedArtifactId}
+          artifactDetail={detail?.data}
+          artifactDetailLoading={detailLoading}
+          artifactDetailError={detailError}
           onSelectArtifact={(selectedArtifactId) => onChangeViewState({ selectedArtifactId })}
           onChangeRequestSort={(next) => onChangeViewState({
             requestSortKey: next.sortKey ?? viewState.requestSortKey,
@@ -60,7 +62,6 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
           onToggleTurn={toggleTurn}
         />
       </div>
-      <ArtifactDetailPanel detail={detail?.data} loading={detailLoading} errorMessage={detailError} />
     </section>
   );
 }

@@ -50,22 +50,39 @@ describe("run explorer", () => {
   });
 
   it("opens artifact detail", () => {
-    renderExplorer({ viewState: { ...defaultViewState, selectedArtifactId: "artifact-plan" }, detail: apiRealFixtures.artifactDetail });
-    expect(within(screen.getByLabelText("Artifact detail")).getAllByText("Identity").length).toBeGreaterThan(0);
+    renderExplorer({
+      viewState: {
+        ...defaultViewState,
+        expandedTurnIds: ["turn:fallback:fixture"],
+        expandedRequestIds: ["fixture-request-001"],
+        selectedArtifactId: apiRealFixtures.artifactDetail.data.artifact_id
+      },
+      detail: apiRealFixtures.artifactDetail
+    });
+    const selectedArtifact = screen.getByLabelText("Artifact detail").closest("article");
+    expect(selectedArtifact).not.toBeNull();
+    expect(within(selectedArtifact!).getByRole("heading", { name: apiRealFixtures.artifactDetail.data.title })).toBeInTheDocument();
+    const detail = within(screen.getByLabelText("Artifact detail"));
+    expect(detail.queryByText("Hidden")).not.toBeInTheDocument();
+    expect(detail.queryByText("Total exposure")).not.toBeInTheDocument();
+    expect(detail.queryByText("Repeated exposure")).not.toBeInTheDocument();
+    expect(detail.queryByText("Inclusions")).not.toBeInTheDocument();
+    expect(detail.queryByText("Identity")).not.toBeInTheDocument();
+    expect(detail.queryByText("Artifact ID")).not.toBeInTheDocument();
   });
 
   it("keeps turn drilldown as the main workflow when artifact detail is selected", () => {
     renderExplorer({
       viewState: {
         ...defaultViewState,
-        expandedTurnIds: [apiRealFixtures.run.data.turns[0]!.turn_id],
+        expandedTurnIds: ["turn:fallback:fixture"],
         expandedRequestIds: ["fixture-request-001"],
-        selectedArtifactId: "USER_MESSAGE:message:user:6:16"
+        selectedArtifactId: apiRealFixtures.artifactDetail.data.artifact_id
       },
       detail: apiRealFixtures.artifactDetail
     });
     expect(screen.getByLabelText("Turns")).toBeInTheDocument();
-    expect(within(screen.getByLabelText("Artifact detail")).getAllByText("Identity").length).toBeGreaterThan(0);
+    expect(screen.getByLabelText("Artifact detail")).toBeInTheDocument();
   });
 });
 

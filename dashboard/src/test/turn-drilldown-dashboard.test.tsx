@@ -75,9 +75,38 @@ describe("turn drilldown dashboard", () => {
     });
 
     expect(screen.getByLabelText("Request artifacts")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Open artifact detail" }));
+    await user.click(screen.getByRole("button", { name: "Expand artifact" }));
 
     expect(onChangeViewState).toHaveBeenCalledWith({ selectedArtifactId: "PATCH:alpha" });
+  });
+
+  it("does not collapse the request when interacting with expanded artifact detail", async () => {
+    const user = userEvent.setup();
+    const onChangeViewState = vi.fn();
+    renderExplorer({
+      run: turnRun(),
+      viewState: {
+        ...defaultViewState,
+        expandedTurnIds: ["turn-alpha"],
+        expandedRequestIds: ["req-alpha-1"],
+        selectedArtifactId: "PATCH:alpha"
+      },
+      detail: {
+        schema_version: 1,
+        generated_at: "2026-06-29T12:00:00.000Z",
+        caveats: [],
+        data: {
+          ...apiRealFixtures.artifactDetail.data,
+          artifact_id: "PATCH:alpha",
+          title: "apply_patch: recording.ts"
+        }
+      },
+      onChangeViewState
+    });
+
+    await user.click(screen.getByLabelText("Artifact detail"));
+
+    expect(onChangeViewState).not.toHaveBeenCalledWith({ expandedRequestIds: [] });
   });
 
   it("labels missing-turn fallback groups", () => {
@@ -113,6 +142,25 @@ describe("turn drilldown dashboard", () => {
     expect(within(firstTurn).getByText("Total Tokens")).toBeInTheDocument();
     expect(within(firstTurn).getByText("Requests")).toBeInTheDocument();
     expect(within(firstTurn).getByText(/6\/29\/2026/)).toBeInTheDocument();
+  });
+
+  it("truncates long turn preview titles at 100 characters", () => {
+    const run = turnRun();
+    const longTitle = `${"A".repeat(205)} trailing text`;
+    run.turns[0] = {
+      ...run.turns[0]!,
+      display_title: longTitle,
+      requests: [{
+        ...run.turns[0]!.requests[0]!,
+        display_title: longTitle
+      }]
+    };
+
+    renderExplorer({ run, viewState: { ...defaultViewState, expandedTurnIds: ["turn-alpha"] } });
+
+    const expected = `${"A".repeat(100)}...`;
+    expect(screen.getByRole("heading", { name: expected })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: longTitle })).toBeInTheDocument();
   });
 
   it("sorts turns by selected category and direction", async () => {
