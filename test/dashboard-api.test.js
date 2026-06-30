@@ -66,6 +66,28 @@ test("dashboard API labels cache-key sessions with resolved session titles", asy
   assert.equal(response.body.data.sessions[0].label, "Clean up dashboard surface");
 });
 
+test("dashboard API labels Codex internal title generation sessions", async () => {
+  const root = tempRoot("internal-title");
+  const runId = "codex-019f1977-e3b0-7750-94bf-311495932396";
+  await writeRun(root, runId, [
+    titleGenerationArtifact(runId),
+    {
+      ...usage("req_title", 10, 4, 1),
+      run_id: runId
+    }
+  ]);
+
+  const response = await handleDashboardApiRequest("GET", "/api/sessions", {
+    rootDir: root,
+    sessionTitleLookup: async () => new Map([[runId, "Move refresh beside auto refresh"]])
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.data.sessions[0].run_id, runId);
+  assert.equal(response.body.data.sessions[0].label, "[Codex Internal][generate_title]");
+  assert.equal(response.body.data.sessions[0].identity.codex_label, "[Codex Internal][generate_title]");
+});
+
 test("dashboard API session run_id is routable to the run endpoint", async () => {
   const root = tempRoot("session-route");
   await writeRun(root, "directory-id", [
@@ -142,4 +164,21 @@ async function writeRun(root, runId, events) {
   const runDir = join(root, "runs", runId);
   await mkdir(runDir, { recursive: true });
   await writeFile(join(runDir, "events.jsonl"), `${events.map((event) => JSON.stringify(event)).join("\n")}\n`);
+}
+
+function titleGenerationArtifact(runId) {
+  return {
+    ...artifact("req_title", "USER_MESSAGE:title", "USER_MESSAGE", "message:user:2:0", "hash_title", 12, 0, 12, {
+      content_kind: "user_message",
+      role: "user",
+      message_source: "current_turn",
+      title_candidate: true
+    }),
+    run_id: runId,
+    storage_mode: "preview",
+    preview: {
+      head: "You are a helpful assistant. You will be presented with a user prompt, and your job is to provide a short title for a task that will be created from that prompt.\nGenerate a concise UI title (up to 36 chars).\n\nUser prompt:\nMove the dashboard refresh button",
+      tail: ""
+    }
+  };
 }

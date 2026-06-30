@@ -3,6 +3,7 @@ import { readdir } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { analyzeEvents } from "../../analysis/pipeline.ts";
 import { readEventsFromRunDir } from "../../core/store/index.ts";
+import type { ArtifactEvent } from "../../core/events/types.ts";
 import type { DashboardViewSession, DashboardViewSessionIndex } from "./view-model-types.ts";
 import type { SessionIdentityMapping } from "../../analysis/types.ts";
 
@@ -20,6 +21,7 @@ export async function createDashboardSessionIndex(
     throw error;
   });
   const sessions: DashboardViewSession[] = [];
+  const labelOverrides = new Map<string, string>();
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
@@ -28,8 +30,11 @@ export async function createDashboardSessionIndex(
     if (!stat) continue;
 
     try {
-      const summary = analyzeEvents(await readEventsFromRunDir(runDir));
+      const events = await readEventsFromRunDir(runDir);
+      const summary = analyzeEvents(events);
       const runId = summary.run_id ?? entry.name;
+      const labelOverride = codexInternalSessionLabel(events);
+      if (labelOverride) labelOverrides.set(entry.name, labelOverride);
       const identity = sessionIdentity({
         routeRunId: entry.name,
         canonicalRunId: runId,
@@ -76,6 +81,7 @@ export async function createDashboardSessionIndex(
   }
 
   await applySessionTitles(sessions, sessionTitleLookup);
+  applySessionLabelOverrides(sessions, labelOverrides);
 
   sessions.sort((a, b) =>
     String(b.updated_at ?? "").localeCompare(String(a.updated_at ?? ""))
@@ -129,6 +135,49 @@ async function applySessionTitles(
       });
     }
   }
+}
+
+function applySessionLabelOverrides(sessions: DashboardViewSession[], labelsByRouteRunId: Map<string, string>): void {
+  if (labelsByRouteRunId.size === 0) return;
+
+  for (const session of sessions) {
+    const routeRunId = basename(session.run_dir);
+    const label = labelsByRouteRunId.get(routeRunId);
+    if (!label) continue;
+
+    session.label = label;
+    session.identity = sessionIdentity({
+      routeRunId,
+      canonicalRunId: session.run_id,
+      label
+    });
+  }
+}
+
+function codexInternalSessionLabel(events: unknown[]): string | undefined {
+  return events.some(isCodexTitleGenerationArtifact) ? "[Codex Internal][generate_title]" : undefined;
+}
+
+function isCodexTitleGenerationArtifact(event: unknown): event is ArtifactEvent {
+  if (!event || typeof event !== "object") return false;
+  const artifact = event as Partial<ArtifactEvent>;
+  if (artifact.event_kind !== "artifact") return false;
+  if (artifact.artifact_type !== "USER_MESSAGE") return false;
+
+  const metadata = artifact.metadata ?? {};
+  if (metadata.content_kind && metadata.content_kind !== "user_message") return false;
+  if (metadata.role && metadata.role !== "user") return false;
+
+  const preview = previewText(artifact);
+  return preview.startsWith("You are a helpful assistant. You will be presented with a user prompt")
+    && preview.includes("provide a short title for a task")
+    && preview.includes("Generate a concise UI title")
+    && preview.includes("User prompt:");
+}
+
+function previewText(artifact: Partial<ArtifactEvent>): string {
+  const preview = artifact.preview ?? {};
+  return `${stringValue(preview.head) ?? ""}\n${stringValue(preview.tail) ?? ""}`.trim();
 }
 
 function sessionIdentity({
@@ -197,4 +246,8 @@ function sessionIdentity({
 function directCodexSessionId(value: string): string | undefined {
   const match = value.match(/^codex-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i);
   return match?.[1];
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
 }

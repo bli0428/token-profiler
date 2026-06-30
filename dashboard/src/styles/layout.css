@@ -36,12 +36,17 @@
   background: var(--color-surface-muted);
 }
 
-.shell-toolbar div,
+.shell-toolbar-status,
+.shell-toolbar-actions,
 .toggle {
   display: flex;
   gap: var(--space-2);
   align-items: center;
   color: var(--color-muted);
+}
+
+.shell-toolbar-actions {
+  flex: 0 0 auto;
 }
 
 .capture-mode-pill {
@@ -95,5 +100,10 @@ button:disabled {
   .shell-toolbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .shell-toolbar-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }

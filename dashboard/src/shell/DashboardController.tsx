@@ -58,21 +58,23 @@ export function DashboardController() {
     content = (
       <>
         <div className="shell-toolbar">
-          <div>
+          <div className="shell-toolbar-status">
             <strong>API ready</strong>
             <span>{client.baseUrl}</span>
           </div>
-          <button type="button" onClick={() => void refreshState.refreshNow()} disabled={refreshState.refreshing}>
-            {refreshState.refreshing ? "Refreshing" : "Refresh"}
-          </button>
-          <label className="toggle">
-            <input
-              type="checkbox"
-              checked={viewState.refreshMode === "interval"}
-              onChange={(event) => setViewState((current) => ({ ...current, refreshMode: event.target.checked ? "interval" : "manual" }))}
-            />
-            Auto refresh
-          </label>
+          <div className="shell-toolbar-actions">
+            <button type="button" onClick={() => void refreshState.refreshNow()} disabled={refreshState.refreshing}>
+              {refreshState.refreshing ? "Refreshing" : "Refresh"}
+            </button>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={viewState.refreshMode === "interval"}
+                onChange={(event) => setViewState((current) => ({ ...current, refreshMode: event.target.checked ? "interval" : "manual" }))}
+              />
+              Auto refresh
+            </label>
+          </div>
         </div>
         <div className="dashboard-grid">
           {sessions.loading ? (
