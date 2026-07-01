@@ -39,7 +39,8 @@ This will also revert the config.toml to it's state before configuring the proxy
 
 
 
-If you are trying to develop on the project, run the Vite dev server from `dashboard/` for hot reloading:
+If you are trying to develop on the project:
+Run the Vite dev server from `dashboard/` for hot reloading:
 
 ```bash
 cd dashboard
