@@ -308,6 +308,13 @@ export const CodexRequestShapeSchema = z.object({
   body: CodexResponsesApiRequestSchema
 }).strict();
 
+/**
+ * Parses the provider request into adapter-owned metadata.
+ *
+ * Callers should persist only the mapped canonical facts derived from this
+ * envelope; the envelope itself may contain Codex-specific compatibility and
+ * transport details.
+ */
 export function parseCodexRequestEnvelope({
   headers = {},
   payload = {}
@@ -318,6 +325,7 @@ export function parseCodexRequestEnvelope({
   return normalizeCodexRequestShape(toCodexRequestShape({ headers, payload }));
 }
 
+/** Validates the raw request pieces while preserving unknown provider keys for drift reporting. */
 export function toCodexRequestShape({
   headers = {},
   payload = {}
@@ -331,6 +339,12 @@ export function toCodexRequestShape({
   });
 }
 
+/**
+ * Converts a validated Codex request into the adapter's internal envelope.
+ *
+ * This is the only place that knows the precedence among client metadata,
+ * headers, compatibility IDs, and transport hints.
+ */
 export function normalizeCodexRequestShape(request: CodexRequestShape): CodexRequestEnvelope {
   const clientMetadata = request.body.client_metadata;
   const clientMetadataTurn = parseCodexTurnMetadataField(clientMetadata?.["x-codex-turn-metadata"]);
@@ -402,6 +416,12 @@ export function normalizeCodexRequestShape(request: CodexRequestShape): CodexReq
   };
 }
 
+/**
+ * Chooses the local run route for a Codex request.
+ *
+ * Routing can use compatibility IDs when canonical turn identity is missing,
+ * but analyzers still receive only explicit canonical turn facts.
+ */
 export function codexSessionRoute(envelope: CodexRequestEnvelope): { sessionId: string; source: string } | undefined {
   const clientMetadataTurn = envelope.turnMetadata.clientMetadata;
   if (clientMetadataTurn?.session_id) return { sessionId: `codex-${clientMetadataTurn.session_id}`, source: "codex_turn_metadata" };
@@ -430,6 +450,8 @@ export function codexSessionRoute(envelope: CodexRequestEnvelope): { sessionId: 
   return undefined;
 }
 
+// Node presents headers with varying case and sometimes array values; normalize
+// once so the zod schemas and precedence rules do not duplicate that handling.
 function normalizeHeaders(headers: Record<string, unknown>): Record<string, unknown> {
   const normalized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(headers)) {
@@ -452,6 +474,8 @@ function headerValue(value: unknown): string | undefined {
   return stringValue(candidate);
 }
 
+// Codex sends turn metadata as a JSON string nested in headers/client metadata.
+// Parse failures are preserved as state so callers can emit malformed caveats.
 function parseCodexTurnMetadataField(value: string | undefined): CodexTurnMetadataParseResult {
   if (!value) return { status: "absent" };
 
@@ -466,6 +490,8 @@ function parseCodexTurnMetadataField(value: string | undefined): CodexTurnMetada
   }
 }
 
+// Canonical turn identity prefers the new structured metadata and falls back
+// only to direct compatibility fields that still represent a real turn ID.
 function resolveTurnIdentity({
   clientMetadata,
   clientMetadataTurn,

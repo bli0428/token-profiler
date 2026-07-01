@@ -66,6 +66,8 @@ export function analyzeTurnGroups(
 
 // Grouping
 
+// Multiple facts for one request can appear in malformed/compatibility cases.
+// The earliest canonical fact wins so grouping remains stable across replays.
 function firstTurnFactByRequest(facts: TurnFact[]): Map<string, TurnFact> {
   const map = new Map<string, TurnFact>();
   for (const fact of [...facts].sort(compareTurnFacts)) {
@@ -74,6 +76,8 @@ function firstTurnFactByRequest(facts: TurnFact[]): Map<string, TurnFact> {
   return map;
 }
 
+// Requests without direct turn identity are intentionally grouped into named
+// fallback buckets instead of being inferred from timestamps or artifact order.
 function collectTurnGroupDrafts(
   requestRows: RequestAccountingRow[],
   factsByRequest: Map<string, TurnFact>
@@ -99,6 +103,8 @@ function collectTurnGroupDrafts(
   return [...groups.values()];
 }
 
+// Roll-up metrics stay optional when provider usage is absent; zeros are used
+// only for local artifact totals that are always analyzer-derived.
 function buildTurnGroup(
   group: TurnGroupDraft,
   requestRows: RequestAccountingRow[],
@@ -171,6 +177,8 @@ function buildTurnRequest(
 
 // Title Selection
 
+// Turn titles prefer captured user previews, then safe analyzer labels, then
+// non-content identifiers. This preserves privacy mode as product behavior.
 function selectTurnTitle(
   group: TurnGroupDraft,
   rows: RequestAccountingRow[],
@@ -201,6 +209,8 @@ function selectTurnTitle(
   return { display_title: "Requests without turn identity", title_source: "fallback" };
 }
 
+// Request titles prefer assistant previews so repeated assistant requests under
+// one user turn remain distinguishable without browser-side inference.
 function selectRequestTitle(
   row: RequestAccountingRow,
   turnTitle: string,
@@ -254,12 +264,16 @@ function storedPreviewText(detail: ArtifactDetail | undefined): string | undefin
 
 // Canonical Turn Facts
 
+// Fallback IDs are deliberately explicit and shared, making missing/malformed
+// grouping visible to surfaces instead of looking like confident turn identity.
 function turnGroupIdForFact(fact: TurnFact | undefined): string {
   if (fact?.turn_identity_source === "direct_turn_id" && fact.turn_id) return fact.turn_id;
   if (fact?.turn_identity_source === "malformed") return "turn:fallback:malformed";
   return "turn:fallback:missing";
 }
 
+// Malformed identity is a fallback grouping because it cannot be trusted even
+// if source metadata was present.
 function groupingSourceForTurnFact(fact: TurnFact | undefined): TurnGroupingSource {
   if (fact?.turn_identity_source === "direct_turn_id" && fact.turn_id) return "direct_turn_id";
   if (fact?.turn_identity_source === "malformed") return "fallback";

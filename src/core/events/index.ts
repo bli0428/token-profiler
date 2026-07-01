@@ -15,6 +15,12 @@ export const ARTIFACT_TYPES = Object.freeze([
   "CODEX_USAGE"
 ]);
 
+/**
+ * Creates the canonical artifact fact shared by analyzers and surfaces.
+ *
+ * Content is hashed and token-counted before privacy policy is applied, so
+ * analyzers can compare exposure without requiring raw content to be stored.
+ */
 export function createArtifactEvent({
   runId,
   requestId,
@@ -65,6 +71,12 @@ export function createArtifactEvent({
   return validateArtifactEvent(applyStorageMode(event, normalizedContent, storageMode));
 }
 
+/**
+ * Normalizes provider usage payloads into the canonical request usage fact.
+ *
+ * The accepted aliases cover OpenAI-style prompt/completion naming and newer
+ * input/output naming while keeping downstream analysis provider-neutral.
+ */
 export function createRequestUsageEvent({
   runId,
   requestId,
@@ -100,6 +112,12 @@ export function createRequestUsageEvent({
   });
 }
 
+/**
+ * Records request-to-turn identity as a first-class canonical fact.
+ *
+ * Missing and malformed identities are represented explicitly so analyzers can
+ * surface fallback grouping instead of inventing hidden IDs.
+ */
 export function createRequestTurnIdentityEvent({
   runId,
   requestId,
@@ -128,6 +146,7 @@ export function createRequestTurnIdentityEvent({
   return validateRequestTurnIdentityEvent(event);
 }
 
+/** Dispatches validation by canonical event kind for JSONL store reads. */
 export function validateEvent(event: unknown): CanonicalEvent {
   const candidate = event as any;
   if (candidate?.event_kind === "artifact") return validateArtifactEvent(candidate);
@@ -136,6 +155,12 @@ export function validateEvent(event: unknown): CanonicalEvent {
   throw new Error(`Unsupported event_kind "${candidate?.event_kind}".`);
 }
 
+/**
+ * Enforces the artifact event contract at the canonical store boundary.
+ *
+ * Privacy invariants live here: metadata mode cannot carry content, preview
+ * mode cannot carry raw content, and raw mode must include explicit content.
+ */
 export function validateArtifactEvent(event: any): ArtifactEvent {
   requireField(event, "schema_version");
   requireExact(event, "event_kind", "artifact");
@@ -166,6 +191,7 @@ export function validateArtifactEvent(event: any): ArtifactEvent {
   return event;
 }
 
+/** Validates canonical request usage facts before analyzers consume them. */
 export function validateRequestUsageEvent(event: any): RequestUsageEvent {
   requireField(event, "schema_version");
   requireExact(event, "event_kind", "request_usage");
@@ -181,6 +207,7 @@ export function validateRequestUsageEvent(event: any): RequestUsageEvent {
   return event;
 }
 
+/** Validates canonical turn identity facts, including explicit fallback states. */
 export function validateRequestTurnIdentityEvent(event: any): RequestTurnIdentityEvent {
   requireField(event, "schema_version");
   requireExact(event, "event_kind", "request_turn_identity");

@@ -30,6 +30,13 @@ type CaptureRecordInput = {
   tokenEnd?: number;
 };
 
+/**
+ * Capture boundary used by adapters and CLI commands.
+ *
+ * The profiler deliberately emits canonical artifact events only; provider
+ * payload details must already have been mapped into artifact metadata before
+ * they reach this class.
+ */
 export class TokenProfiler {
   runId: string;
   tokenCounter: (content: unknown) => number;
@@ -57,30 +64,40 @@ export class TokenProfiler {
     this.pendingWrites = [];
   }
 
+  /**
+   * Fire-and-forget capture for wrapping an observed value inline.
+   *
+   * The original content is returned so callers can instrument data flow
+   * without changing the value they forward to the provider or command.
+   */
   track(input: CaptureRecordInput): unknown {
     const event = this.createEvent(input);
     this.pendingWrites.push(this.store.append(event));
     return input.content;
   }
 
+  /** Captures from the caller's perspective and returns the canonical event for tests or adapters. */
   record(input: CaptureRecordInput): unknown {
     const event = this.createEvent(input);
     this.pendingWrites.push(this.store.append(event));
     return event;
   }
 
+  /** Persists the canonical event before returning it to callers that need write ordering. */
   async recordAsync(input: CaptureRecordInput): Promise<unknown> {
     const event = this.createEvent(input);
     await this.store.append(event);
     return event;
   }
 
+  /** Waits for queued fire-and-forget writes and clears the queue for the next capture batch. */
   async flush(): Promise<void> {
     const pendingWrites = this.pendingWrites;
     this.pendingWrites = [];
     await Promise.all(pendingWrites);
   }
 
+  /** Builds the canonical artifact event without persisting it. */
   createEvent({
     requestId,
     artifactType,

@@ -31,6 +31,12 @@ type ProxyState = {
   capture_mode?: unknown;
 };
 
+/**
+ * Builds the read-only local API status document.
+ *
+ * The proxy state is advisory: unreadable or stale state should degrade the
+ * status response, not prevent the dashboard from loading local run data.
+ */
 export async function createStatusResponse(rootDir: string): Promise<DashboardApiStatus> {
   return {
     service: "token-profiler-dashboard-api",
@@ -90,6 +96,12 @@ export async function createSessionsResponse(
   };
 }
 
+/**
+ * Loads and analyzes a run for the public dashboard contract.
+ *
+ * Store/analyzer errors are converted to route errors here so HTTP routing can
+ * return stable API envelopes without exposing filesystem or parser details.
+ */
 export async function createRunResponse(rootDir: string, runId: string): Promise<DashboardApiRun> {
   const runDir = resolveRunDir(rootDir, runId);
 
@@ -145,6 +157,8 @@ type DashboardPrivacySource = DashboardViewSource["privacy"];
 type DashboardFilterSource = DashboardViewSource["filters"];
 type DashboardMetadataSectionSource = DashboardArtifactDetailSource["metadata_sections"][number];
 
+// The API layer owns its transport contract. Keep these mappers explicit so
+// analyzer/view-model additions never become public response fields by accident.
 function toApiSession(session: DashboardSessionSource): DashboardApiSession {
   const routableRunId = basename(session.run_dir);
   return {
@@ -453,6 +467,8 @@ function toApiPrivacy(privacy: DashboardPrivacySource): DashboardApiPrivacyState
   };
 }
 
+// Artifact IDs are accepted as either full IDs or unique short prefixes to
+// support compact UI links without making the API ambiguous.
 function findArtifactDetail(
   details: Record<string, DashboardApiArtifactDetail>,
   artifactId: string
