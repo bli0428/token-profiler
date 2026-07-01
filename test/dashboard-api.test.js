@@ -33,6 +33,30 @@ test("dashboard API status advertises local read-only contract", async () => {
   assert.equal(response.headers["access-control-allow-origin"], "http://127.0.0.1:5173");
 });
 
+test("dashboard API serves built dashboard static assets", async () => {
+  const root = tempRoot("static-root");
+  const staticDir = tempRoot("static-assets");
+  await mkdir(staticDir, { recursive: true });
+  await writeFile(join(staticDir, "index.html"), "<!doctype html><div id=\"root\"></div>");
+  await writeFile(join(staticDir, "app.js"), "console.log('dashboard');");
+
+  const index = await handleDashboardApiRequest("GET", "/", { rootDir: root, staticDir });
+  assert.equal(index.status, 200);
+  assert.equal(index.raw, true);
+  assert.match(String(index.body), /id="root"/);
+  assert.equal(index.headers["content-type"], "text/html; charset=utf-8");
+
+  const asset = await handleDashboardApiRequest("GET", "/app.js", { rootDir: root, staticDir });
+  assert.equal(asset.status, 200);
+  assert.equal(asset.raw, true);
+  assert.equal(Buffer.isBuffer(asset.body), true);
+  assert.equal(asset.headers["content-type"], "text/javascript; charset=utf-8");
+
+  const nestedRoute = await handleDashboardApiRequest("GET", "/runs/current", { rootDir: root, staticDir });
+  assert.equal(nestedRoute.status, 200);
+  assert.match(String(nestedRoute.body), /id="root"/);
+});
+
 test("dashboard API sessions return safe recent summaries", async () => {
   const root = tempRoot("sessions");
   await writeRun(root, "older", [artifact("req_1", "FILE:old", "FILE", "old.ts", "h1", 2, 0, 2), usage("req_1", 2, 0)]);

@@ -15,7 +15,22 @@ npm run test:styles
 npm run build
 ```
 
-Use `VITE_DASHBOARD_API_BASE_URL` to point the browser client at a local API origin:
+For normal local use, build the dashboard and let the dashboard API serve the
+static bundle:
+
+```bash
+npm run build
+cd ..
+node src/cli.js daemon ensure
+open http://127.0.0.1:8788
+```
+
+From the repository root, `scripts/quickstart-dashboard.sh` performs those
+steps. Pass `--configure-codex` only when you want it to edit Codex routing
+config for new captures.
+
+For frontend development, use `VITE_DASHBOARD_API_BASE_URL` to point the Vite
+dev server at a local API origin:
 
 ```bash
 VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.1 --port 5173
@@ -23,13 +38,14 @@ VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.
 
 ## Local Services
 
-The dashboard frontend and capture proxy are separate local services:
+The built dashboard is served by the read-only dashboard API:
 
-- `http://127.0.0.1:5173`: Vite dashboard frontend
-- `http://127.0.0.1:8788`: read-only dashboard API consumed by this app
+- `http://127.0.0.1:8788`: dashboard UI plus read-only dashboard API
 - `http://127.0.0.1:8787`: Codex proxy that captures/forwards model traffic
 
 The frontend should target the dashboard API on `8788`, not the proxy on `8787`.
+When served from `8788`, the browser client uses same-origin API requests. Vite
+on `5173` is only needed for frontend development.
 
 Start the API from the repository root:
 

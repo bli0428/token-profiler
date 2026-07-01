@@ -9,6 +9,7 @@ export type DashboardApiServerOptions = {
   host?: string | undefined;
   port?: number | undefined;
   origin?: string | undefined;
+  staticDir?: string | undefined;
   sessionTitleLookup?: DashboardSessionTitleLookup | undefined;
   log?: (message: string) => void;
 };
@@ -22,6 +23,7 @@ export async function startDashboardApiServer(options: DashboardApiServerOptions
     const result = await handleDashboardApiRequest(request.method ?? "GET", request.url ?? "/", {
       rootDir,
       origin: options.origin,
+      staticDir: options.staticDir,
       sessionTitleLookup: options.sessionTitleLookup
     });
 
@@ -30,7 +32,7 @@ export async function startDashboardApiServer(options: DashboardApiServerOptions
       response.end();
       return;
     }
-    response.end(JSON.stringify(result.body));
+    response.end(result.raw ? result.body : JSON.stringify(result.body));
   });
 
   await new Promise<void>((resolveListen, rejectListen) => {

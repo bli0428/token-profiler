@@ -14,6 +14,12 @@ describe("dashboard API client", () => {
     expect(fetch).toHaveBeenCalledWith("http://api.test/api/status", { headers: { accept: "application/json" } });
   });
 
+  it("uses same-origin API paths by default", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json(apiRealFixtures.status)));
+    await expect(createDashboardApiClient().getStatus()).resolves.toEqual(apiRealFixtures.status);
+    expect(fetch).toHaveBeenCalledWith("/api/status", { headers: { accept: "application/json" } });
+  });
+
   it("normalizes structured API errors", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({ error: "not_found", message: "Missing" }, { status: 404 })));
     await expect(createDashboardApiClient("http://api.test").getRun("missing")).rejects.toMatchObject({

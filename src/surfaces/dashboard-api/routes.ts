@@ -1,3 +1,6 @@
+import { readFile, stat } from "node:fs/promises";
+import { extname, join, normalize, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { envelope, errorResponse, DashboardApiRouteError } from "./errors.ts";
 import {
   createArtifactDetailResponse,
@@ -12,7 +15,10 @@ export type DashboardApiRouteOptions = {
   rootDir: string;
   origin?: string | undefined;
   sessionTitleLookup?: DashboardSessionTitleLookup | undefined;
+  staticDir?: string | undefined;
 };
+
+const DEFAULT_STATIC_DIR = fileURLToPath(new URL("../../../dashboard/dist", import.meta.url));
 
 export async function handleDashboardApiRequest(
   method: string,
@@ -36,6 +42,10 @@ export async function handleDashboardApiRequest(
   try {
     const url = new URL(requestUrl, "http://127.0.0.1");
     const parts = url.pathname.split("/").filter(Boolean).map((part) => decodeURIComponent(part));
+
+    if (parts[0] !== "api") {
+      return await staticDashboardResponse(url.pathname, options.staticDir ?? DEFAULT_STATIC_DIR, headers);
+    }
 
     if (parts.length === 2 && parts[0] === "api" && parts[1] === "status") {
       return { status: 200, body: envelope(await createStatusResponse(options.rootDir)), headers };
@@ -72,6 +82,113 @@ export async function handleDashboardApiRequest(
     const response = errorResponse(error);
     return { ...response, headers };
   }
+}
+
+async function staticDashboardResponse(
+  pathname: string,
+  staticDir: string,
+  baseHeaders: Record<string, string>
+): Promise<DashboardApiResponse> {
+  const root = resolve(staticDir);
+  const requestedPath = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
+  const normalized = normalize(requestedPath);
+
+  if (normalized.startsWith("..") || normalized.includes(`${sep}..${sep}`)) {
+    return {
+      status: 403,
+      body: "Forbidden",
+      raw: true,
+      headers: htmlHeaders(baseHeaders, "text/plain; charset=utf-8")
+    };
+  }
+
+  const assetPath = resolve(root, normalized);
+  if (!assetPath.startsWith(`${root}${sep}`) && assetPath !== root) {
+    return {
+      status: 403,
+      body: "Forbidden",
+      raw: true,
+      headers: htmlHeaders(baseHeaders, "text/plain; charset=utf-8")
+    };
+  }
+
+  const filePath = await existingFilePath(assetPath, root);
+  if (!filePath) {
+    return {
+      status: 503,
+      body: missingDashboardHtml(),
+      raw: true,
+      headers: htmlHeaders(baseHeaders, "text/html; charset=utf-8")
+    };
+  }
+
+  return {
+    status: 200,
+    body: await readFile(filePath),
+    raw: true,
+    headers: htmlHeaders(baseHeaders, contentType(filePath))
+  };
+}
+
+async function existingFilePath(assetPath: string, root: string): Promise<string | undefined> {
+  if (await isFile(assetPath)) return assetPath;
+
+  const indexPath = join(root, "index.html");
+  if (await isFile(indexPath)) return indexPath;
+
+  return undefined;
+}
+
+async function isFile(pathname: string): Promise<boolean> {
+  try {
+    return (await stat(pathname)).isFile();
+  } catch {
+    return false;
+  }
+}
+
+function htmlHeaders(baseHeaders: Record<string, string>, contentTypeValue: string): Record<string, string> {
+  return {
+    ...baseHeaders,
+    "content-type": contentTypeValue,
+    "cache-control": "no-store"
+  };
+}
+
+function contentType(pathname: string): string {
+  switch (extname(pathname)) {
+    case ".html":
+      return "text/html; charset=utf-8";
+    case ".js":
+      return "text/javascript; charset=utf-8";
+    case ".css":
+      return "text/css; charset=utf-8";
+    case ".svg":
+      return "image/svg+xml";
+    case ".json":
+      return "application/json; charset=utf-8";
+    case ".png":
+      return "image/png";
+    case ".ico":
+      return "image/x-icon";
+    default:
+      return "application/octet-stream";
+  }
+}
+
+function missingDashboardHtml(): string {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Token Profiler Dashboard</title>
+  </head>
+  <body>
+    <h1>Dashboard bundle not found</h1>
+    <p>Run <code>cd dashboard && npm run build</code>, then restart the dashboard API.</p>
+  </body>
+</html>
+`;
 }
 
 function parseLimit(value: string | null): number | undefined {

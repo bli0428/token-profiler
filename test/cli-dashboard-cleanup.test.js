@@ -56,6 +56,7 @@ test("daemon help exposes service flags but not run fallback", () => {
   assert.match(output, /--capture-mode metadata\|preview\|raw/);
   assert.match(output, /--codex-home <path>/);
   assert.match(output, /--no-codex/);
+  assert.match(output, /--keep-codex-routing/);
   assert.doesNotMatch(output, /--run <id>/);
 });
 

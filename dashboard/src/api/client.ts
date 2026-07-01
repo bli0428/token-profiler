@@ -9,7 +9,7 @@ import type {
 } from "./types";
 
 const SUPPORTED_SCHEMA_VERSION = 1;
-const DEFAULT_API_BASE_URL = "http://127.0.0.1:8788";
+const DEFAULT_API_BASE_URL = "";
 
 export type DashboardApiClient = {
   baseUrl: string;

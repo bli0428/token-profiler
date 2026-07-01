@@ -296,4 +296,9 @@ export type DashboardApiFilterOptions = {
 };
 
 export type DashboardApiResponse =
-  | { status: number; body: DashboardApiEnvelope<unknown> | DashboardApiError; headers?: Record<string, string> };
+  | {
+    status: number;
+    body: DashboardApiEnvelope<unknown> | DashboardApiError | string | Buffer;
+    headers?: Record<string, string>;
+    raw?: boolean;
+  };

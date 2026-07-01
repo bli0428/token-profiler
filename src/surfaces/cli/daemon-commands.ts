@@ -4,7 +4,7 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { optionString, parseOptions } from "./utils.ts";
-import { runProxy } from "./proxy-commands.ts";
+import { runCodexConfig, runProxy } from "./proxy-commands.ts";
 
 type DaemonState = {
   schema_version?: number;
@@ -28,6 +28,7 @@ type DaemonOptions = {
   dashboardOrigin: string;
   proxyArgs: string[];
   dashboardArgs: string[];
+  keepCodexRouting: boolean;
 };
 
 export async function runDaemon(args: string[]): Promise<void> {
@@ -53,7 +54,7 @@ export async function runDaemon(args: string[]): Promise<void> {
   }
 
   if (action === "stop") {
-    await stopDaemon(daemonOptions.rootDir, statePath);
+    await stopDaemon(daemonOptions.rootDir, statePath, daemonOptions.keepCodexRouting);
     return;
   }
 
@@ -144,7 +145,13 @@ async function ensureDashboardApi(options: DaemonOptions, statePath: string, ens
   };
 }
 
-async function stopDaemon(rootDir: string, statePath: string): Promise<void> {
+async function stopDaemon(rootDir: string, statePath: string, keepCodexRouting: boolean): Promise<void> {
+  if (keepCodexRouting) {
+    console.log("Keeping Codex proxy routing enabled.");
+  } else {
+    await disableCodexRouting();
+  }
+
   const state = await readDaemonState(statePath);
 
   if (state?.dashboard_api?.pid && isProcessRunning(state.dashboard_api.pid)) {
@@ -168,6 +175,18 @@ async function stopDaemon(rootDir: string, statePath: string): Promise<void> {
 
   await rm(statePath, { force: true });
   console.log("Stopped token profiler daemon.");
+}
+
+async function disableCodexRouting(): Promise<void> {
+  try {
+    await runCodexConfig(["disable"]);
+  } catch (error) {
+    if (isMissingCodexRoutingState(error)) {
+      console.log("Codex proxy routing is not enabled.");
+      return;
+    }
+    throw error;
+  }
 }
 
 async function printDaemonStatus(rootDir: string, statePath: string): Promise<void> {
@@ -226,6 +245,7 @@ function parseDaemonOptions(options: Record<string, string | boolean>): DaemonOp
   if (options["no-codex"]) {
     dashboardArgs.push("--no-codex");
   }
+  const keepCodexRouting = Boolean(options["keep-codex-routing"]);
 
   return {
     authMode,
@@ -235,7 +255,8 @@ function parseDaemonOptions(options: Record<string, string | boolean>): DaemonOp
     dashboardPort,
     dashboardOrigin,
     proxyArgs,
-    dashboardArgs
+    dashboardArgs,
+    keepCodexRouting
   };
 }
 
@@ -274,11 +295,14 @@ Options:
 
   --no-codex
     Disable Codex session-title enrichment in the dashboard API.
+
+  --keep-codex-routing
+    For daemon stop only, leave Codex configured to route through the local proxy.
 `);
 }
 
 function daemonUsage(): string {
-  return "Use: daemon start|stop|status|ensure|help [--auth chatgpt|api] [--data-dir <path>] [--host <host>] [--proxy-port <port>] [--dashboard-port <port>] [--origin <origin>] [--upstream <url>] [--capture-mode metadata|preview|raw] [--codex-home <path>] [--no-codex]";
+  return "Use: daemon start|stop|status|ensure|help [--auth chatgpt|api] [--data-dir <path>] [--host <host>] [--proxy-port <port>] [--dashboard-port <port>] [--origin <origin>] [--upstream <url>] [--capture-mode metadata|preview|raw] [--codex-home <path>] [--no-codex] [--keep-codex-routing]";
 }
 
 function parsePort(value: string | boolean | number, name: string): number {
@@ -306,6 +330,11 @@ function isProcessRunning(pid: unknown): boolean {
   } catch {
     return false;
   }
+}
+
+function isMissingCodexRoutingState(error: unknown): boolean {
+  return (error as NodeJS.ErrnoException)?.code === "ENOENT"
+    || (error instanceof Error && error.message.includes("ENOENT"));
 }
 
 async function waitFor(predicate: () => boolean | Promise<boolean>, timeoutMs: number): Promise<boolean> {
