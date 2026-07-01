@@ -1,21 +1,43 @@
 # Token Profiler
 
-Ever wonder why certain sessions are consuming so many tokens?
+Token Profiler is a local-first observability tool for understanding why agent
+sessions consume the tokens they do. It captures prompt artifacts, request
+usage, cache attribution, and turn structure so you can drill from a run down
+to the specific files, messages, tool calls, and context objects that shaped the
+model request.
 
-This tool is meant to over the ability to drill down to the individual artifacts to understand which specific tool calls are the biggest offenders.
+It is built for people working with Codex and agent harnesses who want answers
+to questions like:
 
-*Important note:
+- Which artifacts are the biggest token contributors?
+- How much of a request was cached versus newly sent?
+- Which user turn or assistant action introduced expensive context?
+- What did the profiler record locally, and what was intentionally omitted?
 
-This tool can only offer an estimation for artifacts, only OpenAI has the true canonical numbers - however, we can get a pretty good estimate by
-tokenizing each artifact locally, then normalizing based on the final count.
+Token Profiler stores captured runs locally as JSONL under
+`~/.token-profiler/runs/`. Provider-specific payloads are mapped into canonical
+records before analysis, and privacy mode is part of the captured data model.
 
-Artifact text is counted locally with the `o200k_base` tokenizer.
+> [!NOTE]
+> Per-artifact token counts are estimates. Providers own the canonical request
+> totals; Token Profiler tokenizes artifacts locally with `o200k_base`, then
+> uses provider-reported totals to normalize attribution.
 
 ## Quick Start
 
+You need Node.js 18 or newer.
+
+```bash
+npm install
+```
+
+There are two common ways to capture Codex traffic.
+
 ### Codex Desktop App
 
-Use this path if you normally open the Codex desktop app.
+Use this path if you normally start work from the Codex desktop app. It starts
+the local profiler services and configures Codex to route model requests through
+the local Token Profiler proxy.
 
 > [!WARNING]
 > `--configure-codex` changes your user-level Codex
@@ -28,14 +50,21 @@ Use this path if you normally open the Codex desktop app.
 scripts/quickstart-dashboard.sh --configure-codex
 ```
 
-Captured runs will show up at http://127.0.0.1:8788
+Then restart Codex and begin a new session. Captured runs will appear in the
+local dashboard:
 
-**Restart Codex before starting a new monitored session.**
+http://127.0.0.1:8788
+
+To restore normal Codex routing and stop the profiler services:
+
+```bash
+node src/cli.js daemon stop
+```
 
 ### Codex CLI/TUI
 
-Use this path if you normally start Codex from the terminal and want one
-profiled session:
+Use this path if you normally start Codex from the terminal and want to profile
+one session without changing your user-level Codex config.
 
 ```bash
 node src/cli.js run codex .
@@ -43,7 +72,7 @@ node src/cli.js run codex .
 
 This starts or reuses the local profiler proxy and dashboard API, launches Codex
 in the target directory, and routes that Codex session through the proxy with
-temporary model-provider settings. Captured runs will show up at
+temporary model-provider settings. Captured runs will appear at
 http://127.0.0.1:8788
 
 Pass Codex CLI arguments after `--`:
@@ -52,18 +81,10 @@ Pass Codex CLI arguments after `--`:
 node src/cli.js run codex . -- --help
 ```
 
+### Dashboard-Only Development
 
-### To disable the proxy:
-
-```bash
-node src/cli.js daemon stop
-```
-This will also revert the config.toml to it's state before configuring the proxy.
-
-
-
-### If you are trying to develop on this project
-Run the Vite dev server from `dashboard/` for hot reloading:
+Run the Vite dev server from `dashboard/` when you want frontend hot reloading
+against the local dashboard API:
 
 ```bash
 cd dashboard
