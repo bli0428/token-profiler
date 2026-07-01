@@ -13,7 +13,9 @@ Artifact text is counted locally with the `o200k_base` tokenizer.
 
 ## Quick Start
 
-To capture new Codex traffic, explicitly enable Codex routing:
+### Codex Desktop App
+
+Use this path if you normally open the Codex desktop app.
 
 > [!WARNING]
 > `--configure-codex` changes your user-level Codex
@@ -30,8 +32,29 @@ Captured runs will show up at http://127.0.0.1:8788
 
 **Restart Codex before starting a new monitored session.**
 
+### Codex CLI/TUI
 
-To disable the proxy run:
+Use this path if you normally start Codex from the terminal and want one
+profiled session:
+
+```bash
+node src/cli.js run codex .
+```
+
+This starts or reuses the local profiler proxy and dashboard API, launches Codex
+in the target directory, and routes that Codex session through the proxy with
+temporary model-provider settings. Captured runs will show up at
+http://127.0.0.1:8788
+
+Pass Codex CLI arguments after `--`:
+
+```bash
+node src/cli.js run codex . -- --help
+```
+
+
+### To disable the proxy:
+
 ```bash
 node src/cli.js daemon stop
 ```
@@ -39,30 +62,12 @@ This will also revert the config.toml to it's state before configuring the proxy
 
 
 
-If you are trying to develop on the project:
+### If you are trying to develop on this project
 Run the Vite dev server from `dashboard/` for hot reloading:
 
 ```bash
 cd dashboard
 VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.1 --port 5173
-```
-
-Development checks:
-
-```bash
-npm run typecheck
-npm test
-cd dashboard
-npm run typecheck
-npm test
-```
-
-Refresh dashboard API-real contract fixtures from `dashboard/` after starting
-the API with safe fixture data:
-
-```bash
-npm run fixtures:capture -- --api http://127.0.0.1:8788 --run-id <run-id> --artifact-id <artifact-id>
-npm run test:contracts
 ```
 
 ## Architecture

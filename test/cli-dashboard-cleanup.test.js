@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { printDaemonHelp } from "../src/surfaces/cli/daemon-commands.ts";
+import { printRunCodexHelp } from "../src/surfaces/cli/run-codex-command.ts";
 import { launchAgentPlist } from "../src/surfaces/cli/setup-commands.ts";
 import { printHelp } from "../src/surfaces/cli/utils.ts";
 
@@ -13,6 +14,8 @@ test("CLI help points to dashboard API workflow instead of static dashboard file
   assert.match(output, /--capture-mode metadata\|preview\|raw/);
   assert.match(output, /--codex-home <path>/);
   assert.match(output, /setup codex/);
+  assert.match(output, /run codex \[cwd\]/);
+  assert.match(output, /launch Codex in the target directory/);
   assert.match(output, /local read-only dashboard HTTP API/);
   assert.doesNotMatch(output, /\n\s*html \[run_dir\]/);
   assert.doesNotMatch(output, /\n\s*dashboard \[--limit/);
@@ -29,6 +32,17 @@ test("CLI dispatch no longer includes static dashboard commands", async () => {
   assert.match(source, /command === "dashboard-api"/);
   assert.match(source, /command === "daemon"/);
   assert.match(source, /command === "setup"/);
+  assert.match(source, /runCodexLauncher/);
+});
+
+test("run codex help describes the session launcher", () => {
+  const output = captureConsole(() => printRunCodexHelp());
+
+  assert.match(output, /Use: run codex \[cwd\]/);
+  assert.match(output, /Starts or reuses the local profiler proxy and dashboard API/);
+  assert.match(output, /-- <codex-args\.\.\.>/);
+  assert.match(output, /--dashboard-port <port>/);
+  assert.match(output, /--run <id>/);
 });
 
 test("setup codex autostart plist runs daemon ensure", () => {

@@ -4,6 +4,7 @@ import { runDaemon } from "./daemon-commands.ts";
 import { runDashboardApi } from "./dashboard-api-commands.ts";
 import { runCodexConfig, runProxy } from "./proxy-commands.ts";
 import { runExplain, runLegibility, runSessions, runSummarize } from "./report-commands.ts";
+import { runCodexLauncher } from "./run-codex-command.ts";
 import { runSetup } from "./setup-commands.ts";
 import { printHelp } from "./utils.ts";
 
@@ -17,7 +18,11 @@ try {
   } else if (command === "watch") {
     await runWatch(args);
   } else if (command === "run") {
-    await runCommand(args);
+    if (args[0] === "codex") {
+      await runCodexLauncher(args.slice(1));
+    } else {
+      await runCommand(args);
+    }
   } else if (command === "codex-import") {
     await runCodexImport(args);
   } else if (command === "proxy") {

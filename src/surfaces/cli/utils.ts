@@ -133,6 +133,9 @@ Commands:
   run --run <id> [--request <id>] [--type TOOL_OUTPUT] [--name <name>] -- <command> [args...]
     Run a command and record its stdout/stderr as one artifact.
 
+  run codex [cwd] [--auth chatgpt|api] [--data-dir <path>] [--proxy-port <port>] [--dashboard-port <port>] [--capture-mode metadata|preview|raw] [--run <id>] [--codex <path>] [-- <codex-args...>]
+    Start or reuse the profiler daemon, launch Codex in the target directory, and route that session through the proxy.
+
   codex-import <rollout.jsonl> --run <id>
     Import exact Codex token_count events from a local rollout JSONL file.
 
