@@ -104,11 +104,3 @@ rm -rf ~/.token-profiler
 ```
 
 Review the path before deleting it, especially if you used `--data-dir`.
-
-## Architecture Boundary
-
-Privacy behavior depends on the same layer boundaries as the rest of the
-project: provider-specific request details should be mapped at adapter
-boundaries before analysis or dashboard rendering. See
-[`docs/architecture.md`](./architecture.md) for the canonical architecture
-rules.

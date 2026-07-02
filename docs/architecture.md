@@ -34,8 +34,7 @@ Current adapters:
 - fixture source for boundary tests
 
 Planned adapter directions include Claude Code, OpenAI-compatible sources, and
-manual JSONL import. Never let provider-specific payloads leak directly into
-analyzers.
+manual JSONL import.
 
 **Canonical Store** owns persisted facts.
 
@@ -107,7 +106,7 @@ dashboard/
     utils/
 ```
 
-Always ensure clean separation of concerns. Every module should pass the AND test - no "Module X handles A AND B"
+Every module should pass the AND test: no "Module X handles A AND B."
 
 ## Technology Direction
 

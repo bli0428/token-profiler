@@ -14,10 +14,8 @@ to questions like:
 - Which user turn or assistant action introduced expensive context?
 - What did the profiler record locally, and what was intentionally omitted?
 
-Token Profiler stores captured runs locally as JSONL under
-`~/.token-profiler/runs/`. Provider-specific payloads are mapped into canonical
-records before analysis, and privacy mode is part of the captured data model.
-See [Privacy And Trust](docs/privacy-and-trust.md) for capture modes, storage
+Token Profiler stores captured runs locally. See
+[Privacy And Trust](docs/privacy-and-trust.md) for capture modes, storage
 locations, network behavior, and deletion steps.
 
 > [!NOTE]
@@ -101,25 +99,8 @@ VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.
 ## Architecture
 
 The project keeps source-specific capture details separate from analysis and
-presentation. See [Architecture](docs/architecture.md) for the full contributor
-guide.
-
-```text
-Adapters -> Canonical Store -> Analyzers -> Surfaces
-```
-
-- **Adapters** capture provider-specific payloads and map them into canonical
-  records.
-- **Canonical Store** persists JSONL facts under local run directories.
-- **Analyzers** derive exposure, replay, cache attribution, legibility, task
-  groups, and turn hierarchy from canonical records only.
-- **Surfaces** render analyzer/API outputs through CLI reports, the dashboard
-  API, and the React dashboard.
-
-Provider-specific payloads stop at adapters. Dashboard code consumes API-owned
-view models and does not reconstruct analyzer logic or parse raw Codex metadata.
-
-
+presentation. See [Architecture](docs/architecture.md) for the contributor guide
+and module-boundary rules.
 
 ## Agent Integration
 
