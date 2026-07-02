@@ -1,3 +1,5 @@
+import type { CodexSourceProtocolType } from "./protocol-items.ts";
+
 export type CodexProviderItem = Record<string, unknown>;
 
 /**
@@ -32,72 +34,13 @@ export type CodexResponsesMessageItem = CodexProviderItem & {
   content?: unknown;
 };
 
-export type CodexResponsesFunctionCallItem = CodexProviderItem & {
-  type: "function_call";
-  name?: unknown;
-  call_id?: unknown;
-  arguments?: unknown;
-};
-
-export type CodexResponsesFunctionCallOutputItem = CodexProviderItem & {
-  type: "function_call_output";
-  call_id?: unknown;
-  output?: unknown;
-};
-
-export type CodexResponsesCustomToolCallItem = CodexProviderItem & {
-  type: "custom_tool_call";
-  name?: unknown;
-  call_id?: unknown;
-  input?: unknown;
-};
-
-export type CodexResponsesCustomToolCallOutputItem = CodexProviderItem & {
-  type: "custom_tool_call_output";
-  call_id?: unknown;
-  output?: unknown;
-};
-
-export type CodexResponsesMcpToolCallOutputItem = CodexProviderItem & {
-  type: "mcp_tool_call_output";
-  call_id?: unknown;
-  output?: unknown;
-  result?: unknown;
-};
-
-export type CodexResponsesToolSearchOutputItem = CodexProviderItem & {
-  type: "tool_search_output";
-  call_id?: unknown;
-  output?: unknown;
-  results?: unknown;
-};
-
-export type CodexResponsesProtocolToolCallItem = CodexProviderItem & {
-  type: "local_shell_call" | "tool_search_call" | "web_search_call" | "image_generation_call";
-  name?: unknown;
-  call_id?: unknown;
-  arguments?: unknown;
-  input?: unknown;
-  action?: unknown;
-  query?: unknown;
-};
-
 export type CodexResponsesUnknownInputObject = CodexProviderItem & {
   type?: unknown;
   role?: unknown;
   content?: unknown;
 };
 
-export type CodexResponsesInputObject =
-  | CodexResponsesMessageItem
-  | CodexResponsesFunctionCallItem
-  | CodexResponsesFunctionCallOutputItem
-  | CodexResponsesCustomToolCallItem
-  | CodexResponsesCustomToolCallOutputItem
-  | CodexResponsesMcpToolCallOutputItem
-  | CodexResponsesToolSearchOutputItem
-  | CodexResponsesProtocolToolCallItem
-  | CodexResponsesUnknownInputObject;
+export type CodexResponsesInputObject = CodexResponsesMessageItem | CodexResponsesUnknownInputObject;
 
 export type CodexResponsesInputItem = string | CodexResponsesInputObject;
 
@@ -115,28 +58,7 @@ export type CodexArtifactType =
 
 export type CodexSourceProtocol = "openai_responses";
 
-export type CodexSourceProtocolType =
-  | "instructions"
-  | "tool_definition"
-  | "message"
-  | "function_call"
-  | "function_call_output"
-  | "custom_tool_call"
-  | "custom_tool_call_output"
-  | "mcp_tool_call_output"
-  | "tool_search_output"
-  | "additional_tools"
-  | "agent_message"
-  | "local_shell_call"
-  | "tool_search_call"
-  | "web_search_call"
-  | "image_generation_call"
-  | "compaction"
-  | "compaction_trigger"
-  | "context_compaction"
-  | "other"
-  | "reasoning"
-  | "unknown";
+export type { CodexSourceProtocolType };
 
 export type CodexSourceProvenance = {
   source_protocol: CodexSourceProtocol;

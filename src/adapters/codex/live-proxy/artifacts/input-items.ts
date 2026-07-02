@@ -14,6 +14,11 @@ import {
   stringValue
 } from "./payload.ts";
 import {
+  protocolOutputArtifactId,
+  protocolOutputArtifactTypeOverride,
+  protocolToolName
+} from "./protocol-items.ts";
+import {
   classifySourceInputItem,
   indexToolCalls as indexSourceToolCalls,
   isMessageSource,
@@ -158,7 +163,7 @@ function toolOutputSourceArtifact(
 ): CodexExtractedArtifact {
   const callId = sourceItem.callId;
   const call = callId ? callsById.get(callId) : undefined;
-  const toolName = stringValue(call?.name) ?? fallbackToolNameForCall(call) ?? fallbackToolNameForOutput(sourceItem.sourceProtocolType);
+  const toolName = call ? protocolToolName(call) : protocolToolName(sourceItem.item);
   const callMetadata = call ? describeCallMetadata(call).metadata : undefined;
   const output = describeToolOutput({
     toolName,
@@ -166,14 +171,13 @@ function toolOutputSourceArtifact(
     output: sourceItem.outputValue,
     callMetadata
   });
-  const artifactType = sourceItem.sourceProtocolType === "custom_tool_call_output"
-    ? "SUMMARY"
-    : artifactTypeForToolOutput(toolName);
+  const artifactType = protocolOutputArtifactTypeOverride(sourceItem.sourceProtocolType)
+    ?? artifactTypeForToolOutput(toolName);
   return {
     kind: "tool_output",
     artifactType,
     artifactName: output.artifactName,
-    artifactId: toolOutputArtifactId(sourceItem.sourceProtocolType, callId, sourceItem.index),
+    artifactId: protocolOutputArtifactId(sourceItem.sourceProtocolType, callId, sourceItem.index),
     content,
     metadata: withSourceProvenance(output.metadata, sourceProvenance({
       sourceProtocolType: sourceItem.sourceProtocolType,
@@ -334,28 +338,6 @@ function unknownInputArtifact(sourceItem: CodexSourceOpaqueItem, content: string
     content,
     metadata
   };
-}
-
-function fallbackToolNameForOutput(sourceProtocolType: string): string {
-  if (sourceProtocolType === "custom_tool_call_output") return "custom_tool";
-  if (sourceProtocolType === "mcp_tool_call_output") return "mcp_tool";
-  if (sourceProtocolType === "tool_search_output") return "tool_search";
-  return "unknown";
-}
-
-function fallbackToolNameForCall(call: CodexProviderItem | undefined): string | undefined {
-  if (call?.type === "local_shell_call") return "local_shell";
-  if (call?.type === "tool_search_call") return "tool_search";
-  if (call?.type === "web_search_call") return "web_search";
-  if (call?.type === "image_generation_call") return "image_generation";
-  return undefined;
-}
-
-function toolOutputArtifactId(sourceProtocolType: string, callId: string | undefined, index: number): string {
-  if (sourceProtocolType === "custom_tool_call_output") return `SUMMARY:custom-tool-call-output:${callId ?? index}`;
-  if (sourceProtocolType === "mcp_tool_call_output") return `TOOL_OUTPUT:mcp:${callId ?? index}`;
-  if (sourceProtocolType === "tool_search_output") return `SEARCH_RESULT:tool-search:${callId ?? index}`;
-  return `TOOL_OUTPUT:${callId ?? index}`;
 }
 
 function reasoningStateArtifact(sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "reasoning" }>, content: string): CodexReasoningStateArtifact {
