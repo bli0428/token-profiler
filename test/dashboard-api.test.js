@@ -112,6 +112,31 @@ test("dashboard API labels Codex internal title generation sessions", async () =
   assert.equal(response.body.data.sessions[0].identity.codex_label, "[Codex Internal][generate_title]");
 });
 
+test("dashboard API labels truncated Codex internal title generation sessions", async () => {
+  const root = tempRoot("internal-title-truncated");
+  const runId = "codex-019f2131-cec5-7cb1-9341-d90ce887afaa";
+  await writeRun(root, runId, [
+    {
+      ...titleGenerationArtifact(runId),
+      preview: {
+        head: "You are a helpful assistant. You will be presented with a user prompt, and your job is to provide a short title for a task that will be created from that prompt.\nGenerate a concise UI title (up to 36 char",
+        tail: "The end result should very closely align with the session total",
+        truncated: true
+      }
+    },
+    {
+      ...usage("req_title", 10, 4, 1),
+      run_id: runId
+    }
+  ]);
+
+  const response = await handleDashboardApiRequest("GET", "/api/sessions", { rootDir: root });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.data.sessions[0].run_id, runId);
+  assert.equal(response.body.data.sessions[0].label, "[Codex Internal][generate_title]");
+});
+
 test("dashboard API session run_id is routable to the run endpoint", async () => {
   const root = tempRoot("session-route");
   await writeRun(root, "directory-id", [

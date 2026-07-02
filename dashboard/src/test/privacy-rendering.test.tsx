@@ -86,6 +86,7 @@ describe("privacy rendering", () => {
           display_category: "reasoning_state",
           task_group_ids: [],
           total_exposure: 1,
+          unique_exposure: 1,
           repeated_exposure: 0,
           inclusion_count: 1,
           preview_state: "hidden",

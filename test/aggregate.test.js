@@ -190,6 +190,7 @@ test("attributes cached and uncached tokens to artifact offsets", () => {
   assert.equal(buildLog.estimated_uncached_input_tokens, 45);
   assert.equal(buildLog.estimated_cache_hit_ratio, 0.25);
   assert.equal(summary.totals.normalized_estimated_input_tokens, 100);
+  assert.equal(summary.totals.normalized_first_occurrence_estimated_input_tokens, 100);
   assert.equal(summary.totals.estimated_cache_attribution_coverage, 100 / 120);
 });
 
@@ -204,13 +205,35 @@ test("normalizes overlong reconstructed artifact offsets to actual input tokens"
   const buildLog = summary.artifacts.find((artifact) => artifact.artifact_name === "build.log");
 
   assert.equal(summary.totals.normalized_estimated_input_tokens, 100);
+  assert.equal(summary.totals.normalized_first_occurrence_estimated_input_tokens, 100);
   assert.equal(summary.totals.estimated_cached_input_tokens, 80);
   assert.equal(summary.totals.estimated_uncached_input_tokens, 20);
   assert.equal(summary.totals.estimated_cache_attribution_coverage, 1);
   assert.equal(history.estimated_uncached_input_tokens, 0);
   assert.equal(buildLog.estimated_cached_input_tokens, 5);
   assert.equal(buildLog.estimated_uncached_input_tokens, 20);
+  assert.equal(buildLog.normalized_first_occurrence_estimated_input_tokens, 25);
   assert.equal(buildLog.estimated_cache_hit_ratio, 0.2);
+});
+
+test("normalizes first occurrence artifact contribution by content hash", () => {
+  const summary = aggregateEvents([
+    event("req_1", "FILE:shared", "FILE", "shared.md", "hash_shared", 100, 0, 100),
+    event("req_2", "FILE:shared", "FILE", "shared.md", "hash_shared", 100, 0, 100),
+    event("req_2", "TOOL_OUTPUT:new", "TOOL_OUTPUT", "new.log", "hash_new", 100, 100, 200),
+    usage("req_1", 50, 0, 5),
+    usage("req_2", 100, 0, 5)
+  ]);
+
+  const shared = summary.artifacts.find((artifact) => artifact.artifact_name === "shared.md");
+  const fresh = summary.artifacts.find((artifact) => artifact.artifact_name === "new.log");
+
+  assert.equal(summary.totals.normalized_estimated_input_tokens, 150);
+  assert.equal(summary.totals.normalized_first_occurrence_estimated_input_tokens, 100);
+  assert.equal(shared.normalized_estimated_input_tokens, 100);
+  assert.equal(shared.normalized_first_occurrence_estimated_input_tokens, 50);
+  assert.equal(fresh.normalized_estimated_input_tokens, 50);
+  assert.equal(fresh.normalized_first_occurrence_estimated_input_tokens, 50);
 });
 
 function event(requestId, artifactId, artifactType, artifactName, contentHash, tokenCount, tokenStart, tokenEnd) {

@@ -69,11 +69,19 @@ Import from `dashboard/src/api/types.ts`.
   `AvailabilityState`, `RequestUsageAvailability`, and
   `ProviderRequestUsage`.
 
+Artifact rows expose `unique_exposure`, `total_exposure`, `repeated_exposure`,
+and `inclusion_count`. `unique_exposure` is the local token exposure from the
+first observed appearance of an artifact's content in the run.
+
 Artifact rows and request artifact inclusions may include
 `normalized_estimated_input_tokens`; dashboard components use it as the
 normalized artifact input contribution. When present across all attributed
 artifacts, its run-wide sum should align with the API `overview.input_tokens`
 subject to attribution caveats and coverage.
+
+Artifact rows may include `normalized_first_occurrence_estimated_input_tokens`, the
+normalized provider-coordinate contribution from the artifact's first observed
+content-hash appearance in the run.
 
 ## Invariants
 

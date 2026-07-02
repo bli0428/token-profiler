@@ -70,11 +70,11 @@ export function disableCodexProxyConfig(config: string, state: CodexProxyState):
   if (!state?.managed_line || !config.includes(state.managed_line)) {
     throw new Error("Codex proxy setting changed after enable; refusing to overwrite it.");
   }
-  if (!state.provider_block || !config.endsWith(state.provider_block)) {
+  if (!state.provider_block || !config.includes(state.provider_block)) {
     throw new Error("Codex profiler provider changed after enable; refusing to overwrite it.");
   }
 
-  const restored = config.slice(0, -state.provider_block.length);
+  const restored = config.replace(state.provider_block, "");
   if (state.previous_line) {
     return restored.replace(state.managed_line, state.previous_line);
   }

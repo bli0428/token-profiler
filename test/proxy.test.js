@@ -346,6 +346,17 @@ test("Codex config inserts a top-level value before the first table", () => {
   assert.equal(disableCodexProxyConfig(enabled.config, enabled.state), original);
 });
 
+test("Codex config disable tolerates later Codex tables after the managed provider", () => {
+  const original = 'model_provider = "openai"\n';
+  const enabled = enableCodexProxyConfig(original, "http://127.0.0.1:8787");
+  const codexAppended = '\n[tui.model_availability_nux]\n"gpt-5.5" = 3\n';
+
+  assert.equal(
+    disableCodexProxyConfig(`${enabled.config}${codexAppended}`, enabled.state),
+    `${original}${codexAppended}`
+  );
+});
+
 test("Codex config disable refuses to overwrite a later manual change", () => {
   const enabled = enableCodexProxyConfig("", "http://127.0.0.1:8787/v1");
   const changed = enabled.config.replace('model_provider = "token-profiler"', 'model_provider = "openai"');

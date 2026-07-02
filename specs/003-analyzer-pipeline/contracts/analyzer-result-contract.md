@@ -155,6 +155,7 @@ type ArtifactAggregateResult = {
   estimated_cached_input_tokens?: number;
   estimated_uncached_input_tokens?: number;
   normalized_estimated_input_tokens?: number;
+  normalized_first_occurrence_estimated_input_tokens?: number;
   attribution_state?: string;
   persistence_classification?: string;
   caveats: AnalysisCaveat[];

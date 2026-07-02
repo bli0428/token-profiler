@@ -101,6 +101,7 @@ export type ArtifactAggregate = {
   estimated_cached_input_tokens: number;
   estimated_uncached_input_tokens: number;
   normalized_estimated_input_tokens: number;
+  normalized_first_occurrence_estimated_input_tokens: number;
   metadata: JsonObject;
   first_seen_at: string;
   last_seen_at: string;

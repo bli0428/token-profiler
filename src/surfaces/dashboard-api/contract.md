@@ -153,12 +153,20 @@ Import HTTP-facing types from `src/surfaces/dashboard-api/types.ts`.
 - `DashboardApiPrivacyState`, `DashboardApiCaveat`, and related row/detail
   types
 
+Artifact rows expose `unique_exposure`, `total_exposure`, `repeated_exposure`,
+and `inclusion_count`. `unique_exposure` is the local token exposure from the
+first observed appearance of an artifact's content in the run.
+
 Artifact rows and request artifact inclusions expose
 `normalized_estimated_input_tokens` when request usage and artifact offsets
 allow normalized artifact-level attribution. This field is the normalized total
 input-token contribution for the artifact in provider token coordinates; it is
 estimated and caveated alongside `estimated_cached_input_tokens` and
 `estimated_uncached_input_tokens`.
+
+Artifact rows may expose `normalized_first_occurrence_estimated_input_tokens`, the
+normalized provider-coordinate contribution from the artifact's first observed
+content-hash appearance in the run.
 
 Import internal view-model types from
 `src/surfaces/dashboard-api/view-model-types.ts` only within this surface.

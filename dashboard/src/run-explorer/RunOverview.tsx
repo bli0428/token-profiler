@@ -56,7 +56,7 @@ export function RunOverview({ artifacts, overview, title, timestamp, onSelectCon
         <header className="run-overview-chart-header">
           <div>
             <h3>Top 5 First Occurrence Artifacts</h3>
-            <p>Largest local token counts the first time each artifact appeared in this session.</p>
+            <p>High first occurrence artifact means it likely is a big cost driver</p>
           </div>
         </header>
         {displayedUniqueRows.length > 0 ? (
@@ -66,7 +66,7 @@ export function RunOverview({ artifacts, overview, title, timestamp, onSelectCon
             onSelectContributor={onSelectContributor}
           />
         ) : (
-          <p className="run-overview-empty">No first occurrence artifact contribution is available for this session.</p>
+          <p className="run-overview-empty">No normalized first occurrence artifact contribution is available for this session.</p>
         )}
       </section>
     </section>
@@ -151,7 +151,7 @@ function buildUniqueRows(artifacts: DashboardArtifactRow[]): ContributorRow[] {
       artifact_id: artifact.artifact_id,
       display_name: artifact.display_name,
       inclusion_count: artifact.inclusion_count,
-      tokens: Number(artifact.unique_exposure) || 0
+      tokens: Number(artifact.normalized_first_occurrence_estimated_input_tokens) || 0
     }))
     .filter((row) => row.tokens > 0)
     .sort((a, b) => b.tokens - a.tokens || a.display_name.localeCompare(b.display_name) || a.artifact_id.localeCompare(b.artifact_id));

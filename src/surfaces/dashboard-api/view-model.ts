@@ -213,6 +213,7 @@ function dashboardArtifactRows(
     const summaryText = readable?.summary;
     const caveats = uniqueCaveats(readable?.caveats ?? []);
     const normalizedEstimatedInput = aggregate.normalized_estimated_input_tokens || undefined;
+    const normalizedFirstOccurrenceEstimatedInput = aggregate.normalized_first_occurrence_estimated_input_tokens || undefined;
     const estimatedCached = aggregate.estimated_cached_input_tokens || undefined;
     const estimatedUncached = aggregate.estimated_uncached_input_tokens || undefined;
 
@@ -228,6 +229,7 @@ function dashboardArtifactRows(
       repeated_exposure: aggregate.repeated_exposure,
       inclusion_count: aggregate.inclusions,
       ...(normalizedEstimatedInput !== undefined ? { normalized_estimated_input_tokens: normalizedEstimatedInput } : {}),
+      ...(normalizedFirstOccurrenceEstimatedInput !== undefined ? { normalized_first_occurrence_estimated_input_tokens: normalizedFirstOccurrenceEstimatedInput } : {}),
       ...(estimatedCached !== undefined ? { estimated_cached_input_tokens: estimatedCached } : {}),
       ...(estimatedUncached !== undefined ? { estimated_uncached_input_tokens: estimatedUncached } : {}),
       ...(readable?.attribution_state ? { attribution_state: readable.attribution_state } : {}),

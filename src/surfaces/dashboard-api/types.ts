@@ -195,6 +195,7 @@ export type DashboardApiArtifactRow = {
   repeated_exposure: number;
   inclusion_count: number;
   normalized_estimated_input_tokens?: number | undefined;
+  normalized_first_occurrence_estimated_input_tokens?: number | undefined;
   estimated_cached_input_tokens?: number | undefined;
   estimated_uncached_input_tokens?: number | undefined;
   attribution_state?: string | undefined;

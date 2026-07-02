@@ -299,6 +299,7 @@ function toApiArtifactRow(row: DashboardArtifactRowSource): DashboardApiArtifact
     repeated_exposure: row.repeated_exposure,
     inclusion_count: row.inclusion_count,
     ...(row.normalized_estimated_input_tokens !== undefined ? { normalized_estimated_input_tokens: row.normalized_estimated_input_tokens } : {}),
+    ...(row.normalized_first_occurrence_estimated_input_tokens !== undefined ? { normalized_first_occurrence_estimated_input_tokens: row.normalized_first_occurrence_estimated_input_tokens } : {}),
     ...(row.estimated_cached_input_tokens !== undefined ? { estimated_cached_input_tokens: row.estimated_cached_input_tokens } : {}),
     ...(row.estimated_uncached_input_tokens !== undefined ? { estimated_uncached_input_tokens: row.estimated_uncached_input_tokens } : {}),
     ...(row.attribution_state !== undefined ? { attribution_state: row.attribution_state } : {}),

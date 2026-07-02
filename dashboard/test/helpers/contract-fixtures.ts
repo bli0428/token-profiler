@@ -114,6 +114,10 @@ export function assertRunData(data: DashboardRun) {
   for (const artifact of data.artifacts) {
     expect(artifact.artifact_id).toBeTruthy();
     expect(artifact.search_text).toBeTruthy();
+    expect(typeof artifact.total_exposure).toBe("number");
+    expect(typeof artifact.unique_exposure).toBe("number");
+    expect(typeof artifact.repeated_exposure).toBe("number");
+    expect(artifact.unique_exposure).toBeLessThanOrEqual(artifact.total_exposure);
   }
 }
 

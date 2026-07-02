@@ -3597,6 +3597,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 19704,
+        "unique_exposure": 1642,
         "repeated_exposure": 18062,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 13786.961615341392,
@@ -3635,6 +3636,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 19536,
+        "unique_exposure": 1628,
         "repeated_exposure": 17908,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 13669.41139450412,
@@ -3673,6 +3675,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 17550,
+        "unique_exposure": 1350,
         "repeated_exposure": 16200,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 12685.199866449982,
@@ -3711,6 +3714,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 15483,
+        "unique_exposure": 1191,
         "repeated_exposure": 14292,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 11191.16521551254,
@@ -3749,6 +3753,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 15418,
+        "unique_exposure": 1186,
         "repeated_exposure": 14232,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 11144.182993784947,
@@ -3787,6 +3792,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 13788,
+        "unique_exposure": 1149,
         "repeated_exposure": 12639,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 9647.514553000765,
@@ -3825,6 +3831,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 17808,
+        "unique_exposure": 1484,
         "repeated_exposure": 16324,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 13443.323408749458,
@@ -3863,6 +3870,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 14105,
+        "unique_exposure": 1085,
         "repeated_exposure": 13020,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 10195.142114887583,
@@ -3901,6 +3909,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 13117,
+        "unique_exposure": 1009,
         "repeated_exposure": 12108,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 9481.012344628172,
@@ -3939,6 +3948,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 16108,
+        "unique_exposure": 2932,
         "repeated_exposure": 13176,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 12148.394521839087,
@@ -3986,6 +3996,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 13052,
+        "unique_exposure": 1004,
         "repeated_exposure": 12048,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 9434.03012290058,
@@ -4024,6 +4035,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6895,
+        "unique_exposure": 985,
         "repeated_exposure": 5910,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 3578.827244564316,
@@ -4062,6 +4074,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 9420,
+        "unique_exposure": 942,
         "repeated_exposure": 8478,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 6047.20560926387,
@@ -4100,6 +4113,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 9280,
+        "unique_exposure": 928,
         "repeated_exposure": 8352,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 5957.33206517715,
@@ -4138,6 +4152,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 9150,
+        "unique_exposure": 915,
         "repeated_exposure": 8235,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 5873.8780599537495,
@@ -4176,6 +4191,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 9090,
+        "unique_exposure": 909,
         "repeated_exposure": 8181,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 5835.36082677374,
@@ -4214,6 +4230,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 10364,
+        "unique_exposure": 2076,
         "repeated_exposure": 8288,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 7064.078106880068,
@@ -4261,6 +4278,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 5456,
+        "unique_exposure": 1364,
         "repeated_exposure": 4092,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 2457.217728004871,
@@ -4299,6 +4317,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6928,
+        "unique_exposure": 866,
         "repeated_exposure": 6062,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 3956.6001422180198,
@@ -4337,6 +4356,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 5803,
+        "unique_exposure": 829,
         "repeated_exposure": 4974,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 3012.0282088769673,
@@ -4375,6 +4395,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 14116,
+        "unique_exposure": 2356,
         "repeated_exposure": 11760,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 11050.218550329764,
@@ -4422,6 +4443,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 9024,
+        "unique_exposure": 752,
         "repeated_exposure": 8272,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 6314.126147829909,
@@ -4460,6 +4482,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 5410,
+        "unique_exposure": 1806,
         "repeated_exposure": 3604,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 2772.456067494466,
@@ -4507,6 +4530,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 8112,
+        "unique_exposure": 676,
         "repeated_exposure": 7436,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 5675.996377570515,
@@ -4545,6 +4569,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6590,
+        "unique_exposure": 659,
         "repeated_exposure": 5931,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 4230.476110939373,
@@ -4583,6 +4608,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6180,
+        "unique_exposure": 618,
         "repeated_exposure": 5562,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 3967.275017542539,
@@ -4621,6 +4647,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 4827,
+        "unique_exposure": 1382,
         "repeated_exposure": 3445,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 2677.723156015243,
@@ -4668,6 +4695,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 5680,
+        "unique_exposure": 568,
         "repeated_exposure": 5112,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 3646.29807437566,
@@ -4706,6 +4734,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6360,
+        "unique_exposure": 530,
         "repeated_exposure": 5830,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 4450.115503124809,
@@ -4744,6 +4773,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 7294,
+        "unique_exposure": 1624,
         "repeated_exposure": 5670,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 5199.826479303338,
@@ -4791,6 +4821,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 4696,
+        "unique_exposure": 587,
         "repeated_exposure": 4109,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 2831.026559552367,
@@ -4829,6 +4860,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 4250,
+        "unique_exposure": 425,
         "repeated_exposure": 3825,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 2728.3040169184096,
@@ -4867,6 +4899,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2716,
+        "unique_exposure": 679,
         "repeated_exposure": 2037,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 1248.6904511162938,
@@ -4914,6 +4947,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 5644,
+        "unique_exposure": 1414,
         "repeated_exposure": 4230,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 4064.1832085214337,
@@ -4961,6 +4995,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 3740,
+        "unique_exposure": 374,
         "repeated_exposure": 3366,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 2400.907534888196,
@@ -4999,6 +5034,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 4212,
+        "unique_exposure": 351,
         "repeated_exposure": 3861,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 2947.1519652770003,
@@ -5037,6 +5073,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2148,
+        "unique_exposure": 1074,
         "repeated_exposure": 1074,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 962.9484313439389,
@@ -5075,6 +5112,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2042,
+        "unique_exposure": 1021,
         "repeated_exposure": 1021,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 915.428629797163,
@@ -5113,6 +5151,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1936,
+        "unique_exposure": 968,
         "repeated_exposure": 968,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 867.9088282504017,
@@ -5160,6 +5199,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1936,
+        "unique_exposure": 968,
         "repeated_exposure": 968,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 867.9088282504017,
@@ -5198,6 +5238,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2904,
+        "unique_exposure": 968,
         "repeated_exposure": 1936,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 1743.8319360034511,
@@ -5236,6 +5277,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1930,
+        "unique_exposure": 965,
         "repeated_exposure": 965,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 865.2190281628427,
@@ -5274,6 +5316,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1918,
+        "unique_exposure": 959,
         "repeated_exposure": 959,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 859.8394279877466,
@@ -5312,6 +5355,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2826,
+        "unique_exposure": 942,
         "repeated_exposure": 1884,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 1696.9934749124586,
@@ -5350,6 +5394,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1840,
+        "unique_exposure": 920,
         "repeated_exposure": 920,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 824.8720268495526,
@@ -5388,6 +5433,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1604,
+        "unique_exposure": 802,
         "repeated_exposure": 802,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 719.0732234058087,
@@ -5426,6 +5472,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2178,
+        "unique_exposure": 726,
         "repeated_exposure": 1452,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 1307.873952002592,
@@ -5473,6 +5520,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 3341,
+        "unique_exposure": 257,
         "repeated_exposure": 3084,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 2535.368618947752,
@@ -5511,6 +5559,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2795,
+        "unique_exposure": 215,
         "repeated_exposure": 2580,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 2020.2355342864776,
@@ -5549,6 +5598,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1344,
+        "unique_exposure": 672,
         "repeated_exposure": 672,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 602.5152196118506,
@@ -5587,6 +5637,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2790,
+        "unique_exposure": 310,
         "repeated_exposure": 2480,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 1990.057047634611,
@@ -5625,6 +5676,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1272,
+        "unique_exposure": 212,
         "repeated_exposure": 1060,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 575.2192951993857,
@@ -5663,6 +5715,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2388,
+        "unique_exposure": 199,
         "repeated_exposure": 2189,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1670.8924247581854,
@@ -5701,6 +5754,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2388,
+        "unique_exposure": 199,
         "repeated_exposure": 2189,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1670.8924247581745,
@@ -5739,6 +5793,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1970,
+        "unique_exposure": 197,
         "repeated_exposure": 1773,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 1264.6491560774703,
@@ -5777,6 +5832,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2340,
+        "unique_exposure": 195,
         "repeated_exposure": 2145,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1637.3066473761137,
@@ -5815,6 +5871,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1407,
+        "unique_exposure": 201,
         "repeated_exposure": 1206,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 730.2987575202278,
@@ -5853,6 +5910,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2160,
+        "unique_exposure": 180,
         "repeated_exposure": 1980,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1511.3599821933312,
@@ -5891,6 +5949,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2148,
+        "unique_exposure": 179,
         "repeated_exposure": 1969,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1502.9635378478124,
@@ -5929,6 +5988,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2088,
+        "unique_exposure": 174,
         "repeated_exposure": 1914,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1460.9813161202292,
@@ -5967,6 +6027,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1730,
+        "unique_exposure": 173,
         "repeated_exposure": 1557,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 1110.580223357385,
@@ -6005,6 +6066,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1710,
+        "unique_exposure": 171,
         "repeated_exposure": 1539,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 1097.7411456307018,
@@ -6043,6 +6105,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2080,
+        "unique_exposure": 160,
         "repeated_exposure": 1920,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1503.4310952829583,
@@ -6081,6 +6144,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2041,
+        "unique_exposure": 157,
         "repeated_exposure": 1884,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1475.2417622464054,
@@ -6119,6 +6183,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1650,
+        "unique_exposure": 150,
         "repeated_exposure": 1500,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 1109.46665182777,
@@ -6157,6 +6222,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 944,
+        "unique_exposure": 472,
         "repeated_exposure": 472,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 423.1952137749904,
@@ -6195,6 +6261,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 636,
+        "unique_exposure": 212,
         "repeated_exposure": 424,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 190.0792061870743,
@@ -6233,6 +6300,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 820,
+        "unique_exposure": 205,
         "repeated_exposure": 615,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 369.3032509098339,
@@ -6271,6 +6339,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2470,
+        "unique_exposure": 190,
         "repeated_exposure": 2280,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1960.1418207937777,
@@ -6309,6 +6378,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1300,
+        "unique_exposure": 130,
         "repeated_exposure": 1170,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 834.5400522338678,
@@ -6347,6 +6417,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1664,
+        "unique_exposure": 128,
         "repeated_exposure": 1536,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1202.7448762263703,
@@ -6385,6 +6456,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1612,
+        "unique_exposure": 124,
         "repeated_exposure": 1488,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1165.1590988442913,
@@ -6423,6 +6495,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 591,
+        "unique_exposure": 197,
         "repeated_exposure": 394,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 176.63020574930852,
@@ -6461,6 +6534,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1240,
+        "unique_exposure": 124,
         "repeated_exposure": 1116,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 796.0228190538401,
@@ -6499,6 +6573,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1173,
+        "unique_exposure": 391,
         "repeated_exposure": 782,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 704.3783956377592,
@@ -6537,6 +6612,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1452,
+        "unique_exposure": 121,
         "repeated_exposure": 1331,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1015.9697658077421,
@@ -6575,6 +6651,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 968,
+        "unique_exposure": 121,
         "repeated_exposure": 847,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 552.8275025500989,
@@ -6613,6 +6690,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1160,
+        "unique_exposure": 116,
         "repeated_exposure": 1044,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 744.6665081471292,
@@ -6651,6 +6729,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1356,
+        "unique_exposure": 113,
         "repeated_exposure": 1243,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 948.7982110435878,
@@ -6689,6 +6768,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 819,
+        "unique_exposure": 117,
         "repeated_exposure": 702,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 425.0992767655043,
@@ -6727,6 +6807,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 880,
+        "unique_exposure": 110,
         "repeated_exposure": 770,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 502.57045686372294,
@@ -6765,6 +6846,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1050,
+        "unique_exposure": 105,
         "repeated_exposure": 945,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 674.0515806504409,
@@ -6803,6 +6885,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1287,
+        "unique_exposure": 99,
         "repeated_exposure": 1188,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 930.2479902063351,
@@ -6841,6 +6924,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 602,
+        "unique_exposure": 206,
         "repeated_exposure": 396,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 268.61655766386684,
@@ -6879,6 +6963,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1235,
+        "unique_exposure": 95,
         "repeated_exposure": 1140,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 892.6622128242598,
@@ -6917,6 +7002,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1209,
+        "unique_exposure": 93,
         "repeated_exposure": 1116,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 873.8693241332194,
@@ -6955,6 +7041,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1269,
+        "unique_exposure": 141,
         "repeated_exposure": 1128,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 905.1549797305852,
@@ -6993,6 +7080,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1001,
+        "unique_exposure": 91,
         "repeated_exposure": 910,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 673.0764354421808,
@@ -7031,6 +7119,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1080,
+        "unique_exposure": 90,
         "repeated_exposure": 990,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 755.679991096662,
@@ -7069,6 +7158,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 558,
+        "unique_exposure": 93,
         "repeated_exposure": 465,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 252.3367662902965,
@@ -7107,6 +7197,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1144,
+        "unique_exposure": 88,
         "repeated_exposure": 1056,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 826.8871024056261,
@@ -7145,6 +7236,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 840,
+        "unique_exposure": 84,
         "repeated_exposure": 756,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 539.241264520344,
@@ -7183,6 +7275,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 528,
+        "unique_exposure": 132,
         "repeated_exposure": 396,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 237.79526400046598,
@@ -7221,6 +7314,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 588,
+        "unique_exposure": 84,
         "repeated_exposure": 504,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 305.1994807547235,
@@ -7259,6 +7353,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 504,
+        "unique_exposure": 84,
         "repeated_exposure": 420,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 227.917079229941,
@@ -7297,6 +7392,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 581,
+        "unique_exposure": 83,
         "repeated_exposure": 498,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 301.5661536028856,
@@ -7335,6 +7431,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 836,
+        "unique_exposure": 76,
         "repeated_exposure": 760,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 562.129770259402,
@@ -7373,6 +7470,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 760,
+        "unique_exposure": 76,
         "repeated_exposure": 684,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 487.8849536136404,
@@ -7411,6 +7509,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 686,
+        "unique_exposure": 686,
         "repeated_exposure": 0,
         "inclusion_count": 1,
         "estimated_cached_input_tokens": 398.7458339413424,
@@ -7458,6 +7557,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 900,
+        "unique_exposure": 75,
         "repeated_exposure": 825,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 629.7333259138868,
@@ -7496,6 +7596,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 949,
+        "unique_exposure": 73,
         "repeated_exposure": 876,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 685.9404372228491,
@@ -7534,6 +7635,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 532,
+        "unique_exposure": 76,
         "repeated_exposure": 456,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 276.1328635399841,
@@ -7572,6 +7674,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 456,
+        "unique_exposure": 76,
         "repeated_exposure": 380,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 206.21069073185936,
@@ -7610,6 +7713,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 730,
+        "unique_exposure": 73,
         "repeated_exposure": 657,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 468.62633702363746,
@@ -7648,6 +7752,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 923,
+        "unique_exposure": 71,
         "repeated_exposure": 852,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 667.1475485318142,
@@ -7686,6 +7791,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 972,
+        "unique_exposure": 108,
         "repeated_exposure": 864,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 693.3101972404547,
@@ -7724,6 +7830,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 710,
+        "unique_exposure": 71,
         "repeated_exposure": 639,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 455.7872592969579,
@@ -7762,6 +7869,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 584,
+        "unique_exposure": 73,
         "repeated_exposure": 511,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 333.5240304641047,
@@ -7800,6 +7908,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 650,
+        "unique_exposure": 65,
         "repeated_exposure": 585,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 417.2700261169375,
@@ -7838,6 +7947,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 408,
+        "unique_exposure": 102,
         "repeated_exposure": 306,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 183.7508858185538,
@@ -7876,6 +7986,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 768,
+        "unique_exposure": 64,
         "repeated_exposure": 704,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 537.372438113187,
@@ -7914,6 +8025,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 704,
+        "unique_exposure": 64,
         "repeated_exposure": 640,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 473.37243811318694,
@@ -7952,6 +8064,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 768,
+        "unique_exposure": 64,
         "repeated_exposure": 704,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 537.372438113176,
@@ -7990,6 +8103,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 640,
+        "unique_exposure": 64,
         "repeated_exposure": 576,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 410.85048725360684,
@@ -8028,6 +8142,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 756,
+        "unique_exposure": 63,
         "repeated_exposure": 693,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 528.9759937676681,
@@ -8066,6 +8181,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 630,
+        "unique_exposure": 63,
         "repeated_exposure": 567,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 404.430948390258,
@@ -8104,6 +8220,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 630,
+        "unique_exposure": 63,
         "repeated_exposure": 567,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 404.43094839025434,
@@ -8142,6 +8259,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 620,
+        "unique_exposure": 62,
         "repeated_exposure": 558,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 398.01140952692003,
@@ -8180,6 +8298,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 846,
+        "unique_exposure": 94,
         "repeated_exposure": 752,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 603.4366531537235,
@@ -8218,6 +8337,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 390,
+        "unique_exposure": 195,
         "repeated_exposure": 195,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 174.83700569093344,
@@ -8256,6 +8376,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 671,
+        "unique_exposure": 61,
         "repeated_exposure": 610,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 451.1831050766268,
@@ -8294,6 +8415,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 590,
+        "unique_exposure": 59,
         "repeated_exposure": 531,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 378.75279293690255,
@@ -8332,6 +8454,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 590,
+        "unique_exposure": 59,
         "repeated_exposure": 531,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 378.7527929369244,
@@ -8370,6 +8493,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 801,
+        "unique_exposure": 89,
         "repeated_exposure": 712,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 571.3389588370264,
@@ -8408,6 +8532,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 580,
+        "unique_exposure": 58,
         "repeated_exposure": 522,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 372.33325407356824,
@@ -8446,6 +8571,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 684,
+        "unique_exposure": 57,
         "repeated_exposure": 627,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 478.59732769455513,
@@ -8484,6 +8610,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 688,
+        "unique_exposure": 86,
         "repeated_exposure": 602,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 470.7347111360141,
@@ -8522,6 +8649,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 406,
+        "unique_exposure": 58,
         "repeated_exposure": 348,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 210.7329748068296,
@@ -8560,6 +8688,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 352,
+        "unique_exposure": 88,
         "repeated_exposure": 264,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 158.53017600031308,
@@ -8598,6 +8727,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 715,
+        "unique_exposure": 55,
         "repeated_exposure": 660,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 516.8044390035157,
@@ -8636,6 +8766,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 660,
+        "unique_exposure": 55,
         "repeated_exposure": 605,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 461.80443900351383,
@@ -8674,6 +8805,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 702,
+        "unique_exposure": 54,
         "repeated_exposure": 648,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 507.40799465799864,
@@ -8712,6 +8844,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 612,
+        "unique_exposure": 51,
         "repeated_exposure": 561,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 428.21866162144215,
@@ -8750,6 +8883,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 324,
+        "unique_exposure": 162,
         "repeated_exposure": 162,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 145.24920472785743,
@@ -8788,6 +8922,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 550,
+        "unique_exposure": 0,
         "repeated_exposure": 550,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 369.82221727592696,
@@ -8826,6 +8961,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 500,
+        "unique_exposure": 0,
         "repeated_exposure": 500,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 320.9769431668683,
@@ -8864,6 +9000,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 637,
+        "unique_exposure": 49,
         "repeated_exposure": 588,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 460.42577293040904,
@@ -8902,6 +9039,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 490,
+        "unique_exposure": 49,
         "repeated_exposure": 441,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 314.55740430352307,
@@ -8940,6 +9078,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 624,
+        "unique_exposure": 48,
         "repeated_exposure": 576,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 451.0293285848893,
@@ -8978,6 +9117,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 576,
+        "unique_exposure": 48,
         "repeated_exposure": 528,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 403.0293285848893,
@@ -9016,6 +9156,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 350,
+        "unique_exposure": 0,
         "repeated_exposure": 350,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 181.66635759209748,
@@ -9054,6 +9195,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 300,
+        "unique_exposure": 0,
         "repeated_exposure": 300,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 135.66492811305216,
@@ -9092,6 +9234,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 300,
+        "unique_exposure": 75,
         "repeated_exposure": 225,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 135.1109454548132,
@@ -9130,6 +9273,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 564,
+        "unique_exposure": 47,
         "repeated_exposure": 517,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 394.63288423936683,
@@ -9168,6 +9312,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 564,
+        "unique_exposure": 47,
         "repeated_exposure": 517,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 394.63288423936683,
@@ -9206,6 +9351,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 294,
+        "unique_exposure": 147,
         "repeated_exposure": 147,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 131.80020429009164,
@@ -9244,6 +9390,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 552,
+        "unique_exposure": 46,
         "repeated_exposure": 506,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 386.236439893848,
@@ -9282,6 +9429,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 598,
+        "unique_exposure": 46,
         "repeated_exposure": 552,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 432.23643989385164,
@@ -9320,6 +9468,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 552,
+        "unique_exposure": 46,
         "repeated_exposure": 506,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 386.2364398938553,
@@ -9358,6 +9507,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 288,
+        "unique_exposure": 48,
         "repeated_exposure": 240,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 130.23833098854084,
@@ -9396,6 +9546,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 460,
+        "unique_exposure": 46,
         "repeated_exposure": 414,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 295.29878771352014,
@@ -9434,6 +9585,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 329,
+        "unique_exposure": 47,
         "repeated_exposure": 282,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 170.76637613657658,
@@ -9481,6 +9633,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 585,
+        "unique_exposure": 45,
         "repeated_exposure": 540,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 422.8399955483328,
@@ -9519,6 +9672,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 540,
+        "unique_exposure": 45,
         "repeated_exposure": 495,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 377.83999554832917,
@@ -9557,6 +9711,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 540,
+        "unique_exposure": 45,
         "repeated_exposure": 495,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 377.8399955483328,
@@ -9595,6 +9750,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 585,
+        "unique_exposure": 45,
         "repeated_exposure": 540,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 422.8399955483337,
@@ -9633,6 +9789,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 540,
+        "unique_exposure": 45,
         "repeated_exposure": 495,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 377.8399955483401,
@@ -9671,6 +9828,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 450,
+        "unique_exposure": 45,
         "repeated_exposure": 405,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 288.87924885018583,
@@ -9709,6 +9867,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 450,
+        "unique_exposure": 45,
         "repeated_exposure": 405,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 288.8792488501822,
@@ -9747,6 +9906,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 450,
+        "unique_exposure": 45,
         "repeated_exposure": 405,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 288.87924885018947,
@@ -9785,6 +9945,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 280,
+        "unique_exposure": 70,
         "repeated_exposure": 210,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 126.10354909115267,
@@ -9823,6 +9984,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 528,
+        "unique_exposure": 44,
         "repeated_exposure": 484,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 369.44355120281034,
@@ -9861,6 +10023,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 528,
+        "unique_exposure": 44,
         "repeated_exposure": 484,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 369.443551202814,
@@ -9899,6 +10062,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 528,
+        "unique_exposure": 44,
         "repeated_exposure": 484,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 369.443551202814,
@@ -9937,6 +10101,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 484,
+        "unique_exposure": 44,
         "repeated_exposure": 440,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 325.4435512028176,
@@ -9975,6 +10140,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 528,
+        "unique_exposure": 44,
         "repeated_exposure": 484,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 369.4435512028176,
@@ -10013,6 +10179,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 276,
+        "unique_exposure": 46,
         "repeated_exposure": 230,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 124.81173386400769,
@@ -10051,6 +10218,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 276,
+        "unique_exposure": 46,
         "repeated_exposure": 230,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 124.81173386402224,
@@ -10089,6 +10257,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 516,
+        "unique_exposure": 43,
         "repeated_exposure": 473,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 361.0471068572915,
@@ -10127,6 +10296,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 516,
+        "unique_exposure": 43,
         "repeated_exposure": 473,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 361.04710685729515,
@@ -10165,6 +10335,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 516,
+        "unique_exposure": 43,
         "repeated_exposure": 473,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 361.0471068572988,
@@ -10203,6 +10374,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 213,
+        "unique_exposure": 71,
         "repeated_exposure": 142,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 68.79849252289569,
@@ -10241,6 +10413,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 430,
+        "unique_exposure": 43,
         "repeated_exposure": 387,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 276.0401711235063,
@@ -10279,6 +10452,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 430,
+        "unique_exposure": 43,
         "repeated_exposure": 387,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 276.0401711235136,
@@ -10317,6 +10491,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 430,
+        "unique_exposure": 43,
         "repeated_exposure": 387,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 276.0401711235136,
@@ -10355,6 +10530,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 546,
+        "unique_exposure": 42,
         "repeated_exposure": 504,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 394.6506625117763,
@@ -10393,6 +10569,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 256,
+        "unique_exposure": 128,
         "repeated_exposure": 128,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 114.76480373559025,
@@ -10431,6 +10608,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 129,
+        "unique_exposure": 129,
         "repeated_exposure": 0,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 115.66140376477415,
@@ -10468,6 +10646,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 400,
+        "unique_exposure": 40,
         "repeated_exposure": 360,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 256.7815545334888,
@@ -10506,6 +10685,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 240,
+        "unique_exposure": 40,
         "repeated_exposure": 200,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 108.53194249044464,
@@ -10544,6 +10724,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 494,
+        "unique_exposure": 38,
         "repeated_exposure": 456,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 357.06488512970463,
@@ -10582,6 +10763,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 494,
+        "unique_exposure": 38,
         "repeated_exposure": 456,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 357.06488512970645,
@@ -10620,6 +10802,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 236,
+        "unique_exposure": 59,
         "repeated_exposure": 177,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 106.2872770911199,
@@ -10658,6 +10841,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 684,
+        "unique_exposure": 57,
         "repeated_exposure": 627,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 535.5973276945551,
@@ -10705,6 +10889,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 444,
+        "unique_exposure": 37,
         "repeated_exposure": 407,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 310.66844078418944,
@@ -10743,6 +10928,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 407,
+        "unique_exposure": 37,
         "repeated_exposure": 370,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 273.66844078418944,
@@ -10781,6 +10967,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 232,
+        "unique_exposure": 58,
         "repeated_exposure": 174,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 104.48579781838635,
@@ -10819,6 +11006,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 266,
+        "unique_exposure": 38,
         "repeated_exposure": 228,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 138.06643176999933,
@@ -10857,6 +11045,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 432,
+        "unique_exposure": 36,
         "repeated_exposure": 396,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 302.271996438667,
@@ -10895,6 +11084,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 360,
+        "unique_exposure": 36,
         "repeated_exposure": 324,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 231.1033990801443,
@@ -10933,6 +11123,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 114,
+        "unique_exposure": 114,
         "repeated_exposure": 0,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 102.21240332700836,
@@ -10970,6 +11161,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 486,
+        "unique_exposure": 54,
         "repeated_exposure": 432,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 346.6550986202128,
@@ -11008,6 +11200,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 210,
+        "unique_exposure": 35,
         "repeated_exposure": 175,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 94.96544967914815,
@@ -11046,6 +11239,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 612,
+        "unique_exposure": 51,
         "repeated_exposure": 561,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 479.2186616214385,
@@ -11093,6 +11287,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 600,
+        "unique_exposure": 50,
         "repeated_exposure": 550,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 469.8222172759288,
@@ -11131,6 +11326,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 450,
+        "unique_exposure": 0,
         "repeated_exposure": 450,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 320.97694316687557,
@@ -11169,6 +11365,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 400,
+        "unique_exposure": 0,
         "repeated_exposure": 400,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 273.6829715907006,
@@ -11207,6 +11404,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 200,
+        "unique_exposure": 0,
         "repeated_exposure": 200,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 90.07396363654698,
@@ -11245,6 +11443,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 198,
+        "unique_exposure": 33,
         "repeated_exposure": 165,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 89.53885255462228,
@@ -11283,6 +11482,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 198,
+        "unique_exposure": 33,
         "repeated_exposure": 165,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 89.53885255462956,
@@ -11321,6 +11521,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 194,
+        "unique_exposure": 97,
         "repeated_exposure": 97,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 86.97020283087477,
@@ -11359,6 +11560,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 390,
+        "unique_exposure": 30,
         "repeated_exposure": 360,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 281.893330365554,
@@ -11397,6 +11599,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 360,
+        "unique_exposure": 0,
         "repeated_exposure": 360,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 251.89333036555036,
@@ -11435,6 +11638,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 330,
+        "unique_exposure": 0,
         "repeated_exposure": 330,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 221.89333036555036,
@@ -11473,6 +11677,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 300,
+        "unique_exposure": 0,
         "repeated_exposure": 300,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 192.58616590013116,
@@ -11511,6 +11716,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 240,
+        "unique_exposure": 0,
         "repeated_exposure": 240,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 137.0646700537327,
@@ -11549,6 +11755,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 210,
+        "unique_exposure": 0,
         "repeated_exposure": 210,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 108.99981455525995,
@@ -11587,6 +11794,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 180,
+        "unique_exposure": 0,
         "repeated_exposure": 180,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 81.39895686783711,
@@ -11625,6 +11833,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 689,
+        "unique_exposure": 53,
         "repeated_exposure": 636,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 569.3648487636729,
@@ -11663,6 +11872,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 196,
+        "unique_exposure": 28,
         "repeated_exposure": 168,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 101.73316025157692,
@@ -11701,6 +11911,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 152,
+        "unique_exposure": 76,
         "repeated_exposure": 76,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 68.14160221800557,
@@ -11739,6 +11950,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 144,
+        "unique_exposure": 72,
         "repeated_exposure": 72,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 64.55520210126997,
@@ -11777,6 +11989,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 142,
+        "unique_exposure": 71,
         "repeated_exposure": 71,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 63.65860207208607,
@@ -11815,6 +12028,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 270,
+        "unique_exposure": 0,
         "repeated_exposure": 270,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 192.5861659001239,
@@ -11853,6 +12067,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 122,
+        "unique_exposure": 61,
         "repeated_exposure": 61,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 54.692601780239784,
@@ -11891,6 +12106,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 120,
+        "unique_exposure": 0,
         "repeated_exposure": 120,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 54.044378181919456,
@@ -11929,6 +12145,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 90,
+        "unique_exposure": 0,
         "repeated_exposure": 90,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 26.89800087553158,
@@ -11967,6 +12184,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 116,
+        "unique_exposure": 58,
         "repeated_exposure": 58,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 52.00280169269536,
@@ -12005,6 +12223,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 12194,
+        "unique_exposure": 938,
         "repeated_exposure": 11256,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 11462.382118595728,
@@ -12043,6 +12262,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 110,
+        "unique_exposure": 55,
         "repeated_exposure": 55,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 49.31300160513638,
@@ -12081,6 +12301,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 204,
+        "unique_exposure": 0,
         "repeated_exposure": 204,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 142.73955387381284,
@@ -12119,6 +12340,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 187,
+        "unique_exposure": 0,
         "repeated_exposure": 187,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 125.73955387381648,
@@ -12157,6 +12379,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 221,
+        "unique_exposure": 17,
         "repeated_exposure": 204,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 159.73955387381466,
@@ -12195,6 +12418,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 170,
+        "unique_exposure": 0,
         "repeated_exposure": 170,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 109.13216067673056,
@@ -12233,6 +12457,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 136,
+        "unique_exposure": 0,
         "repeated_exposure": 136,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 77.66997969712247,
@@ -12271,6 +12496,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 611,
+        "unique_exposure": 47,
         "repeated_exposure": 564,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 529.9466519978669,
@@ -12309,6 +12535,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 119,
+        "unique_exposure": 0,
         "repeated_exposure": 119,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 61.76656158130936,
@@ -12347,6 +12574,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 102,
+        "unique_exposure": 0,
         "repeated_exposure": 102,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 46.12607555843715,
@@ -12385,6 +12613,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 52,
+        "unique_exposure": 52,
         "repeated_exposure": 0,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 46.623201517584675,
@@ -12422,6 +12651,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 100,
+        "unique_exposure": 0,
         "repeated_exposure": 100,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 44.830001459216874,
@@ -12460,6 +12690,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 150,
+        "unique_exposure": 0,
         "repeated_exposure": 150,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 90.07396363654698,
@@ -12498,6 +12729,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 585,
+        "unique_exposure": 45,
         "repeated_exposure": 540,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 507.3957306362563,
@@ -12536,6 +12768,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 585,
+        "unique_exposure": 45,
         "repeated_exposure": 540,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 507.3957306362563,
@@ -12574,6 +12807,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 585,
+        "unique_exposure": 45,
         "repeated_exposure": 540,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 507.3957306362563,
@@ -12612,6 +12846,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 50,
+        "unique_exposure": 0,
         "repeated_exposure": 50,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 44.830001459216874,
@@ -12649,6 +12884,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 572,
+        "unique_exposure": 44,
         "repeated_exposure": 528,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 496.12026995544693,
@@ -12687,6 +12923,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 92,
+        "unique_exposure": 46,
         "repeated_exposure": 46,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 41.24360134248127,
@@ -12725,6 +12962,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 92,
+        "unique_exposure": 46,
         "repeated_exposure": 46,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 41.24360134248127,
@@ -12763,6 +13001,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 80,
+        "unique_exposure": 40,
         "repeated_exposure": 40,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 35.86400116737059,
@@ -12801,6 +13040,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 37,
+        "unique_exposure": 37,
         "repeated_exposure": 0,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 33.174201079818886,
@@ -12838,6 +13078,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 153,
+        "unique_exposure": 0,
         "repeated_exposure": 153,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 109.13216067673784,
@@ -12876,6 +13117,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 121,
+        "unique_exposure": 0,
         "repeated_exposure": 121,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 81.36088780070713,
@@ -12914,6 +13156,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 132,
+        "unique_exposure": 11,
         "repeated_exposure": 121,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 92.3608878007035,
@@ -12952,6 +13195,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 110,
+        "unique_exposure": 0,
         "repeated_exposure": 110,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 70.61492749671015,
@@ -12990,6 +13234,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 68,
+        "unique_exposure": 0,
         "repeated_exposure": 68,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 30.625147636426846,
@@ -13028,6 +13273,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 68,
+        "unique_exposure": 34,
         "repeated_exposure": 34,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 30.484400992267183,
@@ -13066,6 +13312,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 51,
+        "unique_exposure": 0,
         "repeated_exposure": 51,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 15.242200496133592,
@@ -13104,6 +13351,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 88,
+        "unique_exposure": 0,
         "repeated_exposure": 88,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 50.25704568637593,
@@ -13142,6 +13390,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 77,
+        "unique_exposure": 0,
         "repeated_exposure": 77,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 39.96659867026028,
@@ -13180,6 +13429,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 66,
+        "unique_exposure": 0,
         "repeated_exposure": 66,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 29.846284184866818,
@@ -13218,6 +13468,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 64,
+        "unique_exposure": 32,
         "repeated_exposure": 32,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 28.691200933892105,
@@ -13256,6 +13507,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 130,
+        "unique_exposure": 10,
         "repeated_exposure": 120,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 93.96444345518648,
@@ -13294,6 +13546,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 60,
+        "unique_exposure": 0,
         "repeated_exposure": 60,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 26.898000875524303,
@@ -13332,6 +13585,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 30,
+        "unique_exposure": 0,
         "repeated_exposure": 30,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 26.898000875524303,
@@ -13369,6 +13623,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 54,
+        "unique_exposure": 27,
         "repeated_exposure": 27,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 24.208200787979877,
@@ -13407,6 +13662,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 52,
+        "unique_exposure": 26,
         "repeated_exposure": 26,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 23.311600758795976,
@@ -13445,6 +13701,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 48,
+        "unique_exposure": 24,
         "repeated_exposure": 24,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 21.518400700420898,
@@ -13483,6 +13740,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 99,
+        "unique_exposure": 0,
         "repeated_exposure": 99,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 70.61492749671743,
@@ -13521,6 +13779,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 84,
+        "unique_exposure": 0,
         "repeated_exposure": 84,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 58.77511041863181,
@@ -13559,6 +13818,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 77,
+        "unique_exposure": 0,
         "repeated_exposure": 77,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 51.77511041863181,
@@ -13597,6 +13857,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 77,
+        "unique_exposure": 0,
         "repeated_exposure": 77,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 51.77511041863181,
@@ -13635,6 +13896,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 91,
+        "unique_exposure": 7,
         "repeated_exposure": 84,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 65.77511041862999,
@@ -13673,6 +13935,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 84,
+        "unique_exposure": 7,
         "repeated_exposure": 77,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 58.77511041863181,
@@ -13711,6 +13974,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 70,
+        "unique_exposure": 0,
         "repeated_exposure": 70,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 44.936772043362,
@@ -13749,6 +14013,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 70,
+        "unique_exposure": 0,
         "repeated_exposure": 70,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 44.936772043351084,
@@ -13787,6 +14052,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 44,
+        "unique_exposure": 0,
         "repeated_exposure": 44,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 19.816272000040044,
@@ -13825,6 +14091,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 33,
+        "unique_exposure": 0,
         "repeated_exposure": 33,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 9.862600321030186,
@@ -13863,6 +14130,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 56,
+        "unique_exposure": 0,
         "repeated_exposure": 56,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 31.98175634587824,
@@ -13901,6 +14169,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 49,
+        "unique_exposure": 0,
         "repeated_exposure": 49,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 25.43329006289423,
@@ -13939,6 +14208,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 49,
+        "unique_exposure": 0,
         "repeated_exposure": 49,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 25.43329006289423,
@@ -13977,6 +14247,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 42,
+        "unique_exposure": 0,
         "repeated_exposure": 42,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 18.993089935836906,
@@ -14015,6 +14286,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 42,
+        "unique_exposure": 0,
         "repeated_exposure": 42,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 18.99308993582963,
@@ -14053,6 +14325,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 78,
+        "unique_exposure": 6,
         "repeated_exposure": 72,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 56.37866607310934,
@@ -14091,6 +14364,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 78,
+        "unique_exposure": 6,
         "repeated_exposure": 72,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 56.3786660731148,
@@ -14129,6 +14403,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 72,
+        "unique_exposure": 0,
         "repeated_exposure": 72,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 50.37866607311298,
@@ -14167,6 +14442,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 66,
+        "unique_exposure": 0,
         "repeated_exposure": 66,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 44.37866607311298,
@@ -14205,6 +14481,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 66,
+        "unique_exposure": 6,
         "repeated_exposure": 60,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 44.37866607310934,
@@ -14252,6 +14529,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 72,
+        "unique_exposure": 0,
         "repeated_exposure": 72,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 50.37866607312026,
@@ -14290,6 +14568,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 66,
+        "unique_exposure": 0,
         "repeated_exposure": 66,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 44.37866607311298,
@@ -14328,6 +14607,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 60,
+        "unique_exposure": 0,
         "repeated_exposure": 60,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 38.51723318002769,
@@ -14366,6 +14646,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 60,
+        "unique_exposure": 0,
         "repeated_exposure": 60,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 38.517233180031326,
@@ -14413,6 +14694,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 60,
+        "unique_exposure": 0,
         "repeated_exposure": 60,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 38.51723318002041,
@@ -14451,6 +14733,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 48,
+        "unique_exposure": 0,
         "repeated_exposure": 48,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 27.41293401074654,
@@ -14489,6 +14772,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 48,
+        "unique_exposure": 0,
         "repeated_exposure": 48,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 27.41293401074654,
@@ -14527,6 +14811,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 42,
+        "unique_exposure": 0,
         "repeated_exposure": 42,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 21.799962911056355,
@@ -14565,6 +14850,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 42,
+        "unique_exposure": 0,
         "repeated_exposure": 42,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 21.799962911056355,
@@ -14603,6 +14889,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 36,
+        "unique_exposure": 0,
         "repeated_exposure": 36,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 16.27979137357761,
@@ -14650,6 +14937,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 36,
+        "unique_exposure": 0,
         "repeated_exposure": 36,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 16.27979137357761,
@@ -14688,6 +14976,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 36,
+        "unique_exposure": 0,
         "repeated_exposure": 36,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 16.279791373563057,
@@ -14726,6 +15015,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 34,
+        "unique_exposure": 0,
         "repeated_exposure": 34,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 15.242200496133592,
@@ -14764,6 +15054,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 17,
+        "unique_exposure": 0,
         "repeated_exposure": 17,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 15.242200496133592,
@@ -14801,6 +15092,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 65,
+        "unique_exposure": 5,
         "repeated_exposure": 60,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 46.98222172759233,
@@ -14839,6 +15131,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 60,
+        "unique_exposure": 0,
         "repeated_exposure": 60,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 41.98222172759051,
@@ -14877,6 +15170,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 55,
+        "unique_exposure": 0,
         "repeated_exposure": 55,
         "inclusion_count": 11,
         "estimated_cached_input_tokens": 36.98222172759051,
@@ -14915,6 +15209,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 65,
+        "unique_exposure": 5,
         "repeated_exposure": 60,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 46.98222172759233,
@@ -14953,6 +15248,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 50,
+        "unique_exposure": 0,
         "repeated_exposure": 50,
         "inclusion_count": 10,
         "estimated_cached_input_tokens": 32.09769431670429,
@@ -14991,6 +15287,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 40,
+        "unique_exposure": 0,
         "repeated_exposure": 40,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 22.844111675622116,
@@ -15029,6 +15326,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 35,
+        "unique_exposure": 0,
         "repeated_exposure": 35,
         "inclusion_count": 7,
         "estimated_cached_input_tokens": 18.166635759203928,
@@ -15067,6 +15365,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 30,
+        "unique_exposure": 0,
         "repeated_exposure": 30,
         "inclusion_count": 6,
         "estimated_cached_input_tokens": 13.56649281130376,
@@ -15105,6 +15404,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 63,
+        "unique_exposure": 0,
         "repeated_exposure": 63,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 44.936772043351084,
@@ -15143,6 +15443,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 84,
+        "unique_exposure": 7,
         "repeated_exposure": 77,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 65.77511041863181,
@@ -15181,6 +15482,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 63,
+        "unique_exposure": 0,
         "repeated_exposure": 63,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 44.93677204335836,
@@ -15219,6 +15521,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 56,
+        "unique_exposure": 0,
         "repeated_exposure": 56,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 38.315616022693575,
@@ -15257,6 +15560,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 28,
+        "unique_exposure": 0,
         "repeated_exposure": 28,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 12.610354909113084,
@@ -15295,6 +15599,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 28,
+        "unique_exposure": 0,
         "repeated_exposure": 28,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 12.61035490912036,
@@ -15333,6 +15638,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 21,
+        "unique_exposure": 0,
         "repeated_exposure": 21,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 6.276200204287306,
@@ -15371,6 +15677,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 54,
+        "unique_exposure": 0,
         "repeated_exposure": 54,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 38.51723318002041,
@@ -15418,6 +15725,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 54,
+        "unique_exposure": 0,
         "repeated_exposure": 54,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 38.51723318002769,
@@ -15456,6 +15764,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 54,
+        "unique_exposure": 0,
         "repeated_exposure": 54,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 38.51723318000586,
@@ -15494,6 +15803,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 48,
+        "unique_exposure": 0,
         "repeated_exposure": 48,
         "inclusion_count": 8,
         "estimated_cached_input_tokens": 32.84195659087709,
@@ -15541,6 +15851,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 24,
+        "unique_exposure": 0,
         "repeated_exposure": 24,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 10.808875636379526,
@@ -15588,6 +15899,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 24,
+        "unique_exposure": 0,
         "repeated_exposure": 24,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 10.808875636386801,
@@ -15626,6 +15938,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 24,
+        "unique_exposure": 0,
         "repeated_exposure": 24,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 10.808875636379526,
@@ -15664,6 +15977,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 18,
+        "unique_exposure": 0,
         "repeated_exposure": 18,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 5.3796001751034055,
@@ -15702,6 +16016,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 18,
+        "unique_exposure": 0,
         "repeated_exposure": 18,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 5.3796001751034055,
@@ -15740,6 +16055,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 22,
+        "unique_exposure": 0,
         "repeated_exposure": 22,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 9.86260032102291,
@@ -15778,6 +16094,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 11,
+        "unique_exposure": 0,
         "repeated_exposure": 11,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 9.862600321030186,
@@ -15815,6 +16132,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 45,
+        "unique_exposure": 0,
         "repeated_exposure": 45,
         "inclusion_count": 9,
         "estimated_cached_input_tokens": 32.097694316682464,
@@ -15853,6 +16171,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 20,
+        "unique_exposure": 0,
         "repeated_exposure": 20,
         "inclusion_count": 4,
         "estimated_cached_input_tokens": 9.007396363645967,
@@ -15891,6 +16210,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 15,
+        "unique_exposure": 0,
         "repeated_exposure": 15,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 4.483000145919505,
@@ -15929,6 +16249,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 14,
+        "unique_exposure": 0,
         "repeated_exposure": 14,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 6.276200204287306,
@@ -15967,6 +16288,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 14,
+        "unique_exposure": 0,
         "repeated_exposure": 14,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 6.276200204294582,
@@ -16005,6 +16327,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 14,
+        "unique_exposure": 0,
         "repeated_exposure": 14,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 6.276200204294582,
@@ -16043,6 +16366,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 21,
+        "unique_exposure": 0,
         "repeated_exposure": 21,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 12.610354909113084,
@@ -16081,6 +16405,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 7,
+        "unique_exposure": 0,
         "repeated_exposure": 7,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 6.276200204294582,
@@ -16118,6 +16443,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 7,
+        "unique_exposure": 0,
         "repeated_exposure": 7,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 6.276200204287306,
@@ -16155,6 +16481,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 12,
+        "unique_exposure": 0,
         "repeated_exposure": 12,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 5.3796001751106814,
@@ -16193,6 +16520,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 12,
+        "unique_exposure": 0,
         "repeated_exposure": 12,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 5.3796001751034055,
@@ -16240,6 +16568,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 12,
+        "unique_exposure": 0,
         "repeated_exposure": 12,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 5.3796001751034055,
@@ -16278,6 +16607,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 18,
+        "unique_exposure": 0,
         "repeated_exposure": 18,
         "inclusion_count": 3,
         "estimated_cached_input_tokens": 10.808875636386801,
@@ -16325,6 +16655,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6,
+        "unique_exposure": 0,
         "repeated_exposure": 6,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 5.3796001751106814,
@@ -16362,6 +16693,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6,
+        "unique_exposure": 0,
         "repeated_exposure": 6,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 5.3796001751034055,
@@ -16408,6 +16740,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 6,
+        "unique_exposure": 0,
         "repeated_exposure": 6,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 5.3796001751034055,
@@ -16445,6 +16778,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 10,
+        "unique_exposure": 0,
         "repeated_exposure": 10,
         "inclusion_count": 2,
         "estimated_cached_input_tokens": 4.483000145919505,
@@ -16483,6 +16817,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 5,
+        "unique_exposure": 0,
         "repeated_exposure": 5,
         "inclusion_count": 1,
         "estimated_uncached_input_tokens": 4.483000145919505,
@@ -16520,6 +16855,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 33462,
+        "unique_exposure": 2574,
         "repeated_exposure": 30888,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 31597.035792393814,
@@ -16566,6 +16902,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 10283,
+        "unique_exposure": 791,
         "repeated_exposure": 9492,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 9709.88939851729,
@@ -16603,6 +16940,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 5486,
+        "unique_exposure": 422,
         "repeated_exposure": 5064,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 5180.244407299997,
@@ -16649,6 +16987,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 4680,
+        "unique_exposure": 390,
         "repeated_exposure": 4290,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 4428.593959689733,
@@ -16695,6 +17034,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 4446,
+        "unique_exposure": 342,
         "repeated_exposure": 4104,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 4198.207552835542,
@@ -16741,6 +17081,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 3692,
+        "unique_exposure": 284,
         "repeated_exposure": 3408,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 3486.230833348812,
@@ -16778,6 +17119,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 3250,
+        "unique_exposure": 250,
         "repeated_exposure": 3000,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 3068.865170201419,
@@ -16824,6 +17166,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2171,
+        "unique_exposure": 167,
         "repeated_exposure": 2004,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 2050.0019336945493,
@@ -16870,6 +17213,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 2067,
+        "unique_exposure": 159,
         "repeated_exposure": 1908,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1951.7982482481016,
@@ -16916,6 +17260,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1788,
+        "unique_exposure": 149,
         "repeated_exposure": 1639,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 1691.9499999840245,
@@ -16962,6 +17307,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1534,
+        "unique_exposure": 118,
         "repeated_exposure": 1416,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1448.50436033507,
@@ -16999,6 +17345,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 1404,
+        "unique_exposure": 108,
         "repeated_exposure": 1296,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 1325.7497535270136,
@@ -17045,6 +17392,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 832,
+        "unique_exposure": 64,
         "repeated_exposure": 768,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 785.6294835715635,
@@ -17091,6 +17439,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 793,
+        "unique_exposure": 61,
         "repeated_exposure": 732,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 748.8031015291463,
@@ -17128,6 +17477,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 696,
+        "unique_exposure": 58,
         "repeated_exposure": 638,
         "inclusion_count": 12,
         "estimated_cached_input_tokens": 658.6114093897554,
@@ -17174,6 +17524,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 611,
+        "unique_exposure": 47,
         "repeated_exposure": 564,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 576.9466519978669,
@@ -17211,6 +17562,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 559,
+        "unique_exposure": 43,
         "repeated_exposure": 516,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 527.8448092746448,
@@ -17248,6 +17600,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 533,
+        "unique_exposure": 41,
         "repeated_exposure": 492,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 503.29388791303154,
@@ -17285,6 +17638,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 481,
+        "unique_exposure": 37,
         "repeated_exposure": 444,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 454.19204518981223,
@@ -17322,6 +17676,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 273,
+        "unique_exposure": 21,
         "repeated_exposure": 252,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 257.78467429692046,
@@ -17368,6 +17723,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 156,
+        "unique_exposure": 12,
         "repeated_exposure": 144,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 147.305528169667,
@@ -17405,6 +17761,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 143,
+        "unique_exposure": 11,
         "repeated_exposure": 132,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 135.03006748886173,
@@ -17451,6 +17808,7 @@
           "task:256c19fe9f:df5f2c933c"
         ],
         "total_exposure": 65,
+        "unique_exposure": 5,
         "repeated_exposure": 60,
         "inclusion_count": 13,
         "estimated_cached_input_tokens": 61.37730340402777,

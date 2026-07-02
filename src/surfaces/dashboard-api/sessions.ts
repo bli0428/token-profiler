@@ -158,6 +158,9 @@ function codexInternalSessionLabel(events: unknown[]): string | undefined {
   return events.some(isCodexTitleGenerationArtifact) ? "[Codex Internal][generate_title]" : undefined;
 }
 
+const CODEX_TITLE_GENERATION_PROMPT_PREFIX =
+  "You are a helpful assistant. You will be presented with a user prompt, and your job is to provide a short title for a task that will be created from that prompt.";
+
 function isCodexTitleGenerationArtifact(event: unknown): event is ArtifactEvent {
   if (!event || typeof event !== "object") return false;
   const artifact = event as Partial<ArtifactEvent>;
@@ -169,10 +172,7 @@ function isCodexTitleGenerationArtifact(event: unknown): event is ArtifactEvent 
   if (metadata.role && metadata.role !== "user") return false;
 
   const preview = previewText(artifact);
-  return preview.startsWith("You are a helpful assistant. You will be presented with a user prompt")
-    && preview.includes("provide a short title for a task")
-    && preview.includes("Generate a concise UI title")
-    && preview.includes("User prompt:");
+  return preview.startsWith(CODEX_TITLE_GENERATION_PROMPT_PREFIX);
 }
 
 function previewText(artifact: Partial<ArtifactEvent>): string {

@@ -219,15 +219,20 @@ describe("turn drilldown dashboard", () => {
     const onChangeViewState = vi.fn();
     renderExplorer({ run: contributorRun(), onChangeViewState });
 
-    expect(screen.getByLabelText("Top artifact contributors by normalized token contribution")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Top 5 Artifact Contributors" })).toBeInTheDocument();
-    expect(screen.getByText("apply_patch: feature.ts")).toBeInTheDocument();
-    expect(screen.getByText("exec_command output")).toBeInTheDocument();
-    expect(screen.queryByText("hidden small contributor")).not.toBeInTheDocument();
+    const chart = screen.getByLabelText("Top artifact contributors by normalized token contribution");
+    expect(chart).toBeInTheDocument();
+    expect(within(chart).getByRole("heading", { name: "Top 5 Artifact Contributors" })).toBeInTheDocument();
+    expect(within(chart).getByText("High artifact contribution might indicate context pollution.")).toBeInTheDocument();
+    expect(within(chart).getByText(
+      "*Repeat artifacts are often cached, so a high artifact contribution does not necessarily mean it is your main cost driver"
+    )).toBeInTheDocument();
+    expect(within(chart).getByText("apply_patch: feature.ts")).toBeInTheDocument();
+    expect(within(chart).getByText("exec_command output")).toBeInTheDocument();
+    expect(within(chart).queryByText("hidden small contributor")).not.toBeInTheDocument();
     expect(screen.queryByText("1,000 attributed")).not.toBeInTheDocument();
-    expect(screen.getByText("4 occurrences · 500 Tokens")).toBeInTheDocument();
-    expect(screen.getByText("2 occurrences · 250 Tokens")).toBeInTheDocument();
-    const fills = document.querySelectorAll<HTMLElement>(".contributor-bar-fill");
+    expect(within(chart).getByText("4 occurrences · 500 Tokens")).toBeInTheDocument();
+    expect(within(chart).getByText("2 occurrences · 250 Tokens")).toBeInTheDocument();
+    const fills = chart.querySelectorAll<HTMLElement>(".contributor-bar-fill");
     expect(fills).toHaveLength(5);
     expect(fills[0]?.style.width).toBe("50%");
     expect(fills[1]?.style.width).toBe("25%");
@@ -235,7 +240,7 @@ describe("turn drilldown dashboard", () => {
     expect(fills[3]?.style.width).toBe("6%");
     expect(fills[4]?.style.width).toBe("3%");
 
-    await user.click(screen.getByRole("button", { name: "apply_patch: feature.ts" }));
+    await user.click(within(chart).getByRole("button", { name: "apply_patch: feature.ts" }));
 
     expect(onChangeViewState).toHaveBeenCalledWith({
       expandedTurnIds: ["turn-alpha"],
@@ -243,6 +248,19 @@ describe("turn drilldown dashboard", () => {
       expandedArtifactIds: ["PATCH:alpha"],
       selectedArtifactId: "PATCH:alpha"
     });
+  });
+
+  it("renders top first occurrence artifacts in the overview", () => {
+    renderExplorer({ run: contributorRun() });
+
+    const chart = screen.getByLabelText("Top first occurrence artifacts by token contribution");
+    expect(within(chart).getByRole("heading", { name: "Top 5 First Occurrence Artifacts" })).toBeInTheDocument();
+    expect(within(chart).getByText("High first occurrence artifact means it likely is a big cost driver")).toBeInTheDocument();
+    expect(within(chart).getByText("session note")).toBeInTheDocument();
+    expect(within(chart).getByText("apply_patch: feature.ts")).toBeInTheDocument();
+    expect(within(chart).queryByText("hidden small contributor")).not.toBeInTheDocument();
+    expect(within(chart).getByText("225 Tokens")).toBeInTheDocument();
+    expect(within(chart).getByText("140 Tokens")).toBeInTheDocument();
   });
 
   it("truncates long turn preview titles at 100 characters", () => {
@@ -451,9 +469,11 @@ function contributorRun(): DashboardRun {
         display_name: "apply_patch: feature.ts",
         display_category: "patch",
         total_exposure: 1200,
+        unique_exposure: 200,
         repeated_exposure: 400,
         inclusion_count: 4,
         normalized_estimated_input_tokens: 500,
+        normalized_first_occurrence_estimated_input_tokens: 225,
         estimated_cached_input_tokens: 100,
         estimated_uncached_input_tokens: 400
       },
@@ -463,9 +483,11 @@ function contributorRun(): DashboardRun {
         display_name: "exec_command output",
         display_category: "tool_output",
         total_exposure: 500,
+        unique_exposure: 125,
         repeated_exposure: 125,
         inclusion_count: 2,
         normalized_estimated_input_tokens: 250,
+        normalized_first_occurrence_estimated_input_tokens: 130,
         estimated_cached_input_tokens: 50,
         estimated_uncached_input_tokens: 200
       },
@@ -474,10 +496,12 @@ function contributorRun(): DashboardRun {
         artifact_id: "artifact-note-1",
         display_name: "session note",
         display_category: "note",
-        total_exposure: 150,
+        total_exposure: 700,
+        unique_exposure: 700,
         repeated_exposure: 0,
         inclusion_count: 1,
         normalized_estimated_input_tokens: 150,
+        normalized_first_occurrence_estimated_input_tokens: 140,
         estimated_cached_input_tokens: 0,
         estimated_uncached_input_tokens: 150
       },
@@ -487,9 +511,11 @@ function contributorRun(): DashboardRun {
         display_name: "shell command",
         display_category: "command",
         total_exposure: 60,
+        unique_exposure: 60,
         repeated_exposure: 0,
         inclusion_count: 1,
         normalized_estimated_input_tokens: 60,
+        normalized_first_occurrence_estimated_input_tokens: 60,
         estimated_cached_input_tokens: 0,
         estimated_uncached_input_tokens: 60
       },
@@ -499,9 +525,11 @@ function contributorRun(): DashboardRun {
         display_name: "file context",
         display_category: "file_context",
         total_exposure: 30,
+        unique_exposure: 30,
         repeated_exposure: 0,
         inclusion_count: 1,
         normalized_estimated_input_tokens: 30,
+        normalized_first_occurrence_estimated_input_tokens: 30,
         estimated_cached_input_tokens: 0,
         estimated_uncached_input_tokens: 30
       },
@@ -511,9 +539,11 @@ function contributorRun(): DashboardRun {
         display_name: "hidden small contributor",
         display_category: "request_metadata",
         total_exposure: 10,
+        unique_exposure: 10,
         repeated_exposure: 0,
         inclusion_count: 1,
         normalized_estimated_input_tokens: 10,
+        normalized_first_occurrence_estimated_input_tokens: 10,
         estimated_cached_input_tokens: 0,
         estimated_uncached_input_tokens: 10
       }

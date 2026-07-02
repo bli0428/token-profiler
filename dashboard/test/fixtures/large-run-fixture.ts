@@ -25,8 +25,11 @@ export function createLargeRunFixture(count = 1000): RunResponse {
           detail_available: true,
           search_text: `large artifact ${index} ${category}`,
           total_exposure: 1000 + index,
+          unique_exposure: 1000 + index - (index % 200),
           repeated_exposure: index % 200,
           inclusion_count: (index % 10) + 1,
+          normalized_estimated_input_tokens: 700 + index + (index % 300),
+          normalized_first_occurrence_estimated_input_tokens: 700 + index,
           estimated_cached_input_tokens: index % 300,
           estimated_uncached_input_tokens: 700 + index,
           caveats: []

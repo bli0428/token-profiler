@@ -43,6 +43,7 @@ export function analyzeExposure(runData: PreparedRunData): ExposureAnalysis {
       estimated_cached_input_tokens: 0,
       estimated_uncached_input_tokens: 0,
       normalized_estimated_input_tokens: 0,
+      normalized_first_occurrence_estimated_input_tokens: 0,
       metadata: {},
       first_seen_at: event.timestamp,
       last_seen_at: event.timestamp

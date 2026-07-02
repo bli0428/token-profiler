@@ -134,6 +134,7 @@ test("dashboard API exposes normalized artifact contribution rows", async () => 
   assert.equal(response.body.data.overview.input_tokens, 100);
   assert.equal(response.body.data.artifacts.reduce((total, row) => total + (row.normalized_estimated_input_tokens ?? 0), 0), 100);
   assert.equal(buildLog.normalized_estimated_input_tokens, 25);
+  assert.equal(buildLog.normalized_first_occurrence_estimated_input_tokens, 25);
   assert.equal(buildLog.estimated_cached_input_tokens, 5);
   assert.equal(buildLog.estimated_uncached_input_tokens, 20);
 });

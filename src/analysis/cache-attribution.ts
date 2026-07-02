@@ -27,8 +27,10 @@ export function analyzeCacheAttribution(
   let estimatedCachedInputTokens = 0;
   let estimatedUncachedInputTokens = 0;
   let normalizedEstimatedInputTokens = 0;
+  let normalizedFirstOccurrenceEstimatedInputTokens = 0;
   let normalizedRequestCount = 0;
   let missingOffsetRequestCount = 0;
+  const seenContentHashes = new Set<string>();
 
   for (const usage of requestUsage.values()) {
     inputTokens += Number(usage.input_tokens) || 0;
@@ -64,6 +66,11 @@ export function analyzeCacheAttribution(
       artifact.estimated_cached_input_tokens += artifactAttribution.cached;
       artifact.estimated_uncached_input_tokens += artifactAttribution.uncached;
       artifact.normalized_estimated_input_tokens += artifactAttribution.total;
+      if (!seenContentHashes.has(artifactAttribution.content_hash)) {
+        seenContentHashes.add(artifactAttribution.content_hash);
+        artifact.normalized_first_occurrence_estimated_input_tokens += artifactAttribution.total;
+        normalizedFirstOccurrenceEstimatedInputTokens += artifactAttribution.total;
+      }
       artifact.estimated_cache_hit_ratio = ratio(
         artifact.estimated_cached_input_tokens,
         artifact.normalized_estimated_input_tokens
@@ -95,6 +102,7 @@ export function analyzeCacheAttribution(
       estimated_cached_input_tokens: estimatedCachedInputTokens,
       estimated_uncached_input_tokens: estimatedUncachedInputTokens,
       normalized_estimated_input_tokens: normalizedEstimatedInputTokens,
+      normalized_first_occurrence_estimated_input_tokens: normalizedFirstOccurrenceEstimatedInputTokens,
       // Coverage: locally attributed artifact tokens divided by provider input tokens.
       estimated_cache_attribution_coverage: ratio(normalizedEstimatedInputTokens, inputTokens)
     },
@@ -117,6 +125,7 @@ export function analyzeCacheAttribution(
         cached_input_tokens: cachedInputTokens,
         uncached_input_tokens: Math.max(0, inputTokens - cachedInputTokens),
         normalized_estimated_input_tokens: normalizedEstimatedInputTokens,
+        normalized_first_occurrence_estimated_input_tokens: normalizedFirstOccurrenceEstimatedInputTokens,
         estimated_cache_attribution_coverage: ratio(normalizedEstimatedInputTokens, inputTokens),
         normalized_request_count: normalizedRequestCount
       },
@@ -139,7 +148,7 @@ export function analyzeCacheAttribution(
  * tokens; the remainder of the range is estimated uncached.
  */
 export function attributeRequestCache(request: RequestSummary, usage: NonNullable<RequestSummary["usage"]>) {
-  const artifacts: Array<{ artifact_id: string; cached: number; uncached: number; total: number }> = [];
+  const artifacts: Array<{ artifact_id: string; content_hash: string; cached: number; uncached: number; total: number }> = [];
   let cached = 0;
   let uncached = 0;
   let total = 0;
@@ -180,6 +189,7 @@ export function attributeRequestCache(request: RequestSummary, usage: NonNullabl
     total += normalizedTokens;
     artifacts.push({
       artifact_id: artifact.artifact_id,
+      content_hash: artifact.content_hash,
       cached: attributedCached,
       uncached: attributedUncached,
       total: normalizedTokens
