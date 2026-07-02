@@ -6,6 +6,8 @@ records.
 This folder is the extension point for Codex, Claude Code, OpenAI-compatible
 proxies, manual JSONL imports, and future coding-agent sources.
 
+For boundary rules and allowed inputs/outputs, see [contract.md](contract.md).
+
 ## Rules
 
 - Adapter-specific payloads stay inside `src/adapters/<adapter>/`.

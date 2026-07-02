@@ -2,6 +2,8 @@
 
 This is a self-contained frontend app for the local dashboard API. It owns its package metadata, dependency lockfile, source, tests, fixtures, styles, and validation commands under `dashboard/`.
 
+For boundary rules and allowed inputs/outputs, see [contract.md](contract.md).
+
 ## Commands
 
 ```bash
