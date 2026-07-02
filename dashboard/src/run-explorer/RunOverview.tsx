@@ -1,6 +1,8 @@
 import type { DashboardArtifactRow, DashboardRunOverview } from "../api/types";
 import { formatTokens } from "./request-format";
 
+const TOP_CONTRIBUTOR_LIMIT = 5;
+
 type Props = {
   artifacts: DashboardArtifactRow[];
   overview: DashboardRunOverview;
@@ -11,7 +13,7 @@ type Props = {
 export function RunOverview({ artifacts, overview, title, timestamp }: Props) {
   const contributorRows = buildContributorRows(artifacts);
   const attributedTotal = contributorRows.reduce((total, row) => total + row.tokens, 0);
-  const displayedRows = contributorRows.slice(0, 10);
+  const displayedRows = contributorRows.slice(0, TOP_CONTRIBUTOR_LIMIT);
 
   return (
     <section className="run-overview">
@@ -29,7 +31,7 @@ export function RunOverview({ artifacts, overview, title, timestamp }: Props) {
       <section className="run-overview-chart" aria-label="Top artifact contributors by normalized token contribution">
         <header className="run-overview-chart-header">
           <div>
-            <h3>Top artifact contributors</h3>
+            <h3>Top 5 Artifact Contributors</h3>
             <p>Normalized artifact input contribution across repeated appearances in this session.</p>
           </div>
           <span>{formatTokens(attributedTotal)} attributed</span>
@@ -82,10 +84,10 @@ function buildContributorRows(
     .filter((row) => row.tokens > 0)
     .sort((a, b) => b.tokens - a.tokens || a.display_name.localeCompare(b.display_name) || a.artifact_id.localeCompare(b.artifact_id));
 
-  const max = rows[0]?.tokens ?? 0;
+  const total = rows.reduce((sum, row) => sum + row.tokens, 0);
   return rows.map((row) => ({
     ...row,
-    share: max > 0 ? row.tokens / max : 0
+    share: total > 0 ? row.tokens / total : 0
   }));
 }
 

@@ -148,10 +148,18 @@ describe("turn drilldown dashboard", () => {
     renderExplorer({ run: contributorRun() });
 
     expect(screen.getByLabelText("Top artifact contributors by normalized token contribution")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Top artifact contributors" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Top 5 Artifact Contributors" })).toBeInTheDocument();
     expect(screen.getByText("apply_patch: feature.ts")).toBeInTheDocument();
     expect(screen.getByText("exec_command output")).toBeInTheDocument();
+    expect(screen.queryByText("hidden small contributor")).not.toBeInTheDocument();
     expect(screen.getByText("1,000 attributed")).toBeInTheDocument();
+    const fills = document.querySelectorAll<HTMLElement>(".contributor-bar-fill");
+    expect(fills).toHaveLength(5);
+    expect(fills[0]?.style.width).toBe("50%");
+    expect(fills[1]?.style.width).toBe("25%");
+    expect(fills[2]?.style.width).toBe("15%");
+    expect(fills[3]?.style.width).toBe("6%");
+    expect(fills[4]?.style.width).toBe("3%");
   });
 
   it("truncates long turn preview titles at 100 characters", () => {
@@ -363,8 +371,8 @@ function contributorRun(): DashboardRun {
         total_exposure: 1200,
         repeated_exposure: 400,
         inclusion_count: 4,
-        normalized_estimated_input_tokens: 650,
-        estimated_cached_input_tokens: 250,
+        normalized_estimated_input_tokens: 500,
+        estimated_cached_input_tokens: 100,
         estimated_uncached_input_tokens: 400
       },
       {
@@ -384,12 +392,48 @@ function contributorRun(): DashboardRun {
         artifact_id: "artifact-note-1",
         display_name: "session note",
         display_category: "note",
-        total_exposure: 100,
+        total_exposure: 150,
         repeated_exposure: 0,
         inclusion_count: 1,
-        normalized_estimated_input_tokens: 100,
+        normalized_estimated_input_tokens: 150,
         estimated_cached_input_tokens: 0,
-        estimated_uncached_input_tokens: 100
+        estimated_uncached_input_tokens: 150
+      },
+      {
+        ...base.artifacts[0]!,
+        artifact_id: "artifact-command-1",
+        display_name: "shell command",
+        display_category: "command",
+        total_exposure: 60,
+        repeated_exposure: 0,
+        inclusion_count: 1,
+        normalized_estimated_input_tokens: 60,
+        estimated_cached_input_tokens: 0,
+        estimated_uncached_input_tokens: 60
+      },
+      {
+        ...base.artifacts[0]!,
+        artifact_id: "artifact-file-1",
+        display_name: "file context",
+        display_category: "file_context",
+        total_exposure: 30,
+        repeated_exposure: 0,
+        inclusion_count: 1,
+        normalized_estimated_input_tokens: 30,
+        estimated_cached_input_tokens: 0,
+        estimated_uncached_input_tokens: 30
+      },
+      {
+        ...base.artifacts[0]!,
+        artifact_id: "artifact-hidden-small-1",
+        display_name: "hidden small contributor",
+        display_category: "request_metadata",
+        total_exposure: 10,
+        repeated_exposure: 0,
+        inclusion_count: 1,
+        normalized_estimated_input_tokens: 10,
+        estimated_cached_input_tokens: 0,
+        estimated_uncached_input_tokens: 10
       }
     ]
   };
