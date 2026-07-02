@@ -32,15 +32,46 @@ test("extracts instructions, tool definitions, messages, and tool output", () =>
     "SEARCH_RESULT"
   ]);
   assert.equal(artifacts[2].metadata.content_kind, "user_message");
+  assert.equal(artifacts[2].metadata.source_protocol, "openai_responses");
+  assert.equal(artifacts[2].metadata.source_protocol_type, "message");
+  assert.equal(artifacts[2].metadata.source_item_index, 0);
+  assert.equal(artifacts[2].metadata.source_role, "user");
   assert.equal(artifacts[2].metadata.role, "user");
   assert.equal(artifacts[2].metadata.message_source, "current_turn");
   assert.equal(artifacts[2].metadata.title_candidate, true);
   assert.equal(artifacts[3].metadata.content_kind, "assistant_message");
+  assert.equal(artifacts[3].metadata.source_protocol_type, "message");
+  assert.equal(artifacts[3].metadata.source_item_index, 1);
+  assert.equal(artifacts[3].metadata.source_role, "assistant");
   assert.equal(artifacts[3].metadata.role, "assistant");
   assert.equal(artifacts[3].metadata.message_source, "current_turn");
   assert.equal(artifacts[3].metadata.title_candidate, true);
+  assert.equal(artifacts[4].metadata.source_protocol_type, "function_call");
+  assert.equal(artifacts[4].metadata.source_item_index, 2);
+  assert.equal(artifacts[4].metadata.source_tool_name, "search_docs");
+  assert.equal(artifacts[5].metadata.source_protocol_type, "function_call_output");
+  assert.equal(artifacts[5].metadata.source_item_index, 3);
+  assert.equal(artifacts[5].metadata.source_tool_name, "search_docs");
   assert.equal(artifacts[5].artifactName, "tool:search_docs:call_1");
   assert.equal(artifacts[5].metadata.tool_name, "search_docs");
+});
+
+test("extracts system and tool definition source provenance", () => {
+  const artifacts = extractResponsesArtifacts({
+    instructions: "Follow the project conventions.",
+    tools: [{ type: "function", name: "exec_command", parameters: { type: "object" } }],
+    input: []
+  });
+
+  assert.equal(artifacts[0].metadata.content_kind, "system_prompt");
+  assert.equal(artifacts[0].metadata.source_protocol, "openai_responses");
+  assert.equal(artifacts[0].metadata.source_protocol_type, "instructions");
+  assert.equal(artifacts[0].metadata.role, "system");
+  assert.equal(artifacts[1].metadata.content_kind, "tool_definition");
+  assert.equal(artifacts[1].metadata.source_protocol, "openai_responses");
+  assert.equal(artifacts[1].metadata.source_protocol_type, "tool_definition");
+  assert.equal(artifacts[1].metadata.source_item_index, 0);
+  assert.equal(artifacts[1].metadata.source_tool_name, "exec_command");
 });
 
 test("tool output inherits command metadata from its paired function call", () => {
@@ -120,6 +151,8 @@ test("extracts readable metadata for custom apply_patch calls", () => {
 
   assert.equal(artifacts[0].artifactName, "apply_patch: modify tests/example.test.js (+1 files)");
   assert.equal(artifacts[0].metadata.content_kind, "patch");
+  assert.equal(artifacts[0].metadata.source_protocol_type, "custom_tool_call");
+  assert.equal(artifacts[0].metadata.source_tool_name, "apply_patch");
   assert.deepEqual(artifacts[0].metadata.touched_files, [
     "tests/example.test.js",
     "src/example.js"
@@ -159,6 +192,7 @@ test("extracts unsupported input items as explicit unknown artifacts", () => {
 
   assert.equal(artifacts[0].kind, "unknown_input");
   assert.equal(artifacts[0].metadata.content_kind, "unknown_input");
+  assert.equal(artifacts[0].metadata.source_protocol_type, "unknown");
   assert.equal(artifacts[0].metadata.provider_type, "future_input");
   assert.deepEqual(artifacts[0].metadata.observed_keys, ["text", "type"]);
 });
@@ -177,6 +211,7 @@ test("extracts reasoning input items as opaque reasoning state artifacts", () =>
   assert.equal(artifacts[0].kind, "reasoning_state");
   assert.equal(artifacts[0].artifactName, "Reasoning state");
   assert.equal(artifacts[0].metadata.content_kind, "reasoning_state");
+  assert.equal(artifacts[0].metadata.source_protocol_type, "reasoning");
   assert.equal(artifacts[0].metadata.provider_type, "reasoning");
   assert.equal(artifacts[0].metadata.reason, "opaque_reasoning_state");
   assert.deepEqual(artifacts[0].metadata.observed_keys, ["encrypted_content", "summary", "type"]);
@@ -302,12 +337,12 @@ test("proxy forwards auth and streaming bytes but stores only artifact metadata 
     assert.equal(artifacts.some((event) => "content" in event), false);
     assert.equal(artifacts.some((event) => "preview" in event), false);
     assert.deepEqual(artifacts.map((event) => event.metadata.content_kind), [
-      undefined,
+      "system_prompt",
       "user_message",
       "assistant_message"
     ]);
     assert.deepEqual(artifacts.map((event) => event.metadata.title_candidate), [
-      undefined,
+      false,
       true,
       true
     ]);

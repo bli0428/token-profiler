@@ -8,18 +8,23 @@ import {
 import type {
   CodexPatchMetadata,
   CodexProviderItem,
+  CodexSourceProvenance,
   CodexToolCallMetadata,
   CodexToolOutputMetadata
 } from "./types.ts";
 
+type ToolCallMetadataDraft = Omit<CodexToolCallMetadata, keyof CodexSourceProvenance>;
+type PatchMetadataDraft = Omit<CodexPatchMetadata, keyof CodexSourceProvenance>;
+type ToolOutputMetadataDraft = Omit<CodexToolOutputMetadata, keyof CodexSourceProvenance>;
+
 type DescribedFunctionCall = {
   artifactName: string;
-  metadata: CodexToolCallMetadata;
+  metadata: ToolCallMetadataDraft;
 };
 
 type DescribedToolCall = {
   artifactName: string;
-  metadata: CodexToolCallMetadata | CodexPatchMetadata;
+  metadata: ToolCallMetadataDraft | PatchMetadataDraft;
 };
 
 type PatchSummary = {
@@ -29,14 +34,6 @@ type PatchSummary = {
   deletes: number;
   summary: string;
 };
-
-export function classifyToolOutput(toolName: unknown): "TOOL_OUTPUT" | "SEARCH_RESULT" | "TEST_OUTPUT" {
-  const name = String(toolName).toLowerCase();
-  if (name.includes("search")) return "SEARCH_RESULT";
-  if (name.includes("exec")) return "TOOL_OUTPUT";
-  if (name.includes("test")) return "TEST_OUTPUT";
-  return "TOOL_OUTPUT";
-}
 
 export function describeFunctionCall({
   toolName,
@@ -48,7 +45,7 @@ export function describeFunctionCall({
   const label = command
     ? `${toolName}: ${truncateMiddle(command, 80)}`
     : `tool-call:${toolName}:${callId ?? "unknown"}`;
-  const metadata: CodexToolCallMetadata = {
+  const metadata: ToolCallMetadataDraft = {
     tool_name: toolName,
     display_name: label,
     content_kind: command ? "command" : "tool_call"
@@ -80,7 +77,7 @@ export function describeCustomToolCall({
       : `${toolName}:${callId ?? "unknown"}`;
 
   if (patch) {
-    const metadata: CodexPatchMetadata = {
+    const metadata: PatchMetadataDraft = {
       tool_name: toolName,
       display_name: label,
       content_kind: "patch",
@@ -97,7 +94,7 @@ export function describeCustomToolCall({
     };
   }
 
-  const metadata: CodexToolCallMetadata = {
+  const metadata: ToolCallMetadataDraft = {
     tool_name: toolName,
     display_name: label,
     content_kind: embeddedCommand ? "command" : "custom_tool_call"
@@ -123,7 +120,7 @@ export function describeToolOutput({
   toolName: string;
   callId: string | undefined;
   output: unknown;
-  callMetadata: CodexToolCallMetadata | CodexPatchMetadata | undefined;
+  callMetadata: ToolCallMetadataDraft | PatchMetadataDraft | undefined;
 }) {
   const text = normalizeToolOutput(output);
   const exitCode = text.match(/(?:Exit code|Process exited with code):?\s*(-?\d+)/i)?.[1];
@@ -132,7 +129,7 @@ export function describeToolOutput({
   const label = command
     ? `${toolName} output: ${truncateMiddle(command, 72)}`
     : `tool:${toolName}:${callId ?? "unknown"}`;
-  const metadata: CodexToolOutputMetadata = {
+  const metadata: ToolOutputMetadataDraft = {
     tool_name: toolName,
     display_name: label,
     content_kind: "tool_output"

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { aggregateEvents } from "../src/analysis/aggregate.ts";
+import { analyzeLegibility } from "../src/analysis/legibility.ts";
 import { analyzeEvents } from "../src/analysis/pipeline.ts";
 import { formatArtifactDetail, formatLegibilityReport } from "../src/surfaces/cli/legibility-renderer.ts";
 
@@ -76,6 +77,78 @@ test("prefers richer mixed-version metadata in readable labels", async () => {
 
   assert.equal(row.display_category, "command_output");
   assert.match(row.display_name, /npm run lint/);
+});
+
+test("recognizes adapter-owned system and tool output metadata", () => {
+  const summary = aggregateEvents([
+    {
+      schema_version: 1,
+      event_kind: "artifact",
+      run_id: "run_system_metadata",
+      request_id: "req_1",
+      artifact_id: "SYSTEM_PROMPT:instructions",
+      artifact_type: "SYSTEM_PROMPT",
+      artifact_name: "instructions",
+      content_hash: "hash_system",
+      local_token_count: 10,
+      tokenizer: "o200k_base",
+      storage_mode: "metadata",
+      timestamp: "2026-06-24T12:00:00.000Z",
+      metadata: {
+        content_kind: "system_prompt",
+        source_protocol: "openai_responses",
+        source_protocol_type: "instructions"
+      }
+    },
+    {
+      schema_version: 1,
+      event_kind: "artifact",
+      run_id: "run_system_metadata",
+      request_id: "req_1",
+      artifact_id: "SYSTEM_PROMPT:tool-definition:exec_command",
+      artifact_type: "SYSTEM_PROMPT",
+      artifact_name: "tool-definition:exec_command",
+      content_hash: "hash_tool_definition",
+      local_token_count: 15,
+      tokenizer: "o200k_base",
+      storage_mode: "metadata",
+      timestamp: "2026-06-24T12:00:01.000Z",
+      metadata: {
+        content_kind: "tool_definition",
+        source_protocol: "openai_responses",
+        source_protocol_type: "tool_definition",
+        source_tool_name: "exec_command"
+      }
+    },
+    {
+      schema_version: 1,
+      event_kind: "artifact",
+      run_id: "run_system_metadata",
+      request_id: "req_1",
+      artifact_id: "TOOL_OUTPUT:call_exec",
+      artifact_type: "TOOL_OUTPUT",
+      artifact_name: "exec_command output: npm test",
+      content_hash: "hash_output",
+      local_token_count: 30,
+      tokenizer: "o200k_base",
+      storage_mode: "metadata",
+      timestamp: "2026-06-24T12:00:02.000Z",
+      metadata: {
+        content_kind: "tool_output",
+        tool_name: "exec_command",
+        call_id: "call_exec",
+        command: "npm test",
+        source_protocol: "openai_responses",
+        source_protocol_type: "function_call_output"
+      }
+    }
+  ]);
+
+  const analysis = analyzeLegibility(summary.artifacts, summary.requests);
+  const categories = new Map(analysis.rows.map((row) => [row.artifact_id, row.display_category]));
+  assert.equal(categories.get("SYSTEM_PROMPT:instructions"), "request_metadata");
+  assert.equal(categories.get("SYSTEM_PROMPT:tool-definition:exec_command"), "request_metadata");
+  assert.equal(categories.get("TOOL_OUTPUT:call_exec"), "command_output");
 });
 
 test("artifact detail exposes command, patch, unknown, and attribution caveats", async () => {

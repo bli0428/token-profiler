@@ -279,12 +279,12 @@ function displayCategory(artifact: ArtifactAggregate, metadata: JsonObject): Dis
   // from loose fields such as command, tool_name, touched_files, or names.
   const kind = stringValue(metadata.content_kind);
   if (kind === "command") return "command";
-  if (kind === "command_output") return "command_output";
+  if (kind === "command_output" || kind === "tool_output") return "command_output";
   if (kind === "patch") return "patch";
   if (kind === "user_message") return "user_message";
   if (kind === "assistant_message") return "assistant_message";
   if (kind === "file_context") return "file_context";
-  if (kind === "request_metadata") return "request_metadata";
+  if (kind === "request_metadata" || kind === "system_prompt" || kind === "tool_definition") return "request_metadata";
   if (kind === "reasoning_state") return "reasoning_state";
   const type = artifact.artifact_type.toLowerCase();
   const name = artifact.artifact_name.toLowerCase();
@@ -346,7 +346,7 @@ function metadataSpecificity(metadata: JsonObject, category: DisplayCategory): n
 
 function sourceFacts(metadata: JsonObject, category: DisplayCategory): string[] {
   const facts: string[] = [category];
-  for (const key of ["display_name", "tool_name", "call_id", "command", "workdir", "output_preview", "touched_files", "message_source", "title_candidate"]) {
+  for (const key of ["display_name", "tool_name", "call_id", "command", "workdir", "output_preview", "touched_files", "message_source", "title_candidate", "source_protocol", "source_protocol_type", "source_item_index", "source_role", "source_tool_name"]) {
     if (metadata[key] !== undefined) facts.push(key);
   }
   return facts;

@@ -7,14 +7,16 @@ export function toCaptureRecord(artifact: CodexExtractedArtifact): CodexCaptureR
         artifactType: artifact.artifactType,
         artifactName: artifact.artifactName,
         artifactId: artifact.artifactId,
-        content: artifact.content
+        content: artifact.content,
+        metadata: artifact.metadata
       };
     case "tool_definition":
       return {
         artifactType: artifact.artifactType,
         artifactName: artifact.artifactName,
         artifactId: artifact.artifactId,
-        content: artifact.content
+        content: artifact.content,
+        metadata: artifact.metadata
       };
     case "message":
       return {

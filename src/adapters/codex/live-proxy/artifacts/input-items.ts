@@ -1,17 +1,24 @@
+import { describeCallMetadata, describeCustomToolCall, describeFunctionCall, describeToolOutput } from "./metadata.ts";
 import {
-  classifyToolOutput,
-  describeCallMetadata,
-  describeCustomToolCall,
-  describeFunctionCall,
-  describeToolOutput
-} from "./metadata.ts";
+  artifactTypeForInstructions,
+  artifactTypeForMessageRole,
+  artifactTypeForToolOutput,
+  contentKindForMessageRole,
+  sourceProvenance,
+  withSourceProvenance
+} from "./artifact-mapping.ts";
 import {
   artifactContent,
   asArray,
   asProviderItem,
-  isProviderItem,
   stringValue
 } from "./payload.ts";
+import {
+  classifySourceInputItem,
+  indexToolCalls as indexSourceToolCalls,
+  sourceMessageRole,
+  type CodexSourceInputItem
+} from "./source-items.ts";
 import type {
   CodexExtractedArtifact,
   CodexPatchArtifact,
@@ -20,14 +27,10 @@ import type {
   CodexReasoningStateArtifact,
   CodexReasoningStateMetadata,
   CodexResponsesFunctionCallItem,
-  CodexResponsesFunctionCallOutputItem,
   CodexResponsesCustomToolCallItem,
-  CodexResponsesCustomToolCallOutputItem,
   CodexResponsesInputItem,
-  CodexResponsesMessageItem,
   CodexResponsesRequest,
   CodexResponsesToolDefinition,
-  CodexResponsesUnknownInputObject,
   CodexToolCallArtifact,
   CodexToolCallMetadata,
   CodexUnknownInputMetadata
@@ -39,6 +42,8 @@ type InputItemContext = {
   callsById: Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>;
   titleCandidateKeys: Set<string>;
 };
+
+export const indexToolCalls = indexSourceToolCalls;
 
 export function extractInstructionsArtifact(request: CodexResponsesRequest): CodexExtractedArtifact[] {
   const content = artifactContent(request.instructions);
@@ -56,24 +61,20 @@ export function extractToolDefinitionArtifacts(tools: unknown): CodexExtractedAr
       artifactType: "SYSTEM_PROMPT",
       artifactName: `tool-definition:${name}`,
       artifactId: `SYSTEM_PROMPT:tool-definition:${name}`,
-      content: JSON.stringify(tool)
+      content: JSON.stringify(tool),
+      metadata: withSourceProvenance({
+        content_kind: "tool_definition",
+        role: "system",
+        message_source: "system_context",
+        title_candidate: false,
+        part_index: 0
+      }, sourceProvenance({
+        sourceProtocolType: "tool_definition",
+        sourceItemIndex: index,
+        sourceToolName: name
+      }))
     } satisfies CodexExtractedArtifact;
   });
-}
-
-export function indexToolCalls(inputs: CodexResponsesInputItem[]): Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem> {
-  const callsById = new Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>();
-  for (const item of inputs) {
-    if (typeof item === "string") continue;
-    const callId = stringValue(item.call_id);
-    if (isFunctionCallItem(item) && callId) {
-      callsById.set(callId, item);
-    }
-    if (isCustomToolCallItem(item) && callId) {
-      callsById.set(callId, item);
-    }
-  }
-  return callsById;
 }
 
 export function extractInputItemArtifacts({
@@ -82,49 +83,44 @@ export function extractInputItemArtifacts({
   callsById,
   titleCandidateKeys
 }: InputItemContext): CodexExtractedArtifact[] {
-  if (typeof item === "string") {
-    return [messageArtifact("user", index, 0, item, titleCandidateKeys.has(messageKey(index, "user")), messageSource({
-      role: "user",
-      index,
-      titleCandidate: titleCandidateKeys.has(messageKey(index, "user")),
-      contextMessage: isContextMessageText(item)
-    }))];
-  }
-  if (!isProviderItem(item)) return [];
+  const sourceItem = classifySourceInputItem(item, index);
+  if (!sourceItem) return [];
 
-  if (isFunctionCallItem(item)) {
+  if (sourceItem.sourceProtocolType === "function_call") {
     return artifactFromContent(
-      item,
-      (content) => functionCallArtifact(item, index, content)
+      sourceItem.item,
+      (content) => functionCallArtifact(sourceItem, content)
     );
   }
-  if (isFunctionCallOutputItem(item)) {
+  if (sourceItem.sourceProtocolType === "function_call_output") {
     return artifactFromContent(
-      item.output,
-      (content) => functionCallOutputArtifact(item, index, callsById, content)
+      sourceItem.item.output,
+      (content) => functionCallOutputArtifact(sourceItem, callsById, content)
     );
   }
-  if (isCustomToolCallItem(item)) {
+  if (sourceItem.sourceProtocolType === "custom_tool_call") {
     return artifactFromContent(
-      item,
-      (content) => customToolCallArtifact(item, index, content)
+      sourceItem.item,
+      (content) => customToolCallArtifact(sourceItem, content)
     );
   }
-  if (isCustomToolCallOutputItem(item)) {
+  if (sourceItem.sourceProtocolType === "custom_tool_call_output") {
     return artifactFromContent(
-      item.output,
-      (content) => customToolCallOutputArtifact(item, index, callsById, content)
+      sourceItem.item.output,
+      (content) => customToolCallOutputArtifact(sourceItem, callsById, content)
     );
   }
-  if (isMessageItem(item)) return messageArtifacts(item, index, titleCandidateKeys);
-  if (item.role) return messageArtifacts(item, index, titleCandidateKeys);
-  return artifactFromContent(item, (content) => unknownInputArtifact(item, index, content));
+  if (sourceItem.sourceProtocolType === "message") return messageArtifacts(sourceItem, titleCandidateKeys);
+  if (sourceItem.sourceProtocolType === "reasoning") {
+    return artifactFromContent(sourceItem.item, (content) => reasoningStateArtifact(sourceItem, content));
+  }
+  return artifactFromContent(sourceItem.item, (content) => unknownInputArtifact(sourceItem, content));
 }
 
 export function titleCandidateMessageKeys(inputs: CodexResponsesInputItem[]): Set<string> {
   const candidates = new Map<string, string>();
   for (const [index, item] of inputs.entries()) {
-    const role = messageRole(item);
+    const role = sourceMessageRole(item);
     if (role !== "user" && role !== "assistant") continue;
     if (isContextMessageInput(item)) continue;
     candidates.set(role, messageKey(index, role));
@@ -135,153 +131,148 @@ export function titleCandidateMessageKeys(inputs: CodexResponsesInputItem[]): Se
 function codexSystemArtifact(content: string): CodexExtractedArtifact {
   return {
     kind: "system_instruction",
-    artifactType: "SYSTEM_PROMPT",
+    artifactType: artifactTypeForInstructions(),
     artifactName: "instructions",
     artifactId: "SYSTEM_PROMPT:instructions",
-    content
+    content,
+    metadata: withSourceProvenance({
+      content_kind: "system_prompt",
+      role: "system",
+      message_source: "system_context",
+      title_candidate: false,
+      part_index: 0
+    }, sourceProvenance({ sourceProtocolType: "instructions" }))
   };
 }
 
-function functionCallArtifact(item: CodexResponsesFunctionCallItem, index: number, content: string): CodexToolCallArtifact {
-  const toolName = stringValue(item.name) ?? "unknown";
-  const callId = stringValue(item.call_id);
-  const toolCall = describeFunctionCall({ toolName, callId, input: item.arguments });
+function functionCallArtifact(sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "function_call" }>, content: string): CodexToolCallArtifact {
+  const toolCall = describeFunctionCall({ toolName: sourceItem.toolName, callId: sourceItem.callId, input: sourceItem.item.arguments });
   return {
     kind: "tool_call",
     artifactType: "SUMMARY",
     artifactName: toolCall.artifactName,
-    artifactId: `SUMMARY:tool-call:${callId ?? index}`,
+    artifactId: `SUMMARY:tool-call:${sourceItem.callId ?? sourceItem.index}`,
     content,
-    metadata: toolCall.metadata
+    metadata: withSourceProvenance(toolCall.metadata, provenanceForSourceItem(sourceItem))
   };
 }
 
 function functionCallOutputArtifact(
-  item: CodexResponsesFunctionCallOutputItem,
-  index: number,
+  sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "function_call_output" }>,
   callsById: Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>,
   content: string
 ): CodexExtractedArtifact {
-  const callId = stringValue(item.call_id);
+  const callId = sourceItem.callId;
   const call = callId ? callsById.get(callId) : undefined;
   const toolName = stringValue(call?.name) ?? "unknown";
   const callMetadata = call ? describeCallMetadata(call).metadata : undefined;
   const output = describeToolOutput({
     toolName,
     callId,
-    output: item.output,
+    output: sourceItem.item.output,
     callMetadata
   });
   return {
     kind: "tool_output",
-    artifactType: classifyToolOutput(toolName),
+    artifactType: artifactTypeForToolOutput(toolName),
     artifactName: output.artifactName,
-    artifactId: `TOOL_OUTPUT:${callId ?? index}`,
+    artifactId: `TOOL_OUTPUT:${callId ?? sourceItem.index}`,
     content,
-    metadata: output.metadata
+    metadata: withSourceProvenance(output.metadata, sourceProvenance({
+      sourceProtocolType: sourceItem.sourceProtocolType,
+      sourceItemIndex: sourceItem.index,
+      sourceToolName: toolName
+    }))
   };
 }
 
-function customToolCallArtifact(item: CodexResponsesCustomToolCallItem, index: number, content: string): CodexToolCallArtifact | CodexPatchArtifact {
-  const toolName = stringValue(item.name) ?? "custom";
-  const callId = stringValue(item.call_id);
+function customToolCallArtifact(sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "custom_tool_call" }>, content: string): CodexToolCallArtifact | CodexPatchArtifact {
   const toolCall = describeCustomToolCall({
-    toolName,
-    callId,
-    input: item.input
+    toolName: sourceItem.toolName,
+    callId: sourceItem.callId,
+    input: sourceItem.item.input
   });
   return toolCallArtifact({
     artifactName: toolCall.artifactName,
-    artifactId: `SUMMARY:custom-tool-call:${callId ?? index}`,
+    artifactId: `SUMMARY:custom-tool-call:${sourceItem.callId ?? sourceItem.index}`,
     content,
-    metadata: toolCall.metadata
+    metadata: withSourceProvenance(toolCall.metadata, provenanceForSourceItem(sourceItem))
   });
 }
 
 function customToolCallOutputArtifact(
-  item: CodexResponsesCustomToolCallOutputItem,
-  index: number,
+  sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "custom_tool_call_output" }>,
   callsById: Map<string, CodexResponsesFunctionCallItem | CodexResponsesCustomToolCallItem>,
   content: string
 ): CodexExtractedArtifact {
-  const callId = stringValue(item.call_id);
+  const callId = sourceItem.callId;
   const call = callId ? callsById.get(callId) : undefined;
   const toolName = stringValue(call?.name) ?? "custom_tool";
   const callMetadata = call ? describeCallMetadata(call).metadata : undefined;
   const output = describeToolOutput({
     toolName,
     callId,
-    output: item.output,
+    output: sourceItem.item.output,
     callMetadata
   });
   return {
     kind: "tool_output",
     artifactType: "SUMMARY",
     artifactName: output.artifactName,
-    artifactId: `SUMMARY:custom-tool-call-output:${callId ?? index}`,
+    artifactId: `SUMMARY:custom-tool-call-output:${callId ?? sourceItem.index}`,
     content,
-    metadata: output.metadata
+    metadata: withSourceProvenance(output.metadata, sourceProvenance({
+      sourceProtocolType: sourceItem.sourceProtocolType,
+      sourceItemIndex: sourceItem.index,
+      sourceToolName: toolName
+    }))
   };
 }
 
-function messageArtifacts(item: CodexProviderItem, index: number, titleCandidateKeys: Set<string>): CodexExtractedArtifact[] {
-  const role = stringValue(item.role) ?? "unknown";
-  const titleCandidate = titleCandidateKeys.has(messageKey(index, role));
+function messageArtifacts(sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "message" }>, titleCandidateKeys: Set<string>): CodexExtractedArtifact[] {
+  const role = sourceItem.role;
+  const titleCandidate = titleCandidateKeys.has(messageKey(sourceItem.index, role));
   const source = messageSource({
     role,
-    index,
+    index: sourceItem.index,
     titleCandidate,
-    contextMessage: isContextMessageInput(item)
+    contextMessage: isContextMessageInput(sourceItem.item)
   });
-  return asArray(item.content).flatMap((part, partIndex) => {
+  if (typeof sourceItem.item === "string") {
+    return [messageArtifact(sourceItem, 0, sourceItem.item, titleCandidate, source)];
+  }
+  return asArray(sourceItem.item.content).flatMap((part, partIndex) => {
     const partItem = asProviderItem(part);
     const text = typeof part === "string" ? part : stringValue(partItem.text);
-    return artifactFromContent(text, (content) => messageArtifact(role, index, partIndex, content, titleCandidate, source));
+    return artifactFromContent(text, (content) => messageArtifact(sourceItem, partIndex, content, titleCandidate, source));
   });
 }
 
 function messageArtifact(
-  role: string,
-  index: number,
+  sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "message" }>,
   partIndex: number,
   content: string,
   titleCandidate: boolean,
   source: "agent_context" | "conversation_history" | "current_turn" | "system_context" | "unknown"
 ): CodexExtractedArtifact {
-  const artifactType = messageArtifactType(role);
+  const role = sourceItem.role;
+  const artifactType = artifactTypeForMessageRole(role);
   return {
     kind: "message",
     artifactType,
-    artifactName: `message:${role}:${index}:${partIndex}`,
-    artifactId: `${artifactType}:message:${role}:${index}:${partIndex}`,
+    artifactName: `message:${role}:${sourceItem.index}:${partIndex}`,
+    artifactId: `${artifactType}:message:${role}:${sourceItem.index}:${partIndex}`,
     role,
     partIndex,
     content,
-    metadata: {
-      content_kind: messageContentKind(role),
+    metadata: withSourceProvenance({
+      content_kind: contentKindForMessageRole(role),
       role,
       message_source: source,
       title_candidate: titleCandidate,
       part_index: partIndex
-    }
+    }, provenanceForSourceItem(sourceItem))
   };
-}
-
-function messageArtifactType(role: string): "SYSTEM_PROMPT" | "USER_MESSAGE" | "SUMMARY" {
-  if (role === "system" || role === "developer") return "SYSTEM_PROMPT";
-  if (role === "user") return "USER_MESSAGE";
-  return "SUMMARY";
-}
-
-function messageContentKind(role: string): "assistant_message" | "system_message" | "user_message" {
-  if (role === "assistant") return "assistant_message";
-  if (role === "system" || role === "developer") return "system_message";
-  return "user_message";
-}
-
-function messageRole(item: CodexResponsesInputItem): string | undefined {
-  if (typeof item === "string") return "user";
-  return stringValue(item.role);
 }
 
 function messageKey(index: number, role: string): string {
@@ -358,40 +349,50 @@ function toolCallArtifact({
   };
 }
 
-function unknownInputArtifact(item: CodexResponsesUnknownInputObject, index: number, content: string): CodexExtractedArtifact {
-  const providerType = stringValue(item.type) ?? "unknown";
-  if (providerType === "reasoning") return reasoningStateArtifact(item, index, content);
+function unknownInputArtifact(sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "unknown" }>, content: string): CodexExtractedArtifact {
+  const providerType = sourceItem.providerType;
   const metadata: CodexUnknownInputMetadata = {
     content_kind: "unknown_input",
     provider_type: providerType,
     reason: "unsupported_responses_input_item",
-    observed_keys: Object.keys(item).sort()
+    observed_keys: Object.keys(sourceItem.item).sort(),
+    ...provenanceForSourceItem(sourceItem)
   };
   return {
     kind: "unknown_input",
     artifactType: "SUMMARY",
-    artifactName: `input:${providerType}:${index}`,
-    artifactId: `SUMMARY:input:${providerType}:${index}`,
+    artifactName: `input:${providerType}:${sourceItem.index}`,
+    artifactId: `SUMMARY:input:${providerType}:${sourceItem.index}`,
     content,
     metadata
   };
 }
 
-function reasoningStateArtifact(item: CodexResponsesUnknownInputObject, index: number, content: string): CodexReasoningStateArtifact {
+function reasoningStateArtifact(sourceItem: Extract<CodexSourceInputItem, { sourceProtocolType: "reasoning" }>, content: string): CodexReasoningStateArtifact {
   const metadata: CodexReasoningStateMetadata = {
     content_kind: "reasoning_state",
     provider_type: "reasoning",
     reason: "opaque_reasoning_state",
-    observed_keys: Object.keys(item).sort()
+    observed_keys: Object.keys(sourceItem.item).sort(),
+    ...provenanceForSourceItem(sourceItem)
   };
   return {
     kind: "reasoning_state",
     artifactType: "SUMMARY",
     artifactName: "Reasoning state",
-    artifactId: `SUMMARY:input:reasoning:${index}`,
+    artifactId: `SUMMARY:input:reasoning:${sourceItem.index}`,
     content,
     metadata
   };
+}
+
+function provenanceForSourceItem(sourceItem: CodexSourceInputItem) {
+  return sourceProvenance({
+    sourceProtocolType: sourceItem.sourceProtocolType,
+    sourceItemIndex: sourceItem.index,
+    ...("role" in sourceItem ? { sourceRole: sourceItem.role } : {}),
+    ...("toolName" in sourceItem ? { sourceToolName: sourceItem.toolName } : {})
+  });
 }
 
 function artifactFromContent(
@@ -400,24 +401,4 @@ function artifactFromContent(
 ): CodexExtractedArtifact[] {
   const content = artifactContent(value);
   return content && content.length > 0 ? [buildArtifact(content)] : [];
-}
-
-function isFunctionCallItem(item: CodexProviderItem): item is CodexResponsesFunctionCallItem {
-  return item.type === "function_call";
-}
-
-function isFunctionCallOutputItem(item: CodexProviderItem): item is CodexResponsesFunctionCallOutputItem {
-  return item.type === "function_call_output";
-}
-
-function isCustomToolCallItem(item: CodexProviderItem): item is CodexResponsesCustomToolCallItem {
-  return item.type === "custom_tool_call";
-}
-
-function isCustomToolCallOutputItem(item: CodexProviderItem): item is CodexResponsesCustomToolCallOutputItem {
-  return item.type === "custom_tool_call_output";
-}
-
-function isMessageItem(item: CodexProviderItem): item is CodexResponsesMessageItem {
-  return item.type === "message";
 }

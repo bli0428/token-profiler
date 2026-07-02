@@ -86,7 +86,29 @@ export type CodexArtifactType =
   | "SUMMARY"
   | "CODEX_USAGE";
 
+export type CodexSourceProtocol = "openai_responses";
+
+export type CodexSourceProtocolType =
+  | "instructions"
+  | "tool_definition"
+  | "message"
+  | "function_call"
+  | "function_call_output"
+  | "custom_tool_call"
+  | "custom_tool_call_output"
+  | "reasoning"
+  | "unknown";
+
+export type CodexSourceProvenance = {
+  source_protocol: CodexSourceProtocol;
+  source_protocol_type: CodexSourceProtocolType;
+  source_item_index?: number;
+  source_role?: string;
+  source_tool_name?: string;
+};
+
 export type CodexArtifactMetadata =
+  | CodexSystemMetadata
   | CodexMessageMetadata
   | CodexToolCallMetadata
   | CodexPatchMetadata
@@ -94,7 +116,15 @@ export type CodexArtifactMetadata =
   | CodexUnknownInputMetadata
   | CodexReasoningStateMetadata;
 
-export type CodexMessageMetadata = {
+export type CodexSystemMetadata = CodexSourceProvenance & {
+  content_kind: "system_prompt" | "tool_definition";
+  role: "system";
+  message_source: "system_context";
+  title_candidate: false;
+  part_index: 0;
+};
+
+export type CodexMessageMetadata = CodexSourceProvenance & {
   content_kind: "assistant_message" | "system_message" | "user_message";
   role: string;
   message_source: "agent_context" | "conversation_history" | "current_turn" | "system_context" | "unknown";
@@ -102,7 +132,7 @@ export type CodexMessageMetadata = {
   part_index: number;
 };
 
-export type CodexToolCallMetadata = {
+export type CodexToolCallMetadata = CodexSourceProvenance & {
   tool_name: string;
   display_name: string;
   content_kind: "command" | "tool_call" | "custom_tool_call";
@@ -111,7 +141,7 @@ export type CodexToolCallMetadata = {
   workdir?: string;
 };
 
-export type CodexPatchMetadata = {
+export type CodexPatchMetadata = CodexSourceProvenance & {
   tool_name: string;
   display_name: string;
   content_kind: "patch";
@@ -123,7 +153,7 @@ export type CodexPatchMetadata = {
   call_id?: string;
 };
 
-export type CodexToolOutputMetadata = {
+export type CodexToolOutputMetadata = CodexSourceProvenance & {
   tool_name: string;
   display_name: string;
   content_kind: "tool_output";
@@ -138,14 +168,14 @@ export type CodexToolOutputMetadata = {
   output_preview?: string;
 };
 
-export type CodexUnknownInputMetadata = {
+export type CodexUnknownInputMetadata = CodexSourceProvenance & {
   content_kind: "unknown_input";
   provider_type: string;
   reason: string;
   observed_keys: string[];
 };
 
-export type CodexReasoningStateMetadata = {
+export type CodexReasoningStateMetadata = CodexSourceProvenance & {
   content_kind: "reasoning_state";
   provider_type: "reasoning";
   reason: "opaque_reasoning_state";
@@ -161,11 +191,13 @@ type CodexArtifactBase = {
 export type CodexSystemArtifact = CodexArtifactBase & {
   kind: "system_instruction";
   artifactType: "SYSTEM_PROMPT";
+  metadata: CodexSystemMetadata;
 };
 
 export type CodexToolDefinitionArtifact = CodexArtifactBase & {
   kind: "tool_definition";
   artifactType: "SYSTEM_PROMPT";
+  metadata: CodexSystemMetadata;
 };
 
 export type CodexMessageArtifact = CodexArtifactBase & {
