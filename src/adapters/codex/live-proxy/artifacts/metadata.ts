@@ -152,10 +152,18 @@ export function describeToolOutput({
 }
 
 export function describeCallMetadata(call: CodexProviderItem): DescribedToolCall {
-  const toolName = stringValue(call.name) ?? "unknown";
+  const toolName = stringValue(call.name) ?? toolNameForProtocolType(call.type);
   return call.type === "custom_tool_call"
     ? describeCustomToolCall({ toolName, callId: stringValue(call.call_id), input: call.input })
-    : describeFunctionCall({ toolName, callId: stringValue(call.call_id), input: call.arguments });
+    : describeFunctionCall({ toolName, callId: stringValue(call.call_id), input: call.arguments ?? call.input ?? call.action ?? call.query });
+}
+
+function toolNameForProtocolType(type: unknown): string {
+  if (type === "local_shell_call") return "local_shell";
+  if (type === "tool_search_call") return "tool_search";
+  if (type === "web_search_call") return "web_search";
+  if (type === "image_generation_call") return "image_generation";
+  return "unknown";
 }
 
 function summarizePatch(text: string): PatchSummary {

@@ -58,6 +58,30 @@ export type CodexResponsesCustomToolCallOutputItem = CodexProviderItem & {
   output?: unknown;
 };
 
+export type CodexResponsesMcpToolCallOutputItem = CodexProviderItem & {
+  type: "mcp_tool_call_output";
+  call_id?: unknown;
+  output?: unknown;
+  result?: unknown;
+};
+
+export type CodexResponsesToolSearchOutputItem = CodexProviderItem & {
+  type: "tool_search_output";
+  call_id?: unknown;
+  output?: unknown;
+  results?: unknown;
+};
+
+export type CodexResponsesProtocolToolCallItem = CodexProviderItem & {
+  type: "local_shell_call" | "tool_search_call" | "web_search_call" | "image_generation_call";
+  name?: unknown;
+  call_id?: unknown;
+  arguments?: unknown;
+  input?: unknown;
+  action?: unknown;
+  query?: unknown;
+};
+
 export type CodexResponsesUnknownInputObject = CodexProviderItem & {
   type?: unknown;
   role?: unknown;
@@ -70,6 +94,9 @@ export type CodexResponsesInputObject =
   | CodexResponsesFunctionCallOutputItem
   | CodexResponsesCustomToolCallItem
   | CodexResponsesCustomToolCallOutputItem
+  | CodexResponsesMcpToolCallOutputItem
+  | CodexResponsesToolSearchOutputItem
+  | CodexResponsesProtocolToolCallItem
   | CodexResponsesUnknownInputObject;
 
 export type CodexResponsesInputItem = string | CodexResponsesInputObject;
@@ -96,6 +123,18 @@ export type CodexSourceProtocolType =
   | "function_call_output"
   | "custom_tool_call"
   | "custom_tool_call_output"
+  | "mcp_tool_call_output"
+  | "tool_search_output"
+  | "additional_tools"
+  | "agent_message"
+  | "local_shell_call"
+  | "tool_search_call"
+  | "web_search_call"
+  | "image_generation_call"
+  | "compaction"
+  | "compaction_trigger"
+  | "context_compaction"
+  | "other"
   | "reasoning"
   | "unknown";
 

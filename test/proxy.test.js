@@ -217,6 +217,83 @@ test("extracts reasoning input items as opaque reasoning state artifacts", () =>
   assert.deepEqual(artifacts[0].metadata.observed_keys, ["encrypted_content", "summary", "type"]);
 });
 
+test("extracts newer Codex protocol tool calls and outputs explicitly", () => {
+  const artifacts = extractResponsesArtifacts({
+    input: [
+      {
+        type: "local_shell_call",
+        call_id: "call_shell",
+        action: {
+          cmd: "npm run lint",
+          workdir: "/repo"
+        }
+      },
+      {
+        type: "function_call_output",
+        call_id: "call_shell",
+        output: "Process exited with code 0\nOutput:\nlint ok"
+      },
+      {
+        type: "mcp_tool_call_output",
+        call_id: "call_mcp",
+        output: "MCP result"
+      },
+      {
+        type: "tool_search_output",
+        call_id: "call_search",
+        results: [{ title: "Search hit" }]
+      }
+    ]
+  });
+
+  assert.equal(artifacts[0].kind, "tool_call");
+  assert.equal(artifacts[0].metadata.source_protocol_type, "local_shell_call");
+  assert.equal(artifacts[0].metadata.source_tool_name, "local_shell");
+  assert.equal(artifacts[0].metadata.command, "npm run lint");
+  assert.equal(artifacts[1].kind, "tool_output");
+  assert.equal(artifacts[1].metadata.source_protocol_type, "function_call_output");
+  assert.equal(artifacts[1].metadata.source_tool_name, "local_shell");
+  assert.equal(artifacts[1].metadata.command, "npm run lint");
+  assert.equal(artifacts[1].metadata.output_preview, "lint ok");
+  assert.equal(artifacts[2].kind, "tool_output");
+  assert.equal(artifacts[2].metadata.source_protocol_type, "mcp_tool_call_output");
+  assert.equal(artifacts[2].metadata.source_tool_name, "mcp_tool");
+  assert.equal(artifacts[3].kind, "tool_output");
+  assert.equal(artifacts[3].artifactType, "SEARCH_RESULT");
+  assert.equal(artifacts[3].metadata.source_protocol_type, "tool_search_output");
+  assert.equal(artifacts[3].metadata.source_tool_name, "tool_search");
+});
+
+test("extracts agent messages and protocol control items with explicit provenance", () => {
+  const artifacts = extractResponsesArtifacts({
+    input: [
+      {
+        type: "agent_message",
+        content: [{ type: "output_text", text: "I checked the repo." }]
+      },
+      {
+        type: "compaction",
+        summary: "Compacted conversation state"
+      },
+      {
+        type: "additional_tools",
+        tools: [{ name: "extra_tool" }]
+      }
+    ]
+  });
+
+  assert.equal(artifacts[0].kind, "message");
+  assert.equal(artifacts[0].metadata.content_kind, "assistant_message");
+  assert.equal(artifacts[0].metadata.source_protocol_type, "agent_message");
+  assert.equal(artifacts[0].metadata.source_role, "assistant");
+  assert.equal(artifacts[1].kind, "unknown_input");
+  assert.equal(artifacts[1].metadata.provider_type, "compaction");
+  assert.equal(artifacts[1].metadata.source_protocol_type, "compaction");
+  assert.equal(artifacts[2].kind, "unknown_input");
+  assert.equal(artifacts[2].metadata.provider_type, "additional_tools");
+  assert.equal(artifacts[2].metadata.source_protocol_type, "additional_tools");
+});
+
 test("marks injected Codex context messages as ineligible for titles", () => {
   const artifacts = extractResponsesArtifacts({
     input: [
