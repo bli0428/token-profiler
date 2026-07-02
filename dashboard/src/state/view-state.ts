@@ -15,6 +15,7 @@ export type DashboardViewState = {
   selectedArtifactId?: string;
   expandedTurnIds: string[];
   expandedRequestIds: string[];
+  expandedArtifactIds: string[];
   categoryFilter: string | "all";
   searchQuery: string;
   sortKey: DashboardSortKey;
@@ -27,6 +28,7 @@ export type DashboardViewState = {
 export const defaultViewState: DashboardViewState = {
   expandedTurnIds: [],
   expandedRequestIds: [],
+  expandedArtifactIds: [],
   categoryFilter: "all",
   searchQuery: "",
   sortKey: "total_exposure",
@@ -43,7 +45,8 @@ export function withSelectedRun(state: DashboardViewState, selectedRunId: string
     selectedTaskGroupId: undefined,
     selectedArtifactId: undefined,
     expandedTurnIds: [],
-    expandedRequestIds: []
+    expandedRequestIds: [],
+    expandedArtifactIds: []
   };
 }
 

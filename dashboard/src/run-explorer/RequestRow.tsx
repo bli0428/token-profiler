@@ -9,24 +9,26 @@ type Props = {
   request: DashboardRequestAccountingRow | DashboardTurnRequest;
   artifactRows: DashboardArtifactRow[];
   expanded: boolean;
+  expandedArtifactIds: string[];
   selectedArtifactId?: string;
-  artifactDetail?: DashboardArtifactDetail;
-  artifactDetailLoading?: boolean;
-  artifactDetailError?: string;
+  artifactDetails?: Record<string, DashboardArtifactDetail>;
+  loadingArtifactIds?: string[];
+  artifactErrors?: Record<string, string | undefined>;
   onToggleExpanded: (requestId: string) => void;
-  onSelectArtifact: (artifactId: string | undefined) => void;
+  onToggleArtifact: (artifactId: string | undefined) => void;
 };
 
 export function RequestRow({
   request,
   artifactRows,
   expanded,
+  expandedArtifactIds,
   selectedArtifactId,
-  artifactDetail,
-  artifactDetailLoading = false,
-  artifactDetailError,
+  artifactDetails = {},
+  loadingArtifactIds = [],
+  artifactErrors = {},
   onToggleExpanded,
-  onSelectArtifact
+  onToggleArtifact
 }: Props) {
   const panelId = `request-${request.request_id}-artifacts`;
   const hasArtifacts = request.artifact_inclusions.length > 0;
@@ -36,6 +38,7 @@ export function RequestRow({
   const toggle = () => onToggleExpanded(request.request_id);
   return (
     <article
+      id={`request-${safeDomId(request.request_id)}`}
       className={`request-row availability-${request.availability.status}`}
       aria-label={`Request ${request.chronology_index + 1}`}
       tabIndex={0}
@@ -87,11 +90,13 @@ export function RequestRow({
             <RequestArtifacts
               artifacts={request.artifact_inclusions}
               artifactRows={artifactRows}
+              requestId={request.request_id}
+              expandedArtifactIds={expandedArtifactIds}
               selectedArtifactId={selectedArtifactId}
-              artifactDetail={artifactDetail}
-              artifactDetailLoading={artifactDetailLoading}
-              artifactDetailError={artifactDetailError}
-              onSelectArtifact={onSelectArtifact}
+              artifactDetails={artifactDetails}
+              loadingArtifactIds={loadingArtifactIds}
+              artifactErrors={artifactErrors}
+              onToggleArtifact={onToggleArtifact}
             />
           ) : (
             <p className="request-empty-note">No request-scoped artifacts are available for this request.</p>
@@ -100,4 +105,8 @@ export function RequestRow({
       </div>
     </article>
   );
+}
+
+function safeDomId(value: string): string {
+  return value.replace(/[^A-Za-z0-9_-]+/g, "_");
 }

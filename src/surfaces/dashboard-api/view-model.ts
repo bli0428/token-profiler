@@ -224,6 +224,7 @@ function dashboardArtifactRows(
       ...(summaryText ? { summary: summaryText } : {}),
       task_group_ids: taskIdsByArtifact.get(aggregate.artifact_id) ?? [],
       total_exposure: aggregate.total_exposure,
+      unique_exposure: aggregate.unique_exposure,
       repeated_exposure: aggregate.repeated_exposure,
       inclusion_count: aggregate.inclusions,
       ...(normalizedEstimatedInput !== undefined ? { normalized_estimated_input_tokens: normalizedEstimatedInput } : {}),

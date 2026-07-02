@@ -8,13 +8,14 @@ type Props = {
   artifactRows: DashboardArtifactRow[];
   expanded: boolean;
   expandedRequestIds: string[];
+  expandedArtifactIds: string[];
   selectedArtifactId?: string;
-  artifactDetail?: DashboardArtifactDetail;
-  artifactDetailLoading?: boolean;
-  artifactDetailError?: string;
+  artifactDetails?: Record<string, DashboardArtifactDetail>;
+  loadingArtifactIds?: string[];
+  artifactErrors?: Record<string, string | undefined>;
   onToggleTurn: (turnId: string) => void;
   onToggleRequest: (requestId: string) => void;
-  onSelectArtifact: (artifactId: string | undefined) => void;
+  onToggleArtifact: (artifactId: string | undefined) => void;
 };
 
 export function TurnRow({
@@ -23,13 +24,14 @@ export function TurnRow({
   artifactRows,
   expanded,
   expandedRequestIds,
+  expandedArtifactIds,
   selectedArtifactId,
-  artifactDetail,
-  artifactDetailLoading = false,
-  artifactDetailError,
+  artifactDetails = {},
+  loadingArtifactIds = [],
+  artifactErrors = {},
   onToggleTurn,
   onToggleRequest,
-  onSelectArtifact
+  onToggleArtifact
 }: Props) {
   const panelId = `turn-${safeDomId(turn.turn_id)}-requests`;
   const toggle = () => onToggleTurn(turn.turn_id);
@@ -89,10 +91,11 @@ export function TurnRow({
                   key={request.request_id}
                   request={request}
                   selectedArtifactId={selectedArtifactId}
-                  artifactDetail={artifactDetail}
-                  artifactDetailLoading={artifactDetailLoading}
-                  artifactDetailError={artifactDetailError}
-                  onSelectArtifact={onSelectArtifact}
+                  expandedArtifactIds={expandedArtifactIds}
+                  artifactDetails={artifactDetails}
+                  loadingArtifactIds={loadingArtifactIds}
+                  artifactErrors={artifactErrors}
+                  onToggleArtifact={onToggleArtifact}
                   onToggleExpanded={onToggleRequest}
                 />
               ))}

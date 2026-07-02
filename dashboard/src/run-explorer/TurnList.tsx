@@ -8,16 +8,17 @@ type Props = {
   artifactRows: DashboardArtifactRow[];
   expandedTurnIds: string[];
   expandedRequestIds: string[];
+  expandedArtifactIds: string[];
   requestSortKey: RequestSortKey;
   requestSortDirection: "asc" | "desc";
   selectedArtifactId?: string;
-  artifactDetail?: DashboardArtifactDetail;
-  artifactDetailLoading?: boolean;
-  artifactDetailError?: string;
+  artifactDetails?: Record<string, DashboardArtifactDetail>;
+  loadingArtifactIds?: string[];
+  artifactErrors?: Record<string, string | undefined>;
   onChangeRequestSort: (next: { sortKey?: RequestSortKey; sortDirection?: "asc" | "desc" }) => void;
   onToggleTurn: (turnId: string) => void;
   onToggleRequest: (requestId: string) => void;
-  onSelectArtifact: (artifactId: string | undefined) => void;
+  onToggleArtifact: (artifactId: string | undefined) => void;
 };
 
 const sortOptions: Array<{ value: RequestSortKey; label: string }> = [
@@ -34,16 +35,17 @@ export function TurnList({
   artifactRows,
   expandedTurnIds,
   expandedRequestIds,
+  expandedArtifactIds,
   requestSortKey,
   requestSortDirection,
   selectedArtifactId,
-  artifactDetail,
-  artifactDetailLoading = false,
-  artifactDetailError,
+  artifactDetails = {},
+  loadingArtifactIds = [],
+  artifactErrors = {},
   onChangeRequestSort,
   onToggleTurn,
   onToggleRequest,
-  onSelectArtifact
+  onToggleArtifact
 }: Props) {
   if (turns.length === 0) {
     return <EmptyState title="No turns" message="This run has no turn groups to display." />;
@@ -91,11 +93,12 @@ export function TurnList({
             index={index}
             key={turn.turn_id}
             selectedArtifactId={selectedArtifactId}
-            artifactDetail={artifactDetail}
-            artifactDetailLoading={artifactDetailLoading}
-            artifactDetailError={artifactDetailError}
+            expandedArtifactIds={expandedArtifactIds}
+            artifactDetails={artifactDetails}
+            loadingArtifactIds={loadingArtifactIds}
+            artifactErrors={artifactErrors}
             turn={turn}
-            onSelectArtifact={onSelectArtifact}
+            onToggleArtifact={onToggleArtifact}
             onToggleRequest={onToggleRequest}
             onToggleTurn={onToggleTurn}
           />

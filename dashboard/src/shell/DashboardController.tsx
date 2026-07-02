@@ -4,7 +4,7 @@ import { isDashboardClientError } from "../api/errors";
 import { EmptyState } from "../components/EmptyState";
 import { ErrorState } from "../components/ErrorState";
 import { useApiStatus } from "../hooks/useApiStatus";
-import { useArtifactDetail } from "../hooks/useArtifactDetail";
+import { useArtifactDetails } from "../hooks/useArtifactDetail";
 import { useRefresh } from "../hooks/useRefresh";
 import { useSelectedRun } from "../hooks/useSelectedRun";
 import { useSessions } from "../hooks/useSessions";
@@ -21,20 +21,20 @@ export function DashboardController() {
   const ready = Boolean(status.data?.data.ready);
   const sessions = useSessions(client, ready);
   const selectedRun = useSelectedRun(client, viewState.selectedRunId);
-  const artifactDetail = useArtifactDetail(client, viewState.selectedRunId, viewState.selectedArtifactId);
+  const artifactDetails = useArtifactDetails(client, viewState.selectedRunId, viewState.expandedArtifactIds);
 
   const refresh = useCallback(async (): Promise<RefreshResult> => {
     try {
       await status.reload();
       await sessions.reload();
       await selectedRun.reload();
-      await artifactDetail.reload();
+      await artifactDetails.reload();
       setViewState((current) => reconcileRun(reconcileSessions(current, sessions.data?.data.sessions ?? []), selectedRun.data?.data));
       return selectedRun.data?.data.overview.availability.status === "partial" ? "partial" : "success";
     } catch {
       return "offline";
     }
-  }, [artifactDetail, selectedRun, sessions, setViewState, status]);
+  }, [artifactDetails, selectedRun, sessions, setViewState, status]);
 
   const refreshState = useRefresh(refresh, viewState.refreshMode);
   const captureMode = status.data?.data.current_proxy?.status === "running"
@@ -95,9 +95,12 @@ export function DashboardController() {
             {selectedRun.data ? (
               <RunExplorer
                 run={selectedRun.data.data}
-                detail={artifactDetail.data}
-                detailLoading={artifactDetail.loading}
-                detailError={isDashboardClientError(artifactDetail.error) ? artifactDetail.error.message : undefined}
+                details={artifactDetails.data}
+                loadingArtifactIds={artifactDetails.loadingIds}
+                artifactErrors={Object.fromEntries(Object.entries(artifactDetails.errors).map(([artifactId, error]) => [
+                  artifactId,
+                  isDashboardClientError(error) ? error.message : undefined
+                ]))}
                 viewState={viewState}
                 session={selectedSession}
                 lastUpdatedAt={refreshState.lastUpdatedAt ?? selectedRun.data.generated_at}

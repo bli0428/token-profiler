@@ -46,7 +46,9 @@ describe("privacy rendering", () => {
       <RequestArtifacts
         artifacts={request.artifact_inclusions}
         artifactRows={apiRealFixtures.run.data.artifacts}
-        onSelectArtifact={() => undefined}
+        requestId={request.request_id}
+        expandedArtifactIds={[]}
+        onToggleArtifact={() => undefined}
       />
     );
 
@@ -75,6 +77,8 @@ describe("privacy rendering", () => {
           privacy: apiRealFixtures.run.data.privacy,
           caveats: []
         }]}
+        requestId="req-reasoning"
+        expandedArtifactIds={[]}
         artifactRows={[{
           artifact_id: "SUMMARY:input:reasoning:3",
           stable_short_id: "reason3",
@@ -89,7 +93,7 @@ describe("privacy rendering", () => {
           search_text: "Reasoning state",
           caveats: []
         }]}
-        onSelectArtifact={() => undefined}
+        onToggleArtifact={() => undefined}
       />
     );
 

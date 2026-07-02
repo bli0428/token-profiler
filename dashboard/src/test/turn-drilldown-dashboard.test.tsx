@@ -77,7 +77,10 @@ describe("turn drilldown dashboard", () => {
     expect(screen.getByLabelText("Request artifacts")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Expand artifact" }));
 
-    expect(onChangeViewState).toHaveBeenCalledWith({ selectedArtifactId: "PATCH:alpha" });
+    expect(onChangeViewState).toHaveBeenCalledWith({
+      expandedArtifactIds: ["PATCH:alpha"],
+      selectedArtifactId: "PATCH:alpha"
+    });
   });
 
   it("does not collapse the request when interacting with expanded artifact detail", async () => {
@@ -89,16 +92,19 @@ describe("turn drilldown dashboard", () => {
         ...defaultViewState,
         expandedTurnIds: ["turn-alpha"],
         expandedRequestIds: ["req-alpha-1"],
+        expandedArtifactIds: ["PATCH:alpha"],
         selectedArtifactId: "PATCH:alpha"
       },
-      detail: {
-        schema_version: 1,
-        generated_at: "2026-06-29T12:00:00.000Z",
-        caveats: [],
-        data: {
-          ...apiRealFixtures.artifactDetail.data,
-          artifact_id: "PATCH:alpha",
-          title: "apply_patch: recording.ts"
+      details: {
+        "PATCH:alpha": {
+          schema_version: 1,
+          generated_at: "2026-06-29T12:00:00.000Z",
+          caveats: [],
+          data: {
+            ...apiRealFixtures.artifactDetail.data,
+            artifact_id: "PATCH:alpha",
+            title: "apply_patch: recording.ts"
+          }
         }
       },
       onChangeViewState
@@ -107,6 +113,69 @@ describe("turn drilldown dashboard", () => {
     await user.click(screen.getByLabelText("Artifact detail"));
 
     expect(onChangeViewState).not.toHaveBeenCalledWith({ expandedRequestIds: [] });
+  });
+
+  it("keeps multiple artifact details expanded under the same request", () => {
+    const run = multiArtifactRun();
+    renderExplorer({
+      run,
+      viewState: {
+        ...defaultViewState,
+        expandedTurnIds: ["turn-alpha"],
+        expandedRequestIds: ["req-alpha-1"],
+        expandedArtifactIds: ["PATCH:alpha", "OUT:alpha"],
+        selectedArtifactId: "OUT:alpha"
+      },
+      details: {
+        "PATCH:alpha": {
+          schema_version: 1,
+          generated_at: "2026-06-29T12:00:00.000Z",
+          caveats: [],
+          data: {
+            ...apiRealFixtures.artifactDetail.data,
+            artifact_id: "PATCH:alpha",
+            title: "apply_patch: recording.ts"
+          }
+        },
+        "OUT:alpha": {
+          schema_version: 1,
+          generated_at: "2026-06-29T12:00:00.000Z",
+          caveats: [],
+          data: {
+            ...apiRealFixtures.artifactDetail.data,
+            artifact_id: "OUT:alpha",
+            title: "exec_command output"
+          }
+        }
+      }
+    });
+
+    expect(screen.getAllByLabelText("Artifact detail")).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: "apply_patch: recording.ts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "exec_command output" })).toBeInTheDocument();
+  });
+
+  it("collapses one artifact without clearing other expanded artifacts", async () => {
+    const user = userEvent.setup();
+    const onChangeViewState = vi.fn();
+    renderExplorer({
+      run: multiArtifactRun(),
+      viewState: {
+        ...defaultViewState,
+        expandedTurnIds: ["turn-alpha"],
+        expandedRequestIds: ["req-alpha-1"],
+        expandedArtifactIds: ["PATCH:alpha", "OUT:alpha"],
+        selectedArtifactId: "PATCH:alpha"
+      },
+      onChangeViewState
+    });
+
+    await user.click(screen.getAllByRole("button", { name: "Collapse artifact" })[0]!);
+
+    expect(onChangeViewState).toHaveBeenCalledWith({
+      expandedArtifactIds: ["OUT:alpha"],
+      selectedArtifactId: undefined
+    });
   });
 
   it("labels missing-turn fallback groups", () => {
@@ -122,12 +191,13 @@ describe("turn drilldown dashboard", () => {
       <TurnList
         artifactRows={[]}
         expandedRequestIds={[]}
+        expandedArtifactIds={[]}
         expandedTurnIds={[]}
         requestSortDirection="asc"
         requestSortKey="time"
         turns={[]}
         onChangeRequestSort={() => undefined}
-        onSelectArtifact={() => undefined}
+        onToggleArtifact={() => undefined}
         onToggleRequest={() => undefined}
         onToggleTurn={() => undefined}
       />
@@ -144,15 +214,19 @@ describe("turn drilldown dashboard", () => {
     expect(within(firstTurn).getByText(/6\/29\/2026/)).toBeInTheDocument();
   });
 
-  it("renders top normalized artifact contributors in the overview", () => {
-    renderExplorer({ run: contributorRun() });
+  it("renders top normalized artifact contributors in the overview", async () => {
+    const user = userEvent.setup();
+    const onChangeViewState = vi.fn();
+    renderExplorer({ run: contributorRun(), onChangeViewState });
 
     expect(screen.getByLabelText("Top artifact contributors by normalized token contribution")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Top 5 Artifact Contributors" })).toBeInTheDocument();
     expect(screen.getByText("apply_patch: feature.ts")).toBeInTheDocument();
     expect(screen.getByText("exec_command output")).toBeInTheDocument();
     expect(screen.queryByText("hidden small contributor")).not.toBeInTheDocument();
-    expect(screen.getByText("1,000 attributed")).toBeInTheDocument();
+    expect(screen.queryByText("1,000 attributed")).not.toBeInTheDocument();
+    expect(screen.getByText("4 occurrences · 500 Tokens")).toBeInTheDocument();
+    expect(screen.getByText("2 occurrences · 250 Tokens")).toBeInTheDocument();
     const fills = document.querySelectorAll<HTMLElement>(".contributor-bar-fill");
     expect(fills).toHaveLength(5);
     expect(fills[0]?.style.width).toBe("50%");
@@ -160,6 +234,15 @@ describe("turn drilldown dashboard", () => {
     expect(fills[2]?.style.width).toBe("15%");
     expect(fills[3]?.style.width).toBe("6%");
     expect(fills[4]?.style.width).toBe("3%");
+
+    await user.click(screen.getByRole("button", { name: "apply_patch: feature.ts" }));
+
+    expect(onChangeViewState).toHaveBeenCalledWith({
+      expandedTurnIds: ["turn-alpha"],
+      expandedRequestIds: ["req-alpha-1"],
+      expandedArtifactIds: ["PATCH:alpha"],
+      selectedArtifactId: "PATCH:alpha"
+    });
   });
 
   it("truncates long turn preview titles at 100 characters", () => {
@@ -217,7 +300,6 @@ function renderExplorerElement(
   return (
     <RunExplorer
       run={turnRun()}
-      detailLoading={false}
       viewState={viewState}
       onChangeViewState={onChangeViewState}
       {...overrides}
@@ -365,7 +447,7 @@ function contributorRun(): DashboardRun {
     artifacts: [
       {
         ...base.artifacts[0]!,
-        artifact_id: "artifact-patch-1",
+        artifact_id: "PATCH:alpha",
         display_name: "apply_patch: feature.ts",
         display_category: "patch",
         total_exposure: 1200,
@@ -435,6 +517,46 @@ function contributorRun(): DashboardRun {
         estimated_cached_input_tokens: 0,
         estimated_uncached_input_tokens: 10
       }
+    ]
+  };
+}
+
+function multiArtifactRun(): DashboardRun {
+  const run = turnRun();
+  const secondArtifactId = "OUT:alpha";
+  const firstRequest = run.turns[0]!.requests[0]!;
+  const secondInclusion = {
+    ...firstRequest.artifact_inclusions[0]!,
+    artifact_id: secondArtifactId,
+    display_name: "exec_command output",
+    display_category: "command_output",
+    request_order: 1
+  };
+
+  return {
+    ...run,
+    artifacts: [
+      ...run.artifacts,
+      {
+        ...run.artifacts[0]!,
+        artifact_id: secondArtifactId,
+        display_name: "exec_command output",
+        display_category: "command_output",
+        detail_available: true
+      }
+    ],
+    turns: [
+      {
+        ...run.turns[0]!,
+        requests: [
+          {
+            ...firstRequest,
+            artifact_inclusions: [...firstRequest.artifact_inclusions, secondInclusion]
+          },
+          ...run.turns[0]!.requests.slice(1)
+        ]
+      },
+      ...run.turns.slice(1)
     ]
   };
 }

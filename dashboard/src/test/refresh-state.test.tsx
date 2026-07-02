@@ -15,6 +15,7 @@ describe("refresh reconciliation", () => {
       selectedArtifactId: artifact.artifact_id,
       expandedTurnIds: [apiRealFixtures.run.data.turns[0]!.turn_id],
       expandedRequestIds: [apiRealFixtures.run.data.requests.rows[0]!.request_id],
+      expandedArtifactIds: [artifact.artifact_id],
       categoryFilter: artifact.display_category,
       sortKey: "display_name" as const
     };
@@ -28,7 +29,8 @@ describe("refresh reconciliation", () => {
       selectedTaskGroupId: "missing-task",
       selectedArtifactId: "missing-artifact",
       expandedTurnIds: ["missing-turn"],
-      expandedRequestIds: ["missing-request"]
+      expandedRequestIds: ["missing-request"],
+      expandedArtifactIds: ["missing-artifact"]
     };
     const next = reconcileRun(reconcileSessions(state, apiRealFixtures.sessions.data.sessions), apiRealFixtures.run.data);
     expect(next.selectedRunId).toBeUndefined();
@@ -36,18 +38,22 @@ describe("refresh reconciliation", () => {
     expect(next.selectedArtifactId).toBeUndefined();
     expect(next.expandedTurnIds).toEqual([]);
     expect(next.expandedRequestIds).toEqual([]);
+    expect(next.expandedArtifactIds).toEqual([]);
   });
 
-  it("clears expanded requests that are not present after refresh", () => {
+  it("clears expanded requests and artifacts that are not present after refresh", () => {
     const request = apiRealFixtures.run.data.requests.rows[0]!;
+    const artifact = apiRealFixtures.run.data.artifacts[0]!;
     const state = {
       ...defaultViewState,
       selectedRunId: apiRealFixtures.run.data.run_id,
       expandedTurnIds: [apiRealFixtures.run.data.turns[0]!.turn_id, "missing-turn"],
-      expandedRequestIds: [request.request_id, "missing-request"]
+      expandedRequestIds: [request.request_id, "missing-request"],
+      expandedArtifactIds: [artifact.artifact_id, "missing-artifact"]
     };
     const next = reconcileRun(state, apiRealFixtures.run.data);
     expect(next.expandedTurnIds).toEqual([apiRealFixtures.run.data.turns[0]!.turn_id]);
     expect(next.expandedRequestIds).toEqual([request.request_id]);
+    expect(next.expandedArtifactIds).toEqual([artifact.artifact_id]);
   });
 });

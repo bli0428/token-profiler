@@ -5,21 +5,25 @@ import { formatEstimatedTokens } from "./request-format";
 type Props = {
   artifacts: DashboardRequestArtifactInclusion[];
   artifactRows: DashboardArtifactRow[];
+  requestId: string;
+  expandedArtifactIds: string[];
   selectedArtifactId?: string;
-  artifactDetail?: DashboardArtifactDetail;
-  artifactDetailLoading?: boolean;
-  artifactDetailError?: string;
-  onSelectArtifact: (artifactId: string | undefined) => void;
+  artifactDetails?: Record<string, DashboardArtifactDetail>;
+  loadingArtifactIds?: string[];
+  artifactErrors?: Record<string, string | undefined>;
+  onToggleArtifact: (artifactId: string | undefined) => void;
 };
 
 export function RequestArtifacts({
   artifacts,
   artifactRows,
+  requestId,
+  expandedArtifactIds,
   selectedArtifactId,
-  artifactDetail,
-  artifactDetailLoading = false,
-  artifactDetailError,
-  onSelectArtifact
+  artifactDetails = {},
+  loadingArtifactIds = [],
+  artifactErrors = {},
+  onToggleArtifact
 }: Props) {
   const detailAvailability = new Map(artifactRows.map((artifact) => [artifact.artifact_id, artifact.detail_available]));
 
@@ -31,12 +35,16 @@ export function RequestArtifacts({
     <div className="request-artifacts" aria-label="Request artifacts">
       {artifacts.map((artifact) => {
         const detailAvailable = detailAvailability.get(artifact.artifact_id) ?? false;
+        const expanded = expandedArtifactIds.includes(artifact.artifact_id);
         const selected = selectedArtifactId === artifact.artifact_id;
-        const selectedDetail = selected && artifactDetail?.artifact_id === artifact.artifact_id ? artifactDetail : undefined;
+        const selectedDetail = expanded ? artifactDetails[artifact.artifact_id] : undefined;
+        const artifactDetailLoading = loadingArtifactIds.includes(artifact.artifact_id);
+        const artifactDetailError = artifactErrors[artifact.artifact_id];
         const showTokenMetric = !isReasoningState(artifact);
         return (
           <article
             className={`request-artifact ${selectedArtifactId === artifact.artifact_id ? "is-selected" : ""}`}
+            id={artifactInstanceDomId(requestId, artifact.artifact_id, artifact.request_order)}
             key={`${artifact.artifact_id}-${artifact.request_order}`}
           >
             <div className="request-artifact-main">
@@ -48,16 +56,16 @@ export function RequestArtifacts({
             {showTokenMetric ? (
               <dl className="request-artifact-metrics">
                 <Metric label="Tokens" value={formatEstimatedTokens(normalizedTokenCount(artifact))} />
-              </dl>
+            </dl>
             ) : null}
             {detailAvailable ? (
-              <button className="link-button" type="button" onClick={() => onSelectArtifact(selected ? undefined : artifact.artifact_id)}>
-                {selected ? "Collapse artifact" : "Expand artifact"}
+              <button className="link-button" type="button" onClick={() => onToggleArtifact(artifact.artifact_id)}>
+                {expanded ? "Collapse artifact" : "Expand artifact"}
               </button>
             ) : (
               <span className="request-empty-note">Artifact detail unavailable</span>
             )}
-            {selected ? (
+            {expanded ? (
               <ArtifactDetailPanel
                 detail={selectedDetail}
                 loading={artifactDetailLoading || (!selectedDetail && !artifactDetailError)}
@@ -70,6 +78,14 @@ export function RequestArtifacts({
       })}
     </div>
   );
+}
+
+function artifactInstanceDomId(requestId: string, artifactId: string, requestOrder: number): string {
+  return `artifact-${safeDomId(requestId)}-${safeDomId(artifactId)}-${requestOrder}`;
+}
+
+function safeDomId(value: string): string {
+  return value.replace(/[^A-Za-z0-9_-]+/g, "_");
 }
 
 function isReasoningState(artifact: DashboardRequestArtifactInclusion): boolean {

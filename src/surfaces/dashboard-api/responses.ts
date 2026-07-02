@@ -295,6 +295,7 @@ function toApiArtifactRow(row: DashboardArtifactRowSource): DashboardApiArtifact
     ...(row.summary !== undefined ? { summary: row.summary } : {}),
     task_group_ids: [...row.task_group_ids],
     total_exposure: row.total_exposure,
+    unique_exposure: row.unique_exposure,
     repeated_exposure: row.repeated_exposure,
     inclusion_count: row.inclusion_count,
     ...(row.normalized_estimated_input_tokens !== undefined ? { normalized_estimated_input_tokens: row.normalized_estimated_input_tokens } : {}),

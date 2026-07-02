@@ -90,6 +90,17 @@
   color: var(--color-muted);
 }
 
+.run-overview-chart-header p {
+  font-style: italic;
+}
+
+.run-overview-chart-note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
 .contributor-bar-list {
   display: grid;
   gap: var(--space-3);
@@ -116,14 +127,30 @@
 .contributor-bar-name {
   min-width: 0;
   overflow: hidden;
+  padding: 0;
+  color: var(--color-text);
+  font: inherit;
   font-weight: 600;
+  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.contributor-bar-name:hover,
+.contributor-bar-name:focus-visible {
+  color: var(--color-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .contributor-bar-value {
   min-width: max-content;
   color: var(--color-muted);
+  font-size: 0.82rem;
 }
 
 .contributor-bar-track {

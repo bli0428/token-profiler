@@ -191,6 +191,7 @@ export type DashboardApiArtifactRow = {
   summary?: string | undefined;
   task_group_ids: string[];
   total_exposure: number;
+  unique_exposure: number;
   repeated_exposure: number;
   inclusion_count: number;
   normalized_estimated_input_tokens?: number | undefined;

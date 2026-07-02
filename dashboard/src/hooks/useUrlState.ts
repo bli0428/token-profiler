@@ -9,6 +9,7 @@ export function useUrlState() {
       selectedRunId: params.get("run") ?? undefined,
       selectedTaskGroupId: params.get("task") ?? undefined,
       selectedArtifactId: params.get("artifact") ?? undefined,
+      expandedArtifactIds: params.get("artifact") ? [params.get("artifact") as string] : defaultViewState.expandedArtifactIds,
       categoryFilter: params.get("category") ?? defaultViewState.categoryFilter,
       searchQuery: params.get("q") ?? defaultViewState.searchQuery,
       sortKey: (params.get("sort") as DashboardViewState["sortKey"]) ?? defaultViewState.sortKey,

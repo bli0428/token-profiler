@@ -13,14 +13,16 @@ export function reconcileSessions(state: DashboardViewState, sessions: Dashboard
         selectedTaskGroupId: undefined,
         selectedArtifactId: undefined,
         expandedTurnIds: [],
-        expandedRequestIds: []
+        expandedRequestIds: [],
+        expandedArtifactIds: []
       };
 }
 
 export function reconcileRun(state: DashboardViewState, run: DashboardRun | undefined): DashboardViewState {
-  if (!run) return { ...state, selectedTaskGroupId: undefined, selectedArtifactId: undefined, expandedTurnIds: [], expandedRequestIds: [] };
+  if (!run) return { ...state, selectedTaskGroupId: undefined, selectedArtifactId: undefined, expandedTurnIds: [], expandedRequestIds: [], expandedArtifactIds: [] };
   const taskExists = !state.selectedTaskGroupId || run.task_groups.some((task) => task.task_group_id === state.selectedTaskGroupId);
   const artifactExists = !state.selectedArtifactId || run.artifacts.some((artifact) => artifact.artifact_id === state.selectedArtifactId);
+  const artifactIds = new Set(run.artifacts.map((artifact) => artifact.artifact_id));
   const turnIds = new Set(run.turns.map((turn) => turn.turn_id));
   const requestIds = new Set(run.turns.flatMap((turn) => turn.requests.map((request) => request.request_id)));
   return {
@@ -28,6 +30,7 @@ export function reconcileRun(state: DashboardViewState, run: DashboardRun | unde
     selectedTaskGroupId: taskExists ? state.selectedTaskGroupId : undefined,
     selectedArtifactId: artifactExists ? state.selectedArtifactId : undefined,
     expandedTurnIds: state.expandedTurnIds.filter((turnId) => turnIds.has(turnId)),
-    expandedRequestIds: state.expandedRequestIds.filter((requestId) => requestIds.has(requestId))
+    expandedRequestIds: state.expandedRequestIds.filter((requestId) => requestIds.has(requestId)),
+    expandedArtifactIds: state.expandedArtifactIds.filter((artifactId) => artifactIds.has(artifactId))
   };
 }

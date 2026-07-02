@@ -8,12 +8,14 @@ type Props = {
   overview: DashboardRunOverview;
   title?: string;
   timestamp?: string;
+  onSelectContributor?: (artifactId: string) => void;
 };
 
-export function RunOverview({ artifacts, overview, title, timestamp }: Props) {
+export function RunOverview({ artifacts, overview, title, timestamp, onSelectContributor }: Props) {
   const contributorRows = buildContributorRows(artifacts);
-  const attributedTotal = contributorRows.reduce((total, row) => total + row.tokens, 0);
   const displayedRows = contributorRows.slice(0, TOP_CONTRIBUTOR_LIMIT);
+  const uniqueRows = buildUniqueRows(artifacts);
+  const displayedUniqueRows = uniqueRows.slice(0, TOP_CONTRIBUTOR_LIMIT);
 
   return (
     <section className="run-overview">
@@ -32,29 +34,74 @@ export function RunOverview({ artifacts, overview, title, timestamp }: Props) {
         <header className="run-overview-chart-header">
           <div>
             <h3>Top 5 Artifact Contributors</h3>
-            <p>Normalized artifact input contribution across repeated appearances in this session.</p>
+            <p>High artifact contribution might indicate context pollution.</p>
           </div>
-          <span>{formatTokens(attributedTotal)} attributed</span>
         </header>
         {displayedRows.length > 0 ? (
-          <ol className="contributor-bar-list">
-            {displayedRows.map((row) => (
-              <li key={row.artifact_id} className="contributor-bar-row">
-                <div className="contributor-bar-labels">
-                  <span className="contributor-bar-name">{row.display_name}</span>
-                  <span className="contributor-bar-value">{formatTokens(row.tokens)}</span>
-                </div>
-                <div className="contributor-bar-track" aria-hidden="true">
-                  <div className="contributor-bar-fill" style={{ width: `${row.share * 100}%` }} />
-                </div>
-              </li>
-            ))}
-          </ol>
+          <>
+            <ContributorRows
+              rows={displayedRows}
+              valueLabel={formatContributorValue}
+              onSelectContributor={onSelectContributor}
+            />
+            <p className="run-overview-chart-note">
+              *Repeat artifacts are often cached, so a high artifact contribution does not necessarily mean it is your main cost driver
+            </p>
+          </>
         ) : (
           <p className="run-overview-empty">No normalized artifact contribution is available for this session.</p>
         )}
       </section>
+      <section className="run-overview-chart" aria-label="Top first occurrence artifacts by token contribution">
+        <header className="run-overview-chart-header">
+          <div>
+            <h3>Top 5 First Occurrence Artifacts</h3>
+            <p>Largest local token counts the first time each artifact appeared in this session.</p>
+          </div>
+        </header>
+        {displayedUniqueRows.length > 0 ? (
+          <ContributorRows
+            rows={displayedUniqueRows}
+            valueLabel={formatUniqueValue}
+            onSelectContributor={onSelectContributor}
+          />
+        ) : (
+          <p className="run-overview-empty">No first occurrence artifact contribution is available for this session.</p>
+        )}
+      </section>
     </section>
+  );
+}
+
+function ContributorRows({
+  rows,
+  valueLabel,
+  onSelectContributor
+}: {
+  rows: ContributorRow[];
+  valueLabel: (row: ContributorRow) => string;
+  onSelectContributor?: (artifactId: string) => void;
+}) {
+  return (
+    <ol className="contributor-bar-list">
+      {rows.map((row) => (
+        <li key={row.artifact_id} className="contributor-bar-row">
+          <div className="contributor-bar-labels">
+            <button
+              className="contributor-bar-name"
+              type="button"
+              onClick={() => onSelectContributor?.(row.artifact_id)}
+            >
+              {row.display_name}
+            </button>
+            <span className="contributor-bar-value">{valueLabel(row)}</span>
+          </div>
+          <div className="contributor-bar-track" aria-hidden="true">
+            <div className="contributor-bar-fill" style={{ width: `${row.share * 100}%` }} />
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -72,14 +119,39 @@ function formatTotalTokens(overview: DashboardRunOverview): string {
   return formatTokens(overview.input_tokens + overview.output_tokens);
 }
 
-function buildContributorRows(
-  artifacts: DashboardArtifactRow[]
-): Array<{ artifact_id: string; display_name: string; tokens: number; share: number }> {
+type ContributorRow = {
+  artifact_id: string;
+  display_name: string;
+  inclusion_count: number;
+  tokens: number;
+  share: number;
+};
+
+function buildContributorRows(artifacts: DashboardArtifactRow[]): ContributorRow[] {
   const rows = artifacts
     .map((artifact) => ({
       artifact_id: artifact.artifact_id,
       display_name: artifact.display_name,
+      inclusion_count: artifact.inclusion_count,
       tokens: normalizedArtifactTokens(artifact)
+    }))
+    .filter((row) => row.tokens > 0)
+    .sort((a, b) => b.tokens - a.tokens || a.display_name.localeCompare(b.display_name) || a.artifact_id.localeCompare(b.artifact_id));
+
+  const total = rows.reduce((sum, row) => sum + row.tokens, 0);
+  return rows.map((row) => ({
+    ...row,
+    share: total > 0 ? row.tokens / total : 0
+  }));
+}
+
+function buildUniqueRows(artifacts: DashboardArtifactRow[]): ContributorRow[] {
+  const rows = artifacts
+    .map((artifact) => ({
+      artifact_id: artifact.artifact_id,
+      display_name: artifact.display_name,
+      inclusion_count: artifact.inclusion_count,
+      tokens: Number(artifact.unique_exposure) || 0
     }))
     .filter((row) => row.tokens > 0)
     .sort((a, b) => b.tokens - a.tokens || a.display_name.localeCompare(b.display_name) || a.artifact_id.localeCompare(b.artifact_id));
@@ -99,6 +171,15 @@ function normalizedArtifactTokens(artifact: DashboardArtifactRow): number {
     return (Number(artifact.estimated_cached_input_tokens) || 0) + (Number(artifact.estimated_uncached_input_tokens) || 0);
   }
   return 0;
+}
+
+function formatContributorValue(row: ContributorRow): string {
+  const occurrenceLabel = row.inclusion_count === 1 ? "occurrence" : "occurrences";
+  return `${formatTokens(row.inclusion_count)} ${occurrenceLabel} · ${formatTokens(row.tokens)} Tokens`;
+}
+
+function formatUniqueValue(row: ContributorRow): string {
+  return `${formatTokens(row.tokens)} Tokens`;
 }
 
 function formatTimestamp(value: string): string {

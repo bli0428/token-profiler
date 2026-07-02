@@ -55,9 +55,12 @@ describe("run explorer", () => {
         ...defaultViewState,
         expandedTurnIds: ["turn:fallback:fixture"],
         expandedRequestIds: ["fixture-request-001"],
+        expandedArtifactIds: [apiRealFixtures.artifactDetail.data.artifact_id],
         selectedArtifactId: apiRealFixtures.artifactDetail.data.artifact_id
       },
-      detail: apiRealFixtures.artifactDetail
+      details: {
+        [apiRealFixtures.artifactDetail.data.artifact_id]: apiRealFixtures.artifactDetail
+      }
     });
     const selectedArtifact = screen.getByLabelText("Artifact detail").closest("article");
     expect(selectedArtifact).not.toBeNull();
@@ -77,9 +80,12 @@ describe("run explorer", () => {
         ...defaultViewState,
         expandedTurnIds: ["turn:fallback:fixture"],
         expandedRequestIds: ["fixture-request-001"],
+        expandedArtifactIds: [apiRealFixtures.artifactDetail.data.artifact_id],
         selectedArtifactId: apiRealFixtures.artifactDetail.data.artifact_id
       },
-      detail: apiRealFixtures.artifactDetail
+      details: {
+        [apiRealFixtures.artifactDetail.data.artifact_id]: apiRealFixtures.artifactDetail
+      }
     });
     expect(screen.getByLabelText("Turns")).toBeInTheDocument();
     expect(screen.getByLabelText("Artifact detail")).toBeInTheDocument();
@@ -98,7 +104,6 @@ function renderExplorerElement(
   return (
     <RunExplorer
       run={apiRealFixtures.run.data}
-      detailLoading={false}
       viewState={viewState}
       session={apiRealFixtures.sessions.data.sessions[0]}
       onChangeViewState={onChangeViewState}
