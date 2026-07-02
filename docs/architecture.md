@@ -4,6 +4,12 @@ The project is a local-first tool for understanding agent context behavior:
 context artifacts, token exposure, cache attribution, and privacy-aware content
 inspection.
 
+The architecture is intentionally modular. The goal is to keep each layer's
+responsibility easy to reason about while making new sources, analyzers, stores,
+and surfaces addable with minimal infrastructure churn. Future integrations
+should plug into the appropriate boundary instead of requiring provider-specific
+logic to spread across the codebase.
+
 ```text
 Adapters -> Canonical Store -> Analyzers -> Surfaces
 ```
@@ -19,24 +25,31 @@ Adapters -> Canonical Store -> Analyzers -> Surfaces
 
 ## Layers
 
-**Adapters** convert source-specific data into canonical records:
+**Adapters** convert source-specific data into canonical records.
+
+Current adapters:
 
 - Codex proxy
 - Codex log import
-- Claude telemetry import
-- OpenAI-compatible proxy
-- Manual JSONL import
-- Never let provider-specific payloads leak directly into analyzers.
+- fixture source for boundary tests
 
-**Canonical Store** owns persisted facts:
+Planned adapter directions include Claude Code, OpenAI-compatible sources, and
+manual JSONL import. Never let provider-specific payloads leak directly into
+analyzers.
+
+**Canonical Store** owns persisted facts.
+
+Current canonical event records:
 
 - artifact records
-- request records
-- usage records
-- trace/span records
-- privacy mode policy
+- request usage records
+- request turn identity records
 - schema versioning
-- legacy import boundaries
+- privacy storage mode
+
+Planned store directions include trace/span records, broader request facts,
+legacy import boundaries, and SQLite-backed storage once the canonical event
+shape is stable.
 
 **Analyzers** derive reusable results:
 
@@ -45,16 +58,19 @@ Adapters -> Canonical Store -> Analyzers -> Surfaces
 - replay and persistence
 - legibility
 - task grouping
+- turn grouping
 - context composition
 
 **Surfaces** present or export analyzer outputs:
 
 - CLI reports
-- local dashboard
-- JSON export
-- optional OTel/Langfuse export
+- local dashboard API
+- React dashboard app
 
-## Target Source Shape
+Planned surface directions include JSON export and optional OTel/Langfuse
+export.
+
+## Current Source Shape
 
 ```text
 src/
@@ -63,28 +79,42 @@ src/
     codex/
       live-proxy/
       log-import/
-    claude-code/
-      telemetry-import/
-      log-import/
-    openai-compatible/
-      live-proxy/
-    manual-jsonl/
-      import/
+    fixture-source/
   core/
+    capture/
     events/
+    hash/
     privacy/
     store/
+    tokenization/
   analysis/
   surfaces/
+    cli/
+    dashboard-api/
+
+dashboard/
+  src/
+    api/
+    components/
+    hooks/
+    policy/
+    run-explorer/
+    sessions/
+    shell/
+    state/
+    styles/
+    test/
+    utils/
 ```
 
 Always ensure clean separation of concerns. Every module should pass the AND test - no "Module X handles A AND B"
 
 ## Technology Direction
 
-Current new infrastructure: TypeScript + JSONL. Because the project is
-pre-public, avoid source-root compatibility wrappers and prefer canonical module
-paths.
+Current infrastructure: TypeScript, local JSONL storage, Node CLI/proxy
+services, local dashboard API, and a Vite/React dashboard app. Because the
+project is pre-public, avoid source-root compatibility wrappers and prefer
+canonical module paths.
 
-Building towards runtime schemas, SQLite, analyzer plugins, local API,
-Vite/React dashboard, JSONL import/export, optional OTel/Langfuse export.
+Building towards runtime schemas, SQLite, analyzer plugins, JSONL
+import/export, and optional OTel/Langfuse export.

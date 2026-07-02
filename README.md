@@ -17,11 +17,18 @@ to questions like:
 Token Profiler stores captured runs locally as JSONL under
 `~/.token-profiler/runs/`. Provider-specific payloads are mapped into canonical
 records before analysis, and privacy mode is part of the captured data model.
+See [Privacy And Trust](docs/privacy-and-trust.md) for capture modes, storage
+locations, network behavior, and deletion steps.
 
 > [!NOTE]
 > Per-artifact token counts are estimates. Providers own the canonical request
 > totals; Token Profiler tokenizes artifacts locally with `o200k_base`, then
 > uses provider-reported totals to normalize attribution.
+
+## Project Docs
+
+- [Architecture](docs/architecture.md)
+- [Privacy And Trust](docs/privacy-and-trust.md)
 
 ## Quick Start
 
@@ -94,7 +101,8 @@ VITE_DASHBOARD_API_BASE_URL=http://127.0.0.1:8788 npm run dev -- --host 127.0.0.
 ## Architecture
 
 The project keeps source-specific capture details separate from analysis and
-presentation:
+presentation. See [Architecture](docs/architecture.md) for the full contributor
+guide.
 
 ```text
 Adapters -> Canonical Store -> Analyzers -> Surfaces
