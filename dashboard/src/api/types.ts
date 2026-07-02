@@ -130,7 +130,7 @@ export type ProviderRequestUsage = {
 export type RequestCacheAttributionSummary = {
   estimated_cached_input_tokens?: number;
   estimated_uncached_input_tokens?: number;
-  estimated_cache_attributed_tokens?: number;
+  normalized_estimated_input_tokens?: number;
   estimated_cache_hit_ratio?: number;
   attribution_coverage?: number | "partial" | "unavailable";
   attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
@@ -146,6 +146,7 @@ export type DashboardRequestArtifactInclusion = {
   local_token_count: number;
   token_start?: number;
   token_end?: number;
+  normalized_estimated_input_tokens?: number;
   estimated_cached_input_tokens?: number;
   estimated_uncached_input_tokens?: number;
   attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
@@ -267,6 +268,7 @@ export type DashboardArtifactRow = {
   total_exposure: number;
   repeated_exposure: number;
   inclusion_count: number;
+  normalized_estimated_input_tokens?: number;
   estimated_cached_input_tokens?: number;
   estimated_uncached_input_tokens?: number;
   attribution_state?: string;

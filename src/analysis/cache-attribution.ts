@@ -26,7 +26,7 @@ export function analyzeCacheAttribution(
   let outputTokens = 0;
   let estimatedCachedInputTokens = 0;
   let estimatedUncachedInputTokens = 0;
-  let estimatedCacheAttributedTokens = 0;
+  let normalizedEstimatedInputTokens = 0;
   let normalizedRequestCount = 0;
   let missingOffsetRequestCount = 0;
 
@@ -56,17 +56,17 @@ export function analyzeCacheAttribution(
     request.cache_attribution = attribution.request;
     estimatedCachedInputTokens += attribution.cached;
     estimatedUncachedInputTokens += attribution.uncached;
-    estimatedCacheAttributedTokens += attribution.total;
+    normalizedEstimatedInputTokens += attribution.total;
 
     for (const artifactAttribution of attribution.artifacts) {
       const artifact = artifactMap.get(artifactAttribution.artifact_id);
       if (!artifact) continue;
       artifact.estimated_cached_input_tokens += artifactAttribution.cached;
       artifact.estimated_uncached_input_tokens += artifactAttribution.uncached;
-      artifact.estimated_cache_attributed_tokens += artifactAttribution.total;
+      artifact.normalized_estimated_input_tokens += artifactAttribution.total;
       artifact.estimated_cache_hit_ratio = ratio(
         artifact.estimated_cached_input_tokens,
-        artifact.estimated_cache_attributed_tokens
+        artifact.normalized_estimated_input_tokens
       );
     }
     requestMap.set(usage.request_id, request);
@@ -94,14 +94,14 @@ export function analyzeCacheAttribution(
       cache_hit_ratio: ratio(cachedInputTokens, inputTokens),
       estimated_cached_input_tokens: estimatedCachedInputTokens,
       estimated_uncached_input_tokens: estimatedUncachedInputTokens,
-      estimated_cache_attributed_tokens: estimatedCacheAttributedTokens,
+      normalized_estimated_input_tokens: normalizedEstimatedInputTokens,
       // Coverage: locally attributed artifact tokens divided by provider input tokens.
-      estimated_cache_attribution_coverage: ratio(estimatedCacheAttributedTokens, inputTokens)
+      estimated_cache_attribution_coverage: ratio(normalizedEstimatedInputTokens, inputTokens)
     },
     artifacts: updatedArtifacts,
     requests: [...requestMap.values()],
     cost_drivers: [...updatedArtifacts]
-      .filter((artifact) => artifact.estimated_cache_attributed_tokens > 0)
+      .filter((artifact) => artifact.normalized_estimated_input_tokens > 0)
       .sort(compareArtifactsByMetric("estimated_uncached_input_tokens"))
       .slice(0, 10),
     result: {
@@ -116,12 +116,12 @@ export function analyzeCacheAttribution(
         input_tokens: inputTokens,
         cached_input_tokens: cachedInputTokens,
         uncached_input_tokens: Math.max(0, inputTokens - cachedInputTokens),
-        estimated_cache_attributed_tokens: estimatedCacheAttributedTokens,
-        estimated_cache_attribution_coverage: ratio(estimatedCacheAttributedTokens, inputTokens),
+        normalized_estimated_input_tokens: normalizedEstimatedInputTokens,
+        estimated_cache_attribution_coverage: ratio(normalizedEstimatedInputTokens, inputTokens),
         normalized_request_count: normalizedRequestCount
       },
       rows: [...updatedArtifacts]
-        .filter((artifact) => artifact.estimated_cache_attributed_tokens > 0)
+        .filter((artifact) => artifact.normalized_estimated_input_tokens > 0)
         .sort(compareArtifactsByMetric("estimated_uncached_input_tokens"))
         .slice(0, 10),
       caveats
@@ -196,7 +196,7 @@ export function attributeRequestCache(request: RequestSummary, usage: NonNullabl
     request: {
       estimated_cached_input_tokens: cached,
       estimated_uncached_input_tokens: uncached,
-      estimated_cache_attributed_tokens: total,
+      normalized_estimated_input_tokens: total,
       estimated_cache_hit_ratio: ratio(cached, total),
       attribution_coverage: ratio(total, request.usage?.input_tokens ?? 0),
       attribution_state: coordinateScale < 1 ? "overlong_normalized" : ratio(total, request.usage?.input_tokens ?? 0) === 1 ? "exact_match" : "under_attributed"

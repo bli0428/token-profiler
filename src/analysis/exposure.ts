@@ -42,7 +42,7 @@ export function analyzeExposure(runData: PreparedRunData): ExposureAnalysis {
       distinct_hashes: new Set<string>(),
       estimated_cached_input_tokens: 0,
       estimated_uncached_input_tokens: 0,
-      estimated_cache_attributed_tokens: 0,
+      normalized_estimated_input_tokens: 0,
       metadata: {},
       first_seen_at: event.timestamp,
       last_seen_at: event.timestamp
@@ -94,7 +94,7 @@ export function analyzeExposure(runData: PreparedRunData): ExposureAnalysis {
       replay_ratio: ratio(artifact.repeated_exposure, artifact.total_exposure),
       // Exposure share: artifact exposure divided by total run exposure.
       exposure_share: ratio(artifact.total_exposure, totalExposure),
-      estimated_cache_hit_ratio: ratio(artifact.estimated_cached_input_tokens, artifact.estimated_cache_attributed_tokens)
+      estimated_cache_hit_ratio: ratio(artifact.estimated_cached_input_tokens, artifact.normalized_estimated_input_tokens)
     }))
     .sort(compareArtifactsByMetric("total_exposure"));
   const requests = [...requestMap.values()].sort(compareRequestsByTimestamp);

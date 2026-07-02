@@ -119,7 +119,7 @@ function readableArtifact(
       { analyzer_id: "legibility", artifact_id: artifact.artifact_id }
     ));
   }
-  if (artifact.estimated_cache_attributed_tokens > 0) {
+  if (artifact.normalized_estimated_input_tokens > 0) {
     caveats.push(localAttributionCaveat("legibility"));
   }
 
@@ -139,7 +139,7 @@ function readableArtifact(
     total_exposure: artifact.total_exposure,
     repeated_exposure: artifact.repeated_exposure,
     inclusion_count: artifact.inclusions,
-    attribution_state: artifact.estimated_cache_attributed_tokens > 0 ? "estimated" : undefined,
+    attribution_state: artifact.normalized_estimated_input_tokens > 0 ? "estimated" : undefined,
     storage_mode: storageMode,
     preview_state: preview,
     title_candidate: booleanValue(metadata.title_candidate),
@@ -232,7 +232,7 @@ function artifactDetail(
       distinct_hash_count: Number(artifact.distinct_hashes) || undefined,
       estimated_cached_input_tokens: artifact.estimated_cached_input_tokens || undefined,
       estimated_uncached_input_tokens: artifact.estimated_uncached_input_tokens || undefined,
-      attribution_state: artifact.estimated_cache_attributed_tokens > 0 ? "estimated" : undefined
+      attribution_state: artifact.normalized_estimated_input_tokens > 0 ? "estimated" : undefined
     },
     persistence: {
       first_seen_at: artifact.first_seen_at,

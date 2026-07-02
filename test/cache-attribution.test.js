@@ -27,7 +27,7 @@ test("cache attribution normalizes overlong reconstructed coordinates", () => {
   ]);
 
   const buildLog = summary.artifacts.find((artifact) => artifact.artifact_name === "build.log");
-  assert.equal(summary.totals.estimated_cache_attributed_tokens, 100);
+  assert.equal(summary.totals.normalized_estimated_input_tokens, 100);
   assert.equal(summary.totals.estimated_cached_input_tokens, 80);
   assert.equal(summary.totals.estimated_uncached_input_tokens, 20);
   assert.equal(buildLog.estimated_cached_input_tokens, 5);

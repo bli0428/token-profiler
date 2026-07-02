@@ -140,6 +140,7 @@ function toDashboardRequestArtifactInclusion(inclusion: RequestArtifactInclusion
     local_token_count: inclusion.local_token_count,
     ...(inclusion.token_start !== undefined ? { token_start: inclusion.token_start } : {}),
     ...(inclusion.token_end !== undefined ? { token_end: inclusion.token_end } : {}),
+    ...(inclusion.normalized_estimated_input_tokens !== undefined ? { normalized_estimated_input_tokens: inclusion.normalized_estimated_input_tokens } : {}),
     ...(inclusion.estimated_cached_input_tokens !== undefined ? { estimated_cached_input_tokens: inclusion.estimated_cached_input_tokens } : {}),
     ...(inclusion.estimated_uncached_input_tokens !== undefined ? { estimated_uncached_input_tokens: inclusion.estimated_uncached_input_tokens } : {}),
     attribution_state: inclusion.attribution_state,
@@ -211,6 +212,7 @@ function dashboardArtifactRows(
     const displayName = readable?.display_name ?? String(aggregate.display_name ?? aggregate.artifact_name);
     const summaryText = readable?.summary;
     const caveats = uniqueCaveats(readable?.caveats ?? []);
+    const normalizedEstimatedInput = aggregate.normalized_estimated_input_tokens || undefined;
     const estimatedCached = aggregate.estimated_cached_input_tokens || undefined;
     const estimatedUncached = aggregate.estimated_uncached_input_tokens || undefined;
 
@@ -224,6 +226,7 @@ function dashboardArtifactRows(
       total_exposure: aggregate.total_exposure,
       repeated_exposure: aggregate.repeated_exposure,
       inclusion_count: aggregate.inclusions,
+      ...(normalizedEstimatedInput !== undefined ? { normalized_estimated_input_tokens: normalizedEstimatedInput } : {}),
       ...(estimatedCached !== undefined ? { estimated_cached_input_tokens: estimatedCached } : {}),
       ...(estimatedUncached !== undefined ? { estimated_uncached_input_tokens: estimatedUncached } : {}),
       ...(readable?.attribution_state ? { attribution_state: readable.attribution_state } : {}),
@@ -445,10 +448,10 @@ function compareDashboardRows(a: DashboardViewArtifactRow, b: DashboardViewArtif
 
 function attributionCoverage(summary: RunAnalysisSummary): number | "partial" | "unavailable" {
   const input = numberField(summary.totals, "input_tokens");
-  const attributed = summary.artifacts.reduce((total, artifact) => total + (artifact.estimated_cache_attributed_tokens || 0), 0);
+  const normalizedEstimatedInput = summary.artifacts.reduce((total, artifact) => total + (artifact.normalized_estimated_input_tokens || 0), 0);
   if (!input) return "unavailable";
-  if (attributed === 0) return "partial";
-  return Math.min(1, attributed / input);
+  if (normalizedEstimatedInput === 0) return "partial";
+  return Math.min(1, normalizedEstimatedInput / input);
 }
 
 function dominantStorageMode(rows: DashboardViewArtifactRow[]): string {

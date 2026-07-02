@@ -206,6 +206,7 @@ function requestArtifactInclusion(
     local_token_count: Number(artifact.token_count) || 0,
     ...(tokenStart !== undefined ? { token_start: tokenStart } : {}),
     ...(tokenEnd !== undefined ? { token_end: tokenEnd } : {}),
+    ...(attribution ? { normalized_estimated_input_tokens: attribution.total } : {}),
     ...(attribution ? { estimated_cached_input_tokens: attribution.cached } : {}),
     ...(attribution ? { estimated_uncached_input_tokens: attribution.uncached } : {}),
     attribution_state: estimated ? String(requestAttributionState ?? "estimated") as RequestArtifactInclusion["attribution_state"] : "unavailable",
@@ -222,7 +223,7 @@ function cacheAttributionSummary(value: Record<string, unknown>): RequestCacheAt
   return {
     estimated_cached_input_tokens: numberOrUndefined(value.estimated_cached_input_tokens),
     estimated_uncached_input_tokens: numberOrUndefined(value.estimated_uncached_input_tokens),
-    estimated_cache_attributed_tokens: numberOrUndefined(value.estimated_cache_attributed_tokens),
+    normalized_estimated_input_tokens: numberOrUndefined(value.normalized_estimated_input_tokens),
     estimated_cache_hit_ratio: numberOrUndefined(value.estimated_cache_hit_ratio),
     attribution_coverage: numberOrUndefined(value.attribution_coverage),
     attribution_state: String(value.attribution_state ?? "estimated") as RequestCacheAttributionSummary["attribution_state"]

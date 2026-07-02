@@ -27,7 +27,7 @@ export function formatSummary(summary: RunAnalysisSummary): string {
     lines.push(`Cached Tokens:       ${formatNumber(totals.cached_input_tokens)}`);
     lines.push(`Uncached Tokens:     ${formatNumber(totals.uncached_input_tokens)}`);
     lines.push(`Cache Hit Ratio:     ${formatPercent(totals.cache_hit_ratio)}`);
-    lines.push(`Attribution Coverage: ${formatNumber(totals.estimated_cache_attributed_tokens)} (${formatPercent(totals.estimated_cache_attribution_coverage)})`);
+    lines.push(`Attribution Coverage: ${formatNumber(totals.normalized_estimated_input_tokens)} (${formatPercent(totals.estimated_cache_attribution_coverage)})`);
     for (const caveat of summary.caveats.filter((caveat) => caveat.applies_to?.analyzer_id === "cache-attribution")) {
       lines.push(`Note: ${caveat.message}`);
     }

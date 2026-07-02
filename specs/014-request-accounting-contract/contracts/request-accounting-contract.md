@@ -53,7 +53,7 @@ type RequestAccountingRow = {
   cache_attribution?: {
     estimated_cached_input_tokens?: number;
     estimated_uncached_input_tokens?: number;
-    estimated_cache_attributed_tokens?: number;
+    normalized_estimated_input_tokens?: number;
     estimated_cache_hit_ratio?: number;
     attribution_coverage?: number | "partial" | "unavailable";
     attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";

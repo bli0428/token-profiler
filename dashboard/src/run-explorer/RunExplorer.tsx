@@ -41,7 +41,7 @@ export function RunExplorer({ run, detail, detailLoading, detailError, viewState
   return (
     <section className="run-explorer" aria-label="Run explorer">
       <div className="run-main">
-        <RunOverview overview={run.overview} title={title} timestamp={timestamp} />
+        <RunOverview artifacts={run.artifacts} overview={run.overview} title={title} timestamp={timestamp} />
         <TurnList
           turns={run.turns}
           artifactRows={run.artifacts}

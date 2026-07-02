@@ -25,7 +25,7 @@ export function analyzeEvents(events: unknown[]): RunAnalysisSummary {
       ...artifact,
       estimated_cache_hit_ratio: ratio(
         artifact.estimated_cached_input_tokens,
-        artifact.estimated_cache_attributed_tokens
+        artifact.normalized_estimated_input_tokens
       )
     }))
     .sort(compareArtifactsByMetric("total_exposure"));

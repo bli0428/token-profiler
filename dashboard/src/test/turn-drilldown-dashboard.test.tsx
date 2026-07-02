@@ -144,6 +144,16 @@ describe("turn drilldown dashboard", () => {
     expect(within(firstTurn).getByText(/6\/29\/2026/)).toBeInTheDocument();
   });
 
+  it("renders top normalized artifact contributors in the overview", () => {
+    renderExplorer({ run: contributorRun() });
+
+    expect(screen.getByLabelText("Top artifact contributors by normalized token contribution")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Top artifact contributors" })).toBeInTheDocument();
+    expect(screen.getByText("apply_patch: feature.ts")).toBeInTheDocument();
+    expect(screen.getByText("exec_command output")).toBeInTheDocument();
+    expect(screen.getByText("1,000 attributed")).toBeInTheDocument();
+  });
+
   it("truncates long turn preview titles at 100 characters", () => {
     const run = turnRun();
     const longTitle = `${"A".repeat(205)} trailing text`;
@@ -331,5 +341,56 @@ function turnRun(): DashboardRun {
       }))
     },
     turns
+  };
+}
+
+function contributorRun(): DashboardRun {
+  const base = turnRun();
+  return {
+    ...base,
+    overview: {
+      ...base.overview,
+      input_tokens: 1000,
+      cached_input_tokens: 300,
+      uncached_input_tokens: 700
+    },
+    artifacts: [
+      {
+        ...base.artifacts[0]!,
+        artifact_id: "artifact-patch-1",
+        display_name: "apply_patch: feature.ts",
+        display_category: "patch",
+        total_exposure: 1200,
+        repeated_exposure: 400,
+        inclusion_count: 4,
+        normalized_estimated_input_tokens: 650,
+        estimated_cached_input_tokens: 250,
+        estimated_uncached_input_tokens: 400
+      },
+      {
+        ...base.artifacts[0]!,
+        artifact_id: "artifact-tool-output-1",
+        display_name: "exec_command output",
+        display_category: "tool_output",
+        total_exposure: 500,
+        repeated_exposure: 125,
+        inclusion_count: 2,
+        normalized_estimated_input_tokens: 250,
+        estimated_cached_input_tokens: 50,
+        estimated_uncached_input_tokens: 200
+      },
+      {
+        ...base.artifacts[0]!,
+        artifact_id: "artifact-note-1",
+        display_name: "session note",
+        display_category: "note",
+        total_exposure: 100,
+        repeated_exposure: 0,
+        inclusion_count: 1,
+        normalized_estimated_input_tokens: 100,
+        estimated_cached_input_tokens: 0,
+        estimated_uncached_input_tokens: 100
+      }
+    ]
   };
 }

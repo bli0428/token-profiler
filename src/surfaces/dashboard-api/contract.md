@@ -153,6 +153,13 @@ Import HTTP-facing types from `src/surfaces/dashboard-api/types.ts`.
 - `DashboardApiPrivacyState`, `DashboardApiCaveat`, and related row/detail
   types
 
+Artifact rows and request artifact inclusions expose
+`normalized_estimated_input_tokens` when request usage and artifact offsets
+allow normalized artifact-level attribution. This field is the normalized total
+input-token contribution for the artifact in provider token coordinates; it is
+estimated and caveated alongside `estimated_cached_input_tokens` and
+`estimated_uncached_input_tokens`.
+
 Import internal view-model types from
 `src/surfaces/dashboard-api/view-model-types.ts` only within this surface.
 Dashboard clients should depend on HTTP-facing types, not view-model internals.

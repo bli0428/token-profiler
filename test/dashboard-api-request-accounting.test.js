@@ -115,8 +115,27 @@ test("dashboard API exposes request-scoped artifact inclusions", async () => {
     "OUT:exec:detail"
   ]);
   assert.equal(detail.artifact_inclusions[0].privacy.hidden_fields.includes("raw_content"), true);
+  assert.equal(detail.artifact_inclusions[1].normalized_estimated_input_tokens, 15);
   assert.equal(detail.artifact_inclusions[1].estimated_uncached_input_tokens, 12);
   assert.equal(detail.artifact_inclusions[1].caveats.some((caveat) => caveat.code === "local_artifact_attribution_estimate"), true);
+});
+
+test("dashboard API exposes normalized artifact contribution rows", async () => {
+  const root = tempRoot("normalized-contributors");
+  await writeRun(root, "selected", [
+    artifact("req_1", "SUMMARY:history", "SUMMARY", "history", "hash_history", 150, 0, 150),
+    artifact("req_1", "TOOL_OUTPUT:build", "TOOL_OUTPUT", "build.log", "hash_build", 50, 150, 200),
+    usage("req_1", 100, 80)
+  ]);
+
+  const response = await handleDashboardApiRequest("GET", "/api/runs/selected", { rootDir: root });
+  const buildLog = response.body.data.artifacts.find((row) => row.artifact_id === "TOOL_OUTPUT:build");
+
+  assert.equal(response.body.data.overview.input_tokens, 100);
+  assert.equal(response.body.data.artifacts.reduce((total, row) => total + (row.normalized_estimated_input_tokens ?? 0), 0), 100);
+  assert.equal(buildLog.normalized_estimated_input_tokens, 25);
+  assert.equal(buildLog.estimated_cached_input_tokens, 5);
+  assert.equal(buildLog.estimated_uncached_input_tokens, 20);
 });
 
 test("dashboard API exposes run detail turns collection", async () => {

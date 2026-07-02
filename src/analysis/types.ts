@@ -69,7 +69,7 @@ export type ProviderRequestUsage = {
 export type RequestCacheAttributionSummary = {
   estimated_cached_input_tokens?: number | undefined;
   estimated_uncached_input_tokens?: number | undefined;
-  estimated_cache_attributed_tokens?: number | undefined;
+  normalized_estimated_input_tokens?: number | undefined;
   estimated_cache_hit_ratio?: number | undefined;
   attribution_coverage?: number | "partial" | "unavailable" | undefined;
   attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";
@@ -85,6 +85,7 @@ export type RequestArtifactInclusion = {
   local_token_count: number;
   token_start?: number | undefined;
   token_end?: number | undefined;
+  normalized_estimated_input_tokens?: number | undefined;
   estimated_cached_input_tokens?: number | undefined;
   estimated_uncached_input_tokens?: number | undefined;
   attribution_state: "complete" | "partial" | "unavailable" | "overlong_normalized" | "under_attributed" | "estimated";

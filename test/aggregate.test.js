@@ -189,7 +189,7 @@ test("attributes cached and uncached tokens to artifact offsets", () => {
   assert.equal(buildLog.estimated_cached_input_tokens, 15);
   assert.equal(buildLog.estimated_uncached_input_tokens, 45);
   assert.equal(buildLog.estimated_cache_hit_ratio, 0.25);
-  assert.equal(summary.totals.estimated_cache_attributed_tokens, 100);
+  assert.equal(summary.totals.normalized_estimated_input_tokens, 100);
   assert.equal(summary.totals.estimated_cache_attribution_coverage, 100 / 120);
 });
 
@@ -203,7 +203,7 @@ test("normalizes overlong reconstructed artifact offsets to actual input tokens"
   const history = summary.artifacts.find((artifact) => artifact.artifact_name === "history");
   const buildLog = summary.artifacts.find((artifact) => artifact.artifact_name === "build.log");
 
-  assert.equal(summary.totals.estimated_cache_attributed_tokens, 100);
+  assert.equal(summary.totals.normalized_estimated_input_tokens, 100);
   assert.equal(summary.totals.estimated_cached_input_tokens, 80);
   assert.equal(summary.totals.estimated_uncached_input_tokens, 20);
   assert.equal(summary.totals.estimated_cache_attribution_coverage, 1);

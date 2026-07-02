@@ -73,7 +73,7 @@ Important field names from the real contract:
 - Status uses `service: "token-profiler-dashboard-api"`, `local_only`, `read_only`, `data_root_label`, `data.schema_version`, and `capabilities`.
 - Sessions use `run_id` for routing, optional `canonical_run_id` for display/diagnostics only, optional `label`, token totals, and `availability.status`.
 - Runs expose `overview`, `artifacts`, `artifact_details`, `task_groups`, `filters`, `privacy`, and `caveats`.
-- Artifact rows use flat metric fields such as `total_exposure`, `repeated_exposure`, `inclusion_count`, `estimated_cached_input_tokens`, `estimated_uncached_input_tokens`, plus `task_group_ids`, `preview_state`, `detail_available`, and `search_text`.
+- Artifact rows use flat metric fields such as `total_exposure`, `repeated_exposure`, `inclusion_count`, `normalized_estimated_input_tokens`, `estimated_cached_input_tokens`, `estimated_uncached_input_tokens`, plus `task_group_ids`, `preview_state`, `detail_available`, and `search_text`.
 - Artifact detail uses `title`, structured `identity`, `metadata_sections`, `tool_links`, `task_group_ids`, `privacy`, optional `content.preview`, and optional `content.raw`.
 - Availability is an object, for example `{ status: "complete" }`; it is not a plain string.
 

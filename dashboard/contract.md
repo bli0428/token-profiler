@@ -69,6 +69,12 @@ Import from `dashboard/src/api/types.ts`.
   `AvailabilityState`, `RequestUsageAvailability`, and
   `ProviderRequestUsage`.
 
+Artifact rows and request artifact inclusions may include
+`normalized_estimated_input_tokens`; dashboard components use it as the
+normalized artifact input contribution. When present across all attributed
+artifacts, its run-wide sum should align with the API `overview.input_tokens`
+subject to attribution caveats and coverage.
+
 ## Invariants
 
 - Dashboard inputs come from the dashboard API over HTTP JSON.

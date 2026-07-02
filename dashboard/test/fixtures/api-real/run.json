@@ -61692,7 +61692,7 @@
           "cache_attribution": {
             "estimated_cached_input_tokens": 424832,
             "estimated_uncached_input_tokens": 138978,
-            "estimated_cache_attributed_tokens": 563810,
+            "normalized_estimated_input_tokens": 563810,
             "estimated_cache_hit_ratio": 0.7535020662989305,
             "attribution_coverage": 0.9920505134708507,
             "attribution_state": "estimated"
