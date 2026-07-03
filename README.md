@@ -6,6 +6,8 @@ usage, cache attribution, and turn structure so you can drill from a run down
 to the specific files, messages, tool calls, and context objects that shaped the
 model request.
 
+![Token Profiler dashboard showing session token usage, request drilldown, and artifact details](assets/DashboardScreenshot.png)
+
 It is built for people working with Codex and agent harnesses who want answers
 to questions like:
 
