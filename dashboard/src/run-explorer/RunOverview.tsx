@@ -30,45 +30,47 @@ export function RunOverview({ artifacts, overview, title, timestamp, onSelectCon
         <Metric label="Total Tokens" value={formatTotalTokens(overview)} />
         <Metric label="Requests" value={formatTokens(overview.request_count)} />
       </dl>
-      <section className="run-overview-chart" aria-label="Top artifact contributors by normalized token contribution">
-        <header className="run-overview-chart-header">
-          <div>
-            <h3>Top 5 Artifact Contributors</h3>
-            <p>High artifact contribution might indicate context pollution.</p>
-          </div>
-        </header>
-        {displayedRows.length > 0 ? (
-          <>
+      <div className="run-overview-chart-grid">
+        <section className="run-overview-chart" aria-label="Top artifact contributors by normalized token contribution">
+          <header className="run-overview-chart-header">
+            <div>
+              <h3>Top 5 Artifact Contributors</h3>
+              <p>High artifact contribution might indicate context pollution.</p>
+            </div>
+          </header>
+          {displayedRows.length > 0 ? (
+            <>
+              <ContributorRows
+                rows={displayedRows}
+                valueLabel={formatContributorValue}
+                onSelectContributor={onSelectContributor}
+              />
+              <p className="run-overview-chart-note">
+                *Repeat artifacts are often cached, so a high artifact contribution does not necessarily mean it is your main cost driver
+              </p>
+            </>
+          ) : (
+            <p className="run-overview-empty">No normalized artifact contribution is available for this session.</p>
+          )}
+        </section>
+        <section className="run-overview-chart" aria-label="Top first occurrence artifacts by token contribution">
+          <header className="run-overview-chart-header">
+            <div>
+              <h3>Top 5 First Occurrence Artifacts</h3>
+              <p>High first occurrence artifact means it likely is a big cost driver</p>
+            </div>
+          </header>
+          {displayedUniqueRows.length > 0 ? (
             <ContributorRows
-              rows={displayedRows}
-              valueLabel={formatContributorValue}
+              rows={displayedUniqueRows}
+              valueLabel={formatUniqueValue}
               onSelectContributor={onSelectContributor}
             />
-            <p className="run-overview-chart-note">
-              *Repeat artifacts are often cached, so a high artifact contribution does not necessarily mean it is your main cost driver
-            </p>
-          </>
-        ) : (
-          <p className="run-overview-empty">No normalized artifact contribution is available for this session.</p>
-        )}
-      </section>
-      <section className="run-overview-chart" aria-label="Top first occurrence artifacts by token contribution">
-        <header className="run-overview-chart-header">
-          <div>
-            <h3>Top 5 First Occurrence Artifacts</h3>
-            <p>High first occurrence artifact means it likely is a big cost driver</p>
-          </div>
-        </header>
-        {displayedUniqueRows.length > 0 ? (
-          <ContributorRows
-            rows={displayedUniqueRows}
-            valueLabel={formatUniqueValue}
-            onSelectContributor={onSelectContributor}
-          />
-        ) : (
-          <p className="run-overview-empty">No normalized first occurrence artifact contribution is available for this session.</p>
-        )}
-      </section>
+          ) : (
+            <p className="run-overview-empty">No normalized first occurrence artifact contribution is available for this session.</p>
+          )}
+        </section>
+      </div>
     </section>
   );
 }
@@ -90,9 +92,10 @@ function ContributorRows({
             <button
               className="contributor-bar-name"
               type="button"
+              title={row.display_name}
               onClick={() => onSelectContributor?.(row.artifact_id)}
             >
-              {row.display_name}
+              {previewDisplayName(row.display_name)}
             </button>
             <span className="contributor-bar-value">{valueLabel(row)}</span>
           </div>
@@ -180,6 +183,10 @@ function formatContributorValue(row: ContributorRow): string {
 
 function formatUniqueValue(row: ContributorRow): string {
   return `${formatTokens(row.tokens)} Tokens`;
+}
+
+function previewDisplayName(value: string): string {
+  return value.length > 100 ? `${value.slice(0, 100)}...` : value;
 }
 
 function formatTimestamp(value: string): string {

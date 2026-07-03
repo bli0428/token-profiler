@@ -232,6 +232,7 @@ describe("turn drilldown dashboard", () => {
     expect(screen.queryByText("1,000 attributed")).not.toBeInTheDocument();
     expect(within(chart).getByText("4 occurrences · 500 Tokens")).toBeInTheDocument();
     expect(within(chart).getByText("2 occurrences · 250 Tokens")).toBeInTheDocument();
+    expect(within(chart).getByText(`${"A".repeat(100)}...`)).toBeInTheDocument();
     const fills = chart.querySelectorAll<HTMLElement>(".contributor-bar-fill");
     expect(fills).toHaveLength(5);
     expect(fills[0]?.style.width).toBe("50%");
@@ -454,6 +455,7 @@ function turnRun(): DashboardRun {
 
 function contributorRun(): DashboardRun {
   const base = turnRun();
+  const longArtifactName = `${"A".repeat(125)} file context`;
   return {
     ...base,
     overview: {
@@ -522,7 +524,7 @@ function contributorRun(): DashboardRun {
       {
         ...base.artifacts[0]!,
         artifact_id: "artifact-file-1",
-        display_name: "file context",
+        display_name: longArtifactName,
         display_category: "file_context",
         total_exposure: 30,
         unique_exposure: 30,

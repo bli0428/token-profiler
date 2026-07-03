@@ -57,12 +57,27 @@
   font-weight: 700;
 }
 
+.run-overview-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+  gap: var(--space-4);
+  min-width: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
 .run-overview-chart {
   display: grid;
-  gap: var(--space-3);
+  align-content: start;
+  gap: var(--space-2);
   min-width: 0;
-  padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border);
+}
+
+@media (min-width: 860px) {
+  .run-overview-chart + .run-overview-chart {
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--color-border);
+  }
 }
 
 .run-overview-chart-header {
@@ -81,7 +96,7 @@
 
 .run-overview-chart-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .run-overview-chart-header p,
@@ -91,6 +106,7 @@
 }
 
 .run-overview-chart-header p {
+  font-size: 0.82rem;
   font-style: italic;
 }
 
@@ -103,7 +119,7 @@
 
 .contributor-bar-list {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -112,7 +128,7 @@
 
 .contributor-bar-row {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-1);
   min-width: 0;
 }
 
@@ -130,6 +146,7 @@
   padding: 0;
   color: var(--color-text);
   font: inherit;
+  font-size: 0.84rem;
   font-weight: 600;
   text-align: left;
   text-overflow: ellipsis;
