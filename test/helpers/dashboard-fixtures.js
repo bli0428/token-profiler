@@ -65,3 +65,24 @@ export function metadataOnlyLeakSummary() {
 export function metadataOnlyRequestAccountingSummary() {
   return analyzeEvents(metadataOnlyRequestAccountingEvents());
 }
+
+/** Canonical-only facts for large-run request-page API tests. */
+export function largeRunRequestEvents(requests) {
+  return requests.flatMap((request, index) => {
+    const timestamp = request.timestamp ?? `2026-06-23T12:00:0${index}.000Z`;
+    return [
+      artifact(request.requestId, `FILE:${request.requestId}`, "FILE", `${request.requestId}.ts`, `hash:${request.requestId}`, request.artifactTokens ?? 2, 0, request.artifactTokens ?? 2),
+      { ...usage(request.requestId, request.inputTokens, request.cachedTokens, request.outputTokens), timestamp },
+      {
+        schema_version: 1,
+        event_kind: "request_turn_identity",
+        run_id: "run_test",
+        request_id: request.requestId,
+        turn_id: request.turnId,
+        turn_identity_source: "direct_turn_id",
+        caveats: [],
+        timestamp
+      }
+    ];
+  });
+}

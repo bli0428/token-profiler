@@ -12,21 +12,20 @@ describe("large run explorer", () => {
         mode: "paged" as const,
         overview: overview(),
         request_page: { items: [request("new")], next_cursor: "next" }
-      }))
+      }));
+    const getLargeRunRequests = vi
+      .fn()
       .mockResolvedValueOnce(envelope({
-        run_id: "run-large",
-        mode: "paged" as const,
-        overview: overview(),
-        request_page: { items: [request("old")] }
+        items: [request("old")]
       }));
 
-    const client = { baseUrl: "", getLargeRun } as unknown as DashboardApiClient;
+    const client = { baseUrl: "", getLargeRun, getLargeRunRequests } as unknown as DashboardApiClient;
     render(<LargeRunExplorer client={client} runId="run-large" />);
 
     expect(await screen.findByText("new")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Next requests" }));
     expect(await screen.findByText("old")).toBeInTheDocument();
-    expect(getLargeRun).toHaveBeenLastCalledWith("run-large", "next");
+    expect(getLargeRunRequests).toHaveBeenLastCalledWith("run-large", "next");
   });
 });
 

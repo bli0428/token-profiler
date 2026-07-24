@@ -215,7 +215,7 @@ function parseLimit(value: string | null): number | undefined {
   if (value === null) return undefined;
   const limit = Number(value);
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
-    throw new DashboardApiRouteError("invalid_request", 400, "Invalid sessions limit.");
+    throw new DashboardApiRouteError("invalid_request", 400, "Invalid page limit.");
   }
   return limit;
 }

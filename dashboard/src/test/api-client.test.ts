@@ -39,4 +39,21 @@ describe("dashboard API client", () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json({ schema_version: 2, generated_at: "now", data: {}, caveats: [] })));
     await expect(createDashboardApiClient("http://api.test").getStatus()).rejects.toMatchObject({ kind: "version-mismatch" });
   });
+
+  it("forwards opaque large-run request cursors to the request-page route", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      schema_version: 1,
+      generated_at: "now",
+      data: { items: [], next_cursor: "opaque-next" },
+      caveats: []
+    })));
+
+    await expect(createDashboardApiClient("http://api.test").getLargeRunRequests?.("run / id", "opaque cursor")).resolves.toMatchObject({
+      data: { next_cursor: "opaque-next" }
+    });
+    expect(fetch).toHaveBeenCalledWith(
+      "http://api.test/api/runs/run%20%2F%20id/large/requests?cursor=opaque%20cursor",
+      { headers: { accept: "application/json" } }
+    );
+  });
 });

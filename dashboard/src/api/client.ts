@@ -21,6 +21,7 @@ export type DashboardApiClient = {
   getRun(runId: string): Promise<RunResponse>;
   getArtifactDetail(runId: string, artifactId: string): Promise<ArtifactDetailResponse>;
   getLargeRun?(runId: string, cursor?: string): Promise<ApiEnvelope<LargeRunResponse>>;
+  getLargeRunRequests?(runId: string, cursor?: string): Promise<ApiEnvelope<LargeRunPage>>;
   getLargeRunArtifacts?(runId: string, requestId: string, cursor?: string): Promise<ApiEnvelope<LargeRunArtifactPage>>;
 };
 
@@ -77,6 +78,7 @@ export function createDashboardApiClient(baseUrl = getConfiguredApiBaseUrl()): D
     getArtifactDetail: (runId, artifactId) =>
       request(`/api/runs/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`),
     getLargeRun: (runId, cursor) => request<LargeRunResponse>(`/api/runs/${encodeURIComponent(runId)}/large${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`),
+    getLargeRunRequests: (runId, cursor) => request<LargeRunPage>(`/api/runs/${encodeURIComponent(runId)}/large/requests${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`),
     getLargeRunArtifacts: (runId, requestId, cursor) => request<LargeRunArtifactPage>(`/api/runs/${encodeURIComponent(runId)}/large/requests/${encodeURIComponent(requestId)}/artifacts${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ""}`)
   };
 }

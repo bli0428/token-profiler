@@ -42,8 +42,14 @@ function pageLargeRunRequests(
 ): { items: LargeRunRequest[]; nextOffset?: number };
 ```
 
-`LargeRunSummary` contains only run totals and one compact row per request. It
-does not retain artifact events or content.
+`LargeRunSummary` contains only run totals and one compact row per request. A
+row may include canonical request usage, `turn_id`, latest timestamp, artifact
+count, and total local artifact tokens. It does not retain artifact events,
+artifact content, provider payloads, HTTP cursor state, or response shapes.
+
+`pageLargeRunRequests` slices an already ordered projection and returns an
+offset for the next slice. The offset is analyzer-internal; dashboard surfaces
+must wrap it in their own opaque cursor rather than expose it to clients.
 
 ```ts
 function analyzeExposure(runData: PreparedRunData): ExposureAnalysis;

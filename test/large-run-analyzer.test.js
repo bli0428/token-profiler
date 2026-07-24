@@ -23,3 +23,24 @@ test("large-run projection retains request facts and supports bounded newest-fir
   assert.deepEqual(firstPage.items.map((row) => row.request_id), ["new", "usage-only"]);
   assert.equal(firstPage.nextOffset, 2);
 });
+
+test("large-run projection preserves canonical turn and provider usage facts across timestamp ties", async () => {
+  const timestamp = "2026-06-23T12:00:09.000Z";
+  const events = [
+    usage("alpha", 100, 80, 7),
+    { schema_version: 1, event_kind: "request_turn_identity", run_id: "run_test", request_id: "alpha", turn_id: "turn_alpha", turn_identity_source: "direct_turn_id", caveats: [], timestamp },
+    usage("beta", 90, 20, 3)
+  ].map((event) => ({ ...event, timestamp }));
+
+  const summary = await summarizeLargeRun(events);
+
+  assert.deepEqual(summary.requests.map((row) => row.request_id), ["beta", "alpha"]);
+  assert.equal(summary.requests[1].turn_id, "turn_alpha");
+  assert.deepEqual(summary.requests[1].usage, {
+    input_tokens: 100,
+    cached_input_tokens: 80,
+    uncached_input_tokens: 20,
+    output_tokens: 7,
+    total_tokens: 107
+  });
+});

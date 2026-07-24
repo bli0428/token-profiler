@@ -104,8 +104,14 @@ function createLargeRunResponse(
 
 `GET /api/runs/{run_id}/large` returns a large-run overview and its first
 newest-first request page. `GET /api/runs/{run_id}/large/requests` returns a
-subsequent page. Cursors are opaque, run-bound, and invalid once the source
-file changes.
+subsequent page. Request pages default to 50 rows and accept a limit from 1
+through 500. Each row contains only canonical request ID, timestamp, optional
+turn ID, provider-reported usage, aggregate artifact counts, and API-generated
+chronology metadata. Cursors are opaque, run-bound, and invalid once the
+source file changes. The route rejects invalid cursors and limits with
+`invalid_request` (400), and invalid complete canonical JSONL with
+`run_unreadable` (422). Clients must not decode cursors or reconstruct request
+rows from source events.
 
 ## View Model APIs
 

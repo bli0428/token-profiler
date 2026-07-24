@@ -7,7 +7,15 @@ export type LargeRunRequest = {
   turn_id?: string;
   artifact_count: number;
   total_local_artifact_tokens: number;
-  usage?: { input_tokens: number; cached_input_tokens: number; uncached_input_tokens: number; output_tokens: number; total_tokens: number };
+  usage?: {
+    input_tokens: number;
+    cached_input_tokens: number;
+    uncached_input_tokens: number;
+    output_tokens: number;
+    reasoning_tokens?: number;
+    total_tokens: number;
+    response_id?: string;
+  };
 };
 
 export type LargeRunSummary = {
@@ -39,8 +47,13 @@ export async function summarizeLargeRun(events: AsyncIterable<unknown>): Promise
       artifact_count += 1;
     } else if (event.event_kind === "request_usage") {
       row.usage = {
-        input_tokens: event.input_tokens, cached_input_tokens: event.cached_input_tokens,
-        uncached_input_tokens: event.uncached_input_tokens, output_tokens: event.output_tokens, total_tokens: event.total_tokens
+        input_tokens: event.input_tokens,
+        cached_input_tokens: event.cached_input_tokens,
+        uncached_input_tokens: event.uncached_input_tokens,
+        output_tokens: event.output_tokens,
+        ...(event.reasoning_tokens === undefined ? {} : { reasoning_tokens: event.reasoning_tokens }),
+        total_tokens: event.total_tokens,
+        ...(event.response_id === undefined ? {} : { response_id: event.response_id })
       };
       input_tokens += event.input_tokens; cached_input_tokens += event.cached_input_tokens;
       uncached_input_tokens += event.uncached_input_tokens; output_tokens += event.output_tokens;

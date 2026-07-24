@@ -1,8 +1,10 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { pageLargeRunArtifacts, pageLargeRunRequests, summarizeLargeRun, type LargeRunSummary } from "../../analysis/large-run.ts";
+import { pageLargeRunArtifacts, pageLargeRunRequests, summarizeLargeRun, type LargeRunRequest, type LargeRunSummary } from "../../analysis/large-run.ts";
+import type { ProviderRequestUsage } from "../../analysis/types.ts";
 import { streamEventsFromRunDir } from "../../core/store/index.ts";
 import { DashboardApiRouteError } from "./errors.ts";
+import type { DashboardApiLargeRun, DashboardApiLargeRunRequest } from "./types.ts";
 
 const SUMMARY_FILE = ".dashboard-large-run-summary-v1.json";
 export type LargeRunCachedSummary = LargeRunSummary & { source_bytes: number; source_mtime_ms: number };
@@ -27,14 +29,39 @@ export async function readLargeRunSummary(runDir: string, source: { size: number
 
 type LargeRunCursor = { offset: number; run_id?: string; source_mtime_ms?: number };
 
-export async function createLargeRunResponse(runDir: string, runId: string, source: { size: number; mtimeMs: number }, cursor: LargeRunCursor = { offset: 0 }, limit = 50) {
+export async function createLargeRunResponse(
+  runDir: string,
+  runId: string,
+  source: { size: number; mtimeMs: number },
+  cursor: LargeRunCursor = { offset: 0 },
+  limit = 50
+): Promise<DashboardApiLargeRun> {
   if (cursor.run_id !== undefined && (cursor.run_id !== runId || cursor.source_mtime_ms !== source.mtimeMs)) {
     throw invalidCursor();
   }
   const summary = await readLargeRunSummary(runDir, source);
   const page = pageLargeRunRequests(summary.requests, cursor.offset, limit);
-  const items = page.items.map((row, index) => ({ ...row, chronology_index: cursor.offset + index }));
-  return { run_id: runId, mode: "paged" as const, overview: { request_count: summary.requests.length, artifact_count: summary.artifact_count, input_tokens: summary.input_tokens, cached_input_tokens: summary.cached_input_tokens, uncached_input_tokens: summary.uncached_input_tokens, output_tokens: summary.output_tokens, event_count: summary.event_count, event_file_bytes: source.size }, request_page: { items, ...(page.nextOffset !== undefined ? { next_cursor: encodeCursor({ offset: page.nextOffset, run_id: runId, source_mtime_ms: source.mtimeMs }) } : {}) } };
+  const items = page.items.map((row, index) => mapLargeRunRequest(row, cursor.offset + index));
+  return {
+    run_id: runId,
+    mode: "paged",
+    overview: {
+      request_count: summary.requests.length,
+      artifact_count: summary.artifact_count,
+      input_tokens: summary.input_tokens,
+      cached_input_tokens: summary.cached_input_tokens,
+      uncached_input_tokens: summary.uncached_input_tokens,
+      output_tokens: summary.output_tokens,
+      event_count: summary.event_count,
+      event_file_bytes: source.size
+    },
+    request_page: {
+      items,
+      ...(page.nextOffset === undefined ? {} : {
+        next_cursor: encodeCursor({ offset: page.nextOffset, run_id: runId, source_mtime_ms: source.mtimeMs })
+      })
+    }
+  };
 }
 
 export async function createLargeRunArtifactPage(runDir: string, requestId: string, offset = 0, limit = 50) {
@@ -48,4 +75,29 @@ async function readCachedSummary(runDir: string): Promise<LargeRunCachedSummary 
 
 function invalidCursor(): DashboardApiRouteError {
   return new DashboardApiRouteError("invalid_request", 400, "Invalid page cursor.");
+}
+
+function mapLargeRunRequest(row: LargeRunRequest, chronologyIndex: number): DashboardApiLargeRunRequest {
+  return {
+    request_id: row.request_id,
+    ...(row.timestamp === undefined ? {} : { timestamp: row.timestamp }),
+    ...(row.turn_id === undefined ? {} : { turn_id: row.turn_id }),
+    chronology_index: chronologyIndex,
+    artifact_count: row.artifact_count,
+    total_local_artifact_tokens: row.total_local_artifact_tokens,
+    ...(row.usage === undefined ? {} : { usage: mapProviderUsage(row.usage) })
+  };
+}
+
+function mapProviderUsage(usage: NonNullable<LargeRunRequest["usage"]>): ProviderRequestUsage {
+  return {
+    input_tokens: usage.input_tokens,
+    cached_input_tokens: usage.cached_input_tokens,
+    uncached_input_tokens: usage.uncached_input_tokens,
+    output_tokens: usage.output_tokens,
+    ...(usage.reasoning_tokens === undefined ? {} : { reasoning_tokens: usage.reasoning_tokens }),
+    total_tokens: usage.total_tokens,
+    ...(usage.response_id === undefined ? {} : { response_id: usage.response_id }),
+    source: "provider_reported"
+  };
 }
