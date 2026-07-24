@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { pageLargeRunRequests, summarizeLargeRun } from "../src/analysis/index.ts";
+import { pageLargeRunArtifacts, pageLargeRunRequests, summarizeLargeRun } from "../src/analysis/index.ts";
 import { artifact, usage } from "./helpers/analyzer-fixtures.js";
 
 test("large-run projection retains request facts and supports bounded newest-first pages", async () => {
@@ -43,4 +43,22 @@ test("large-run projection preserves canonical turn and provider usage facts acr
     output_tokens: 7,
     total_tokens: 107
   });
+});
+
+test("large-run artifact pages retain only selected-request rows and use one matching look-ahead", async () => {
+  const events = [
+    artifact("selected", "one", "FILE", "one.ts", "one", 1, 0, 1),
+    artifact("other", "other", "FILE", "other.ts", "other", 99, 0, 99),
+    artifact("selected", "two", "FILE", "two.ts", "two", 2, 1, 3),
+    artifact("selected", "three", "FILE", "three.ts", "three", 3, 3, 6)
+  ];
+
+  const first = await pageLargeRunArtifacts(events, "selected", 0, 2);
+  assert.deepEqual(first.items.map((event) => event.artifact_id), ["one", "two"]);
+  assert.equal(first.nextOffset, 2);
+  assert.equal(first.items.some((event) => event.request_id !== "selected"), false);
+
+  const second = await pageLargeRunArtifacts(events, "selected", first.nextOffset ?? 0, 2);
+  assert.deepEqual(second.items.map((event) => event.artifact_id), ["three"]);
+  assert.equal(second.nextOffset, undefined);
 });

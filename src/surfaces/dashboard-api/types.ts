@@ -124,6 +124,21 @@ export type DashboardApiLargeRunPage = {
   next_cursor?: string | undefined;
 };
 
+export type DashboardApiLargeRunArtifact = {
+  artifact_id: string;
+  artifact_type: string;
+  display_name: string;
+  local_token_count: number;
+  request_order: number;
+  preview_state: PreviewState;
+};
+
+export type DashboardApiLargeRunArtifactPage = {
+  request_id: string;
+  items: DashboardApiLargeRunArtifact[];
+  next_cursor?: string | undefined;
+};
+
 export type DashboardApiLargeRun = {
   run_id: string;
   mode: "paged";

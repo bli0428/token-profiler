@@ -72,7 +72,21 @@ export function pageLargeRunRequests(requests: LargeRunRequest[], offset: number
   };
 }
 
-export async function pageLargeRunArtifacts(events: AsyncIterable<unknown>, requestId: string, offset: number, limit: number): Promise<{ items: ArtifactEvent[]; nextOffset?: number }> {
+export type LargeRunArtifactPage = {
+  items: ArtifactEvent[];
+  nextOffset?: number;
+};
+
+/**
+ * Streams a single request's canonical artifacts without retaining a run-wide
+ * artifact history. One matching look-ahead record determines continuation.
+ */
+export async function pageLargeRunArtifacts(
+  events: AsyncIterable<unknown>,
+  requestId: string,
+  offset: number,
+  limit: number
+): Promise<LargeRunArtifactPage> {
   const items: ArtifactEvent[] = [];
   let seen = 0;
   for await (const raw of events) {

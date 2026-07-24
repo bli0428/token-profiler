@@ -40,6 +40,13 @@ function pageLargeRunRequests(
   offset: number,
   limit: number
 ): { items: LargeRunRequest[]; nextOffset?: number };
+
+function pageLargeRunArtifacts(
+  events: AsyncIterable<unknown>,
+  requestId: string,
+  offset: number,
+  limit: number
+): Promise<{ items: ArtifactEvent[]; nextOffset?: number }>;
 ```
 
 `LargeRunSummary` contains only run totals and one compact row per request. A
@@ -50,6 +57,12 @@ artifact content, provider payloads, HTTP cursor state, or response shapes.
 `pageLargeRunRequests` slices an already ordered projection and returns an
 offset for the next slice. The offset is analyzer-internal; dashboard surfaces
 must wrap it in their own opaque cursor rather than expose it to clients.
+
+`pageLargeRunArtifacts` streams and filters canonical artifacts for exactly
+one request. It preserves canonical event order and retains at most the page
+plus one matching look-ahead event to determine `nextOffset`. Its offset is
+an analyzer-private continuation, not an HTTP cursor; it must not produce
+privacy/display fields or retain run-wide artifact history.
 
 ```ts
 function analyzeExposure(runData: PreparedRunData): ExposureAnalysis;

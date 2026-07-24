@@ -100,6 +100,15 @@ function createLargeRunResponse(
   cursor?: { offset: number; run_id?: string; source_mtime_ms?: number },
   limit?: number
 ): Promise<DashboardApiLargeRun>;
+
+function createLargeRunArtifactPage(
+  runDir: string,
+  runId: string,
+  requestId: string,
+  source: { size: number; mtimeMs: number },
+  cursor?: { offset: number; run_id?: string; request_id?: string; source_mtime_ms?: number },
+  limit?: number
+): Promise<DashboardApiLargeRunArtifactPage>;
 ```
 
 `GET /api/runs/{run_id}/large` returns a large-run overview and its first
@@ -112,6 +121,17 @@ source file changes. The route rejects invalid cursors and limits with
 `invalid_request` (400), and invalid complete canonical JSONL with
 `run_unreadable` (422). Clients must not decode cursors or reconstruct request
 rows from source events.
+
+`GET /api/runs/{run_id}/large/requests/{request_id}/artifacts` returns a
+selected-request artifact page. It defaults to 50 rows and accepts a limit
+from 1 through 500. Every cursor is opaque and valid only for its run,
+request, and source version. Each row contains canonical artifact ID/type,
+privacy-safe display name, local token count, request order, and
+`preview_state`; it never contains `content`, `preview`, or provider payloads.
+Malformed, cross-request/run, or stale cursors and invalid limits return
+`invalid_request` (400); invalid complete canonical JSONL returns
+`run_unreadable` (422). The route streams the canonical store and must not
+invoke the full-detail analyzer or materialize run-wide artifact history.
 
 ## View Model APIs
 
@@ -177,6 +197,7 @@ Import HTTP-facing types from `src/surfaces/dashboard-api/types.ts`.
   types
 - `DashboardApiLargeRun`, `DashboardApiLargeRunPage`, and
   `DashboardApiLargeRunRequest`
+- `DashboardApiLargeRunArtifactPage` and `DashboardApiLargeRunArtifact`
 
 Artifact rows expose `unique_exposure`, `total_exposure`, `repeated_exposure`,
 and `inclusion_count`. `unique_exposure` is the local token exposure from the

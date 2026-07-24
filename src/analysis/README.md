@@ -11,4 +11,9 @@ Each projection row contains only canonical request identity, latest timestamp,
 provider-usage facts, observed turn identity, and aggregate artifact counts;
 surfaces own pagination cursors and HTTP response mapping.
 
+For selected-request artifact exploration, `pageLargeRunArtifacts` streams
+canonical events and retains only the requested page plus one matching
+look-ahead record. It filters/order-pages canonical artifacts but never knows
+HTTP cursors, provider payloads, content display policy, or browser state.
+
 For boundary rules and allowed inputs/outputs, see [contract.md](contract.md).

@@ -56,4 +56,21 @@ describe("dashboard API client", () => {
       { headers: { accept: "application/json" } }
     );
   });
+
+  it("forwards opaque artifact cursors to the selected-request artifact route", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => Response.json({
+      schema_version: 1,
+      generated_at: "now",
+      data: { request_id: "request / id", items: [], next_cursor: "opaque-next" },
+      caveats: []
+    })));
+
+    await expect(createDashboardApiClient("http://api.test").getLargeRunArtifacts?.("run / id", "request / id", "opaque cursor")).resolves.toMatchObject({
+      data: { next_cursor: "opaque-next" }
+    });
+    expect(fetch).toHaveBeenCalledWith(
+      "http://api.test/api/runs/run%20%2F%20id/large/requests/request%20%2F%20id/artifacts?cursor=opaque%20cursor",
+      { headers: { accept: "application/json" } }
+    );
+  });
 });

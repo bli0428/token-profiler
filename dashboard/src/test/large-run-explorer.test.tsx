@@ -27,6 +27,24 @@ describe("large run explorer", () => {
     expect(await screen.findByText("old")).toBeInTheDocument();
     expect(getLargeRunRequests).toHaveBeenLastCalledWith("run-large", "next");
   });
+
+  it("pages artifacts for the selected request with the returned cursor", async () => {
+    const getLargeRun = vi.fn().mockResolvedValueOnce(envelope({
+      run_id: "run-large", mode: "paged" as const, overview: overview(), request_page: { items: [request("selected")] }
+    }));
+    const getLargeRunArtifacts = vi.fn()
+      .mockResolvedValueOnce(envelope({ request_id: "selected", items: [artifact("one", "hidden")], next_cursor: "next-artifacts" }))
+      .mockResolvedValueOnce(envelope({ request_id: "selected", items: [artifact("two", "preview")] }));
+    const client = { baseUrl: "", getLargeRun, getLargeRunArtifacts } as unknown as DashboardApiClient;
+
+    render(<LargeRunExplorer client={client} runId="run-large" />);
+    await screen.findByText("selected");
+    fireEvent.click(screen.getByRole("button", { name: "Artifacts" }));
+    expect(await screen.findByText(/one\.ts/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Next artifacts" }));
+    expect(await screen.findByText(/two\.ts/)).toBeInTheDocument();
+    expect(getLargeRunArtifacts).toHaveBeenLastCalledWith("run-large", "selected", "next-artifacts");
+  });
 });
 
 function overview() {
@@ -44,6 +62,10 @@ function overview() {
 
 function request(request_id: string) {
   return { request_id, chronology_index: 0, artifact_count: 0, total_local_artifact_tokens: 0 };
+}
+
+function artifact(artifact_id: string, preview_state: "hidden" | "preview") {
+  return { artifact_id, artifact_type: "FILE", display_name: `${artifact_id}.ts`, local_token_count: 1, request_order: 0, preview_state };
 }
 
 function envelope<T>(data: T) {

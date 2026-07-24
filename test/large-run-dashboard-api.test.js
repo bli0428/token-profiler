@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import test from "node:test";
 import { handleDashboardApiRequest } from "../src/surfaces/dashboard-api/routes.ts";
-import { largeRunRequestEvents } from "./helpers/dashboard-fixtures.js";
+import { largeRunArtifactEvents, largeRunRequestEvents } from "./helpers/dashboard-fixtures.js";
 
 test("large run API returns overview metrics and run-bound request cursors", async () => {
   const root = join(tmpdir(), `token-profiler-large-api-${Date.now()}`);
@@ -71,4 +71,54 @@ test("large run API reports malformed complete canonical JSONL as unreadable", a
   const response = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large`, { rootDir: root });
   assert.equal(response.status, 422);
   assert.equal(response.body.error, "run_unreadable");
+});
+
+test("large run artifact pages isolate a request, preserve privacy state, and bind cursors", async () => {
+  const root = join(tmpdir(), `token-profiler-large-artifacts-${Date.now()}`);
+  const runId = "codex-019f8654-d457-7560-88e9-131adc7a7c60";
+  const otherRun = "codex-019f8654-d457-7560-88e9-131adc7a7c61";
+  const runDir = join(root, "runs", runId);
+  const events = largeRunArtifactEvents();
+  await mkdir(runDir, { recursive: true });
+  await mkdir(join(root, "runs", otherRun), { recursive: true });
+  await writeFile(join(runDir, "events.jsonl"), `${events.map(JSON.stringify).join("\n")}\n`);
+  await writeFile(join(root, "runs", otherRun, "events.jsonl"), `${JSON.stringify(events[0])}\n`);
+
+  const first = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large/requests/selected/artifacts?limit=1`, { rootDir: root });
+  assert.equal(first.status, 200);
+  assert.equal(first.body.data.request_id, "selected");
+  assert.deepEqual(first.body.data.items[0], {
+    artifact_id: "META:selected",
+    artifact_type: "FILE",
+    display_name: "selected.ts",
+    local_token_count: 3,
+    request_order: 0,
+    preview_state: "hidden"
+  });
+  assert.equal("content" in first.body.data.items[0], false);
+  assert.equal("preview" in first.body.data.items[0], false);
+  const cursor = first.body.data.next_cursor;
+  assert.ok(cursor);
+
+  const second = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large/requests/selected/artifacts?cursor=${encodeURIComponent(cursor)}&limit=1`, { rootDir: root });
+  assert.equal(second.status, 200);
+  assert.equal(second.body.data.items[0].artifact_id, "PREVIEW:selected");
+  assert.equal(second.body.data.items[0].preview_state, "preview");
+  const third = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large/requests/selected/artifacts?cursor=${encodeURIComponent(second.body.data.next_cursor)}&limit=1`, { rootDir: root });
+  assert.equal(third.status, 200);
+  assert.equal(third.body.data.items[0].preview_state, "raw_available");
+  assert.equal(third.body.data.next_cursor, undefined);
+
+  const crossRequest = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large/requests/other/artifacts?cursor=${encodeURIComponent(cursor)}`, { rootDir: root });
+  assert.equal(crossRequest.status, 400);
+  const crossRun = await handleDashboardApiRequest("GET", `/api/runs/${otherRun}/large/requests/selected/artifacts?cursor=${encodeURIComponent(cursor)}`, { rootDir: root });
+  assert.equal(crossRun.status, 400);
+  const malformed = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large/requests/selected/artifacts?cursor=not-a-cursor`, { rootDir: root });
+  assert.equal(malformed.status, 400);
+  const invalidLimit = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large/requests/selected/artifacts?limit=501`, { rootDir: root });
+  assert.equal(invalidLimit.status, 400);
+
+  await writeFile(join(runDir, "events.jsonl"), `${events.map(JSON.stringify).join("\n")}\n${JSON.stringify(events[0])}\n`);
+  const stale = await handleDashboardApiRequest("GET", `/api/runs/${runId}/large/requests/selected/artifacts?cursor=${encodeURIComponent(cursor)}`, { rootDir: root });
+  assert.equal(stale.status, 400);
 });

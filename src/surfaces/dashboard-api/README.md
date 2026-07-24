@@ -10,4 +10,9 @@ newest-first request page. It maps only canonical request usage, turn identity,
 timestamps, and aggregate artifact counts. The API owns opaque continuation
 cursors; clients forward them unchanged and never decode them.
 
+`GET /api/runs/{run_id}/large/requests/{request_id}/artifacts` pages only the
+selected request's canonical artifacts. Its opaque cursor is bound to the
+run, request, and source version. Rows expose a privacy-safe display label and
+availability state, never stored preview or raw content.
+
 For boundary rules and allowed inputs/outputs, see [contract.md](contract.md).

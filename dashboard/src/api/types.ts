@@ -24,7 +24,15 @@ export type LargeRunResponse = {
   overview: { request_count: number; artifact_count: number; event_count: number; event_file_bytes: number; input_tokens: number; cached_input_tokens: number; uncached_input_tokens: number; output_tokens: number };
   request_page: LargeRunPage;
 };
-export type LargeRunArtifactPage = { request_id: string; items: Array<{ artifact_id: string; artifact_type: string; display_name: string; local_token_count: number; request_order: number; preview_state: PrivacyState }>; next_cursor?: string };
+export type LargeRunArtifact = {
+  artifact_id: string;
+  artifact_type: string;
+  display_name: string;
+  local_token_count: number;
+  request_order: number;
+  preview_state: PrivacyState;
+};
+export type LargeRunArtifactPage = { request_id: string; items: LargeRunArtifact[]; next_cursor?: string };
 
 export type DashboardCaveat = {
   code: string;

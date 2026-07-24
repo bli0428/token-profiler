@@ -4,7 +4,8 @@ import { pageLargeRunArtifacts, pageLargeRunRequests, summarizeLargeRun, type La
 import type { ProviderRequestUsage } from "../../analysis/types.ts";
 import { streamEventsFromRunDir } from "../../core/store/index.ts";
 import { DashboardApiRouteError } from "./errors.ts";
-import type { DashboardApiLargeRun, DashboardApiLargeRunRequest } from "./types.ts";
+import { dashboardPrivacyState, safeDisplayText } from "./privacy.ts";
+import type { DashboardApiLargeRun, DashboardApiLargeRunArtifact, DashboardApiLargeRunArtifactPage, DashboardApiLargeRunRequest } from "./types.ts";
 
 const SUMMARY_FILE = ".dashboard-large-run-summary-v1.json";
 export type LargeRunCachedSummary = LargeRunSummary & { source_bytes: number; source_mtime_ms: number };
@@ -28,6 +29,7 @@ export async function readLargeRunSummary(runDir: string, source: { size: number
 }
 
 type LargeRunCursor = { offset: number; run_id?: string; source_mtime_ms?: number };
+type LargeRunArtifactCursor = LargeRunCursor & { request_id?: string };
 
 export async function createLargeRunResponse(
   runDir: string,
@@ -64,13 +66,47 @@ export async function createLargeRunResponse(
   };
 }
 
-export async function createLargeRunArtifactPage(runDir: string, requestId: string, offset = 0, limit = 50) {
-  const page = await pageLargeRunArtifacts(streamEventsFromRunDir(runDir), requestId, offset, limit);
-  return { request_id: requestId, items: page.items.map((artifact, index) => ({ artifact_id: artifact.artifact_id, artifact_type: artifact.artifact_type, display_name: artifact.artifact_name, local_token_count: artifact.local_token_count, request_order: artifact.artifact_index ?? offset + index, preview_state: artifact.storage_mode === "raw" ? "raw_available" : artifact.storage_mode === "preview" ? "preview" : "hidden" })), ...(page.nextOffset !== undefined ? { next_cursor: encodeCursor({ offset: page.nextOffset }) } : {}) };
+export async function createLargeRunArtifactPage(
+  runDir: string,
+  runId: string,
+  requestId: string,
+  source: { size: number; mtimeMs: number },
+  cursor: LargeRunArtifactCursor = { offset: 0 },
+  limit = 50
+): Promise<DashboardApiLargeRunArtifactPage> {
+  if (cursor.run_id !== undefined && (cursor.run_id !== runId || cursor.request_id !== requestId || cursor.source_mtime_ms !== source.mtimeMs)) {
+    throw invalidCursor();
+  }
+  try {
+    const page = await pageLargeRunArtifacts(streamEventsFromRunDir(runDir), requestId, cursor.offset, limit);
+    return {
+      request_id: requestId,
+      items: page.items.map((artifact, index) => mapLargeRunArtifact(artifact, cursor.offset + index)),
+      ...(page.nextOffset === undefined ? {} : {
+        next_cursor: encodeCursor({ offset: page.nextOffset, run_id: runId, request_id: requestId, source_mtime_ms: source.mtimeMs })
+      })
+    };
+  } catch (error) {
+    if (error instanceof DashboardApiRouteError) throw error;
+    throw new DashboardApiRouteError(
+      "run_unreadable",
+      422,
+      error instanceof Error ? error.message : "Unable to read run events."
+    );
+  }
 }
 
-export function decodeCursor(value: string | null): LargeRunCursor { try { if (!value) return { offset: 0 }; const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")); if (!Number.isInteger(parsed.offset) || parsed.offset < 0 || (parsed.run_id !== undefined && typeof parsed.run_id !== "string") || (parsed.source_mtime_ms !== undefined && !Number.isFinite(parsed.source_mtime_ms))) throw new Error(); return parsed; } catch { throw invalidCursor(); } }
-function encodeCursor(cursor: LargeRunCursor): string { return Buffer.from(JSON.stringify(cursor)).toString("base64url"); }
+export function decodeCursor(value: string | null): LargeRunCursor { return decodeCursorFields(value, false); }
+export function decodeArtifactCursor(value: string | null): LargeRunArtifactCursor { return decodeCursorFields(value, true); }
+function decodeCursorFields(value: string | null, allowsRequestId: boolean): LargeRunArtifactCursor {
+  try {
+    if (!value) return { offset: 0 };
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
+    if (!parsed || typeof parsed !== "object" || !Number.isInteger(parsed.offset) || parsed.offset < 0 || (parsed.run_id !== undefined && typeof parsed.run_id !== "string") || (parsed.source_mtime_ms !== undefined && !Number.isFinite(parsed.source_mtime_ms)) || (!allowsRequestId && parsed.request_id !== undefined) || (allowsRequestId && parsed.request_id !== undefined && typeof parsed.request_id !== "string")) throw new Error();
+    return parsed;
+  } catch { throw invalidCursor(); }
+}
+function encodeCursor(cursor: LargeRunArtifactCursor): string { return Buffer.from(JSON.stringify(cursor)).toString("base64url"); }
 async function readCachedSummary(runDir: string): Promise<LargeRunCachedSummary | undefined> { try { const value = JSON.parse(await readFile(join(runDir, SUMMARY_FILE), "utf8")); return value && Array.isArray(value.requests) ? value : undefined; } catch { return undefined; } }
 
 function invalidCursor(): DashboardApiRouteError {
@@ -99,5 +135,22 @@ function mapProviderUsage(usage: NonNullable<LargeRunRequest["usage"]>): Provide
     total_tokens: usage.total_tokens,
     ...(usage.response_id === undefined ? {} : { response_id: usage.response_id }),
     source: "provider_reported"
+  };
+}
+
+function mapLargeRunArtifact(artifact: Awaited<ReturnType<typeof pageLargeRunArtifacts>>["items"][number], fallbackOrder: number): DashboardApiLargeRunArtifact {
+  const previewState = artifact.storage_mode === "raw" ? "raw_available" : artifact.storage_mode === "preview" ? "preview" : "hidden";
+  const privacy = dashboardPrivacyState({
+    storageMode: artifact.storage_mode,
+    previewState,
+    hiddenFields: previewState === "hidden" ? ["raw_content"] : []
+  });
+  return {
+    artifact_id: artifact.artifact_id,
+    artifact_type: artifact.artifact_type,
+    display_name: safeDisplayText(artifact.artifact_name, privacy, "display_name") ?? artifact.artifact_type,
+    local_token_count: artifact.local_token_count,
+    request_order: artifact.artifact_index ?? fallbackOrder,
+    preview_state: previewState
   };
 }

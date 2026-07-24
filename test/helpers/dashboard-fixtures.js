@@ -86,3 +86,23 @@ export function largeRunRequestEvents(requests) {
     ];
   });
 }
+
+/** Canonical selected-request artifacts for large-run artifact-page tests. */
+export function largeRunArtifactEvents() {
+  return [
+    artifact("selected", "META:selected", "FILE", "selected.ts", "hash-meta", 3, 0, 3),
+    { ...artifact("other", "OTHER:one", "FILE", "other.ts", "hash-other", 99, 0, 99), artifact_index: 0 },
+    {
+      ...artifact("selected", "PREVIEW:selected", "TOOL_OUTPUT", "tool:preview", "hash-preview", 5, 3, 8),
+      artifact_index: 1,
+      storage_mode: "preview",
+      preview: { text: "preview text must not be returned" }
+    },
+    {
+      ...artifact("selected", "RAW:selected", "TOOL_OUTPUT", "tool:raw", "hash-raw", 7, 8, 15),
+      artifact_index: 2,
+      storage_mode: "raw",
+      content: "raw text must not be returned"
+    }
+  ];
+}
