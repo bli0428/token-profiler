@@ -84,11 +84,17 @@ class JsonlEventStore {
 }
 
 function readEventsFromRunDir(runDir: string): Promise<unknown[]>;
+function streamEventsFromRunDir(runDir: string): AsyncGenerator<unknown>;
 ```
 
 `JsonlEventStore` writes to `<rootDir>/runs/<runId>/events.jsonl`.
 `readEventsFromRunDir` reads `events.jsonl` from an already resolved run
 directory and throws if the file is missing or invalid JSONL.
+
+`streamEventsFromRunDir` incrementally parses complete newline-terminated JSONL
+records without allocating the full file. It ignores an unterminated trailing
+line so concurrent appenders can safely finish it later, and reports malformed
+complete lines with their one-based line number.
 
 ## Capture APIs
 

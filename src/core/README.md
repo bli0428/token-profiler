@@ -6,4 +6,8 @@ and capture primitives.
 Use this layer when you need the project's shared canonical types or helpers
 that sit between adapters and analyzers.
 
+For large captures, use the store's async JSONL reader. It emits only complete
+newline-terminated canonical records, so a concurrent append does not turn a
+partial trailing line into an event.
+
 For boundary rules and allowed inputs/outputs, see [contract.md](contract.md).

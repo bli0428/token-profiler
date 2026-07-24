@@ -25,10 +25,10 @@ export function SessionList({ sessions, selectedRunId, onSelect }: Props) {
             >
               <span className="session-updated">{session.updated_at ? new Date(session.updated_at).toLocaleString() : "Updated time unavailable"}</span>
               <span className="session-title">{session.label ?? session.run_id}</span>
-              {/* <span className={`session-grouping session-grouping--${groupingLabel.tone}`} title={groupingLabel.description}>
+              <span className={`session-grouping session-grouping--${groupingLabel.tone}`} title={groupingLabel.description}>
                 {groupingLabel.label}
-              </span> */}
-              {/* <span className="session-metrics" aria-label="Session token totals">
+              </span>
+              <span className="session-metrics" aria-label="Session token totals">
                 <span>
                   <strong>{formatCount(session.input_tokens)}</strong>
                   input
@@ -45,10 +45,11 @@ export function SessionList({ sessions, selectedRunId, onSelect }: Props) {
                   <strong>{formatCount(session.output_tokens)}</strong>
                   output
                 </span>
-              </span> */}
+              </span>
               <span className="session-counts">
                 {formatCount(totalTokens(session))} total tokens
               </span>
+              {limitations.map((limitation) => <span className="session-limitation" key={limitation}>{limitation}</span>)}
               <CaveatList caveats={session.caveats} />
             </button>
           );

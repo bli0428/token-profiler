@@ -51,6 +51,14 @@ export async function summarizeLargeRun(events: AsyncIterable<unknown>): Promise
     requests: [...byRequest.values()].sort((a, b) => String(b.timestamp ?? "").localeCompare(String(a.timestamp ?? "")) || b.request_id.localeCompare(a.request_id)) };
 }
 
+export function pageLargeRunRequests(requests: LargeRunRequest[], offset: number, limit: number): { items: LargeRunRequest[]; nextOffset?: number } {
+  const items = requests.slice(offset, offset + limit);
+  return {
+    items,
+    ...(offset + items.length < requests.length ? { nextOffset: offset + items.length } : {})
+  };
+}
+
 export async function pageLargeRunArtifacts(events: AsyncIterable<unknown>, requestId: string, offset: number, limit: number): Promise<{ items: ArtifactEvent[]; nextOffset?: number }> {
   const items: ArtifactEvent[] = [];
   let seen = 0;

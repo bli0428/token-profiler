@@ -31,6 +31,20 @@ function prepareRunData(events: unknown[]): PreparedRunData;
 
 ## Analyzer APIs
 
+Import large-run APIs from `src/analysis/index.ts`.
+
+```ts
+function summarizeLargeRun(events: AsyncIterable<unknown>): Promise<LargeRunSummary>;
+function pageLargeRunRequests(
+  requests: LargeRunRequest[],
+  offset: number,
+  limit: number
+): { items: LargeRunRequest[]; nextOffset?: number };
+```
+
+`LargeRunSummary` contains only run totals and one compact row per request. It
+does not retain artifact events or content.
+
 ```ts
 function analyzeExposure(runData: PreparedRunData): ExposureAnalysis;
 

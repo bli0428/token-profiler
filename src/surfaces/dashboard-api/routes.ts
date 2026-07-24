@@ -79,7 +79,7 @@ export async function handleDashboardApiRequest(
     }
 
     if (parts.length === 7 && parts[0] === "api" && parts[1] === "runs" && parts[3] === "large" && parts[4] === "requests" && parts[6] === "artifacts") {
-      const page = await createLargeRunArtifactPage(dashboardRunDir(options.rootDir, parts[2] ?? ""), parts[5] ?? "", decodeCursor(url.searchParams.get("cursor")), parseLimit(url.searchParams.get("limit")) ?? 50);
+      const page = await createLargeRunArtifactPage(dashboardRunDir(options.rootDir, parts[2] ?? ""), parts[5] ?? "", decodeCursor(url.searchParams.get("cursor")).offset, parseLimit(url.searchParams.get("limit")) ?? 50);
       return { status: 200, body: envelope(page), headers };
     }
 

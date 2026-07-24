@@ -90,6 +90,23 @@ function createArtifactDetailResponse(
 ): Promise<DashboardApiArtifactDetail>;
 ```
 
+Import large-run response builders from `src/surfaces/dashboard-api/large-runs.ts`.
+
+```ts
+function createLargeRunResponse(
+  runDir: string,
+  runId: string,
+  source: { size: number; mtimeMs: number },
+  cursor?: { offset: number; run_id?: string; source_mtime_ms?: number },
+  limit?: number
+): Promise<DashboardApiLargeRun>;
+```
+
+`GET /api/runs/{run_id}/large` returns a large-run overview and its first
+newest-first request page. `GET /api/runs/{run_id}/large/requests` returns a
+subsequent page. Cursors are opaque, run-bound, and invalid once the source
+file changes.
+
 ## View Model APIs
 
 ```ts
@@ -152,6 +169,8 @@ Import HTTP-facing types from `src/surfaces/dashboard-api/types.ts`.
 - `DashboardApiTurnGroup` and `DashboardApiTurnRequest`
 - `DashboardApiPrivacyState`, `DashboardApiCaveat`, and related row/detail
   types
+- `DashboardApiLargeRun`, `DashboardApiLargeRunPage`, and
+  `DashboardApiLargeRunRequest`
 
 Artifact rows expose `unique_exposure`, `total_exposure`, `repeated_exposure`,
 and `inclusion_count`. `unique_exposure` is the local token exposure from the

@@ -109,6 +109,37 @@ export type DashboardApiRun = {
   caveats: DashboardApiCaveat[];
 };
 
+export type DashboardApiLargeRunRequest = {
+  request_id: string;
+  timestamp?: string | undefined;
+  turn_id?: string | undefined;
+  chronology_index: number;
+  artifact_count: number;
+  total_local_artifact_tokens: number;
+  usage?: ProviderRequestUsage | undefined;
+};
+
+export type DashboardApiLargeRunPage = {
+  items: DashboardApiLargeRunRequest[];
+  next_cursor?: string | undefined;
+};
+
+export type DashboardApiLargeRun = {
+  run_id: string;
+  mode: "paged";
+  overview: {
+    request_count: number;
+    artifact_count: number;
+    event_count: number;
+    event_file_bytes: number;
+    input_tokens: number;
+    cached_input_tokens: number;
+    uncached_input_tokens: number;
+    output_tokens: number;
+  };
+  request_page: DashboardApiLargeRunPage;
+};
+
 export type DashboardApiRequestAccounting = {
   availability: AnalyzerAvailability;
   summary: {
