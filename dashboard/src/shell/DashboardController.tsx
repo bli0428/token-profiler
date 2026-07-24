@@ -15,14 +15,18 @@ import { SessionList } from "../sessions/SessionList";
 import { reconcileRun, reconcileSessions, type RefreshResult } from "../state/reconcile";
 import { withSelectedRun } from "../state/view-state";
 
+const NO_ARTIFACT_IDS: string[] = [];
+
 export function DashboardController() {
   const client = useMemo(() => createDashboardApiClient(), []);
   const [viewState, setViewState] = useUrlState();
   const status = useApiStatus(client);
   const ready = Boolean(status.data?.data.ready);
   const sessions = useSessions(client, ready);
-  const selectedRun = useSelectedRun(client, viewState.selectedRunId);
-  const artifactDetails = useArtifactDetails(client, viewState.selectedRunId, viewState.expandedArtifactIds);
+  const selectedSession = (sessions.data?.data.sessions ?? []).find((session) => session.run_id === viewState.selectedRunId);
+  const isLargeRun = selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") ?? false;
+  const selectedRun = useSelectedRun(client, viewState.selectedRunId, !isLargeRun);
+  const artifactDetails = useArtifactDetails(client, isLargeRun ? undefined : viewState.selectedRunId, isLargeRun ? NO_ARTIFACT_IDS : viewState.expandedArtifactIds);
 
   const refresh = useCallback(async (): Promise<RefreshResult> => {
     try {
@@ -54,7 +58,6 @@ export function DashboardController() {
     content = <ErrorState title="Unable to load sessions" message={sessions.error.message} onAction={sessions.reload} />;
   } else {
     const sessionList = sessions.data?.data.sessions ?? [];
-    const selectedSession = sessionList.find((session) => session.run_id === viewState.selectedRunId);
 
     content = (
       <>
@@ -91,10 +94,10 @@ export function DashboardController() {
           )}
           <main className="content-pane">
             {!viewState.selectedRunId ? <EmptyState title="Select a session" message="Choose a recent run to inspect context artifacts." /> : null}
-            {viewState.selectedRunId && selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") ? <LargeRunExplorer client={client} runId={viewState.selectedRunId} /> : null}
-            {!selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") && selectedRun.loading ? <EmptyState title="Loading run" message="Fetching run overview and artifact rows." /> : null}
-            {!selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") && selectedRun.error ? <ErrorState title={selectedRun.error.kind === "not-found" ? "Run not found" : "Unable to load run"} message={selectedRun.error.message} /> : null}
-            {!selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") && selectedRun.data ? (
+            {viewState.selectedRunId && isLargeRun ? <LargeRunExplorer client={client} runId={viewState.selectedRunId} /> : null}
+            {!isLargeRun && selectedRun.loading ? <EmptyState title="Loading run" message="Fetching run overview and artifact rows." /> : null}
+            {!isLargeRun && selectedRun.error ? <ErrorState title={selectedRun.error.kind === "not-found" ? "Run not found" : "Unable to load run"} message={selectedRun.error.message} /> : null}
+            {!isLargeRun && selectedRun.data ? (
               <RunExplorer
                 run={selectedRun.data.data}
                 details={artifactDetails.data}

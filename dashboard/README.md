@@ -73,6 +73,7 @@ Important field names from the real contract:
 - Status uses `service: "token-profiler-dashboard-api"`, `local_only`, `read_only`, `data_root_label`, `data.schema_version`, and `capabilities`.
 - Sessions use `run_id` for routing, optional `canonical_run_id` for display/diagnostics only, optional `label`, token totals, and `availability.status`.
 - Runs expose `overview`, `artifacts`, `artifact_details`, `task_groups`, `filters`, `privacy`, and `caveats`.
+- Sessions marked with the API caveat `large_run_paged` use the dedicated paged explorer instead of requesting the normal full-run response. It initially requests only `GET /api/runs/{run_id}/large`; request and selected-request artifact pages are fetched only after the investigator activates their continuation controls.
 - Artifact rows use flat metric fields such as `total_exposure`, `unique_exposure`, `repeated_exposure`, `inclusion_count`, `normalized_estimated_input_tokens`, `normalized_first_occurrence_estimated_input_tokens`, `estimated_cached_input_tokens`, `estimated_uncached_input_tokens`, plus `task_group_ids`, `preview_state`, `detail_available`, and `search_text`.
 - Artifact detail uses `title`, structured `identity`, `metadata_sections`, `tool_links`, `task_group_ids`, `privacy`, optional `content.preview`, and optional `content.raw`.
 - Availability is an object, for example `{ status: "complete" }`; it is not a plain string.
@@ -103,6 +104,8 @@ Meaningful diffs should be endpoint shape, caveat, privacy, schema, or field cha
 ## Isolation Rules
 
 Dashboard production source must not import root `src/`, root surfaces, local JSONL run files, or `dashboard/test/**`. The frontend consumes only HTTP JSON from the dashboard API contract and duplicates client contract types in `src/api/types.ts`, guarded by fixture tests.
+
+Large-run cursors are API-owned opaque values. The dashboard forwards the returned cursor unchanged for the same request or artifact page; it does not decode, create, persist, or reuse one for another run/request. Large-run list rows expose privacy availability only and never render preview or raw content.
 
 Styles are split by responsibility:
 

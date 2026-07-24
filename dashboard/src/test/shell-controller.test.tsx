@@ -44,9 +44,22 @@ describe("dashboard shell/controller", () => {
     await userEvent.click(rows[1]!);
     await waitFor(() => expect(getRun.mock.calls.at(-1)?.[0]).toContain(`/api/runs/${second.run_id}`));
   });
+
+  it("uses the paged explorer without requesting the normal full-run route for a large session", async () => {
+    const largeSession = { ...apiRealFixtures.sessions.data.sessions[0]!, run_id: "run-large", caveats: [{ code: "large_run_paged", severity: "info" as const, message: "Paged large run" }] };
+    const getLargeRun = vi.fn(async () => Response.json(largeRunResponse()));
+    const getRun = vi.fn(async () => Response.json(apiRealFixtures.run));
+    mockApi({ sessions: [largeSession], getRun, getLargeRun });
+    render(<DashboardShell />);
+
+    await userEvent.click(await screen.findByText(largeSession.label ?? largeSession.run_id));
+    expect(await screen.findByRole("heading", { name: "Large run (paged)" })).toBeInTheDocument();
+    expect(getLargeRun).toHaveBeenCalledTimes(1);
+    expect(getRun).not.toHaveBeenCalled();
+  });
 });
 
-function mockApi(overrides: { getRun?: (url: string) => Promise<Response>; sessions?: DashboardSession[] } = {}) {
+function mockApi(overrides: { getRun?: (url: string) => Promise<Response>; getLargeRun?: (url: string) => Promise<Response>; sessions?: DashboardSession[] } = {}) {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string) => {
@@ -67,11 +80,26 @@ function mockApi(overrides: { getRun?: (url: string) => Promise<Response>; sessi
       if (url.includes("/api/sessions")) {
         return Response.json(overrides.sessions ? { ...apiRealFixtures.sessions, data: { sessions: overrides.sessions } } : apiRealFixtures.sessions);
       }
+      if (url.includes("/large")) return overrides.getLargeRun ? overrides.getLargeRun(url) : Response.json({ error: "not_found", message: "Missing" }, { status: 404 });
       if (url.includes("/artifacts/")) return Response.json(apiRealFixtures.artifactDetail);
       if (url.includes("/api/runs/")) return overrides.getRun ? overrides.getRun(url) : Response.json(apiRealFixtures.run);
       return Response.json({ error: { code: "not_found", message: "Missing" } }, { status: 404 });
     })
   );
+}
+
+function largeRunResponse() {
+  return {
+    schema_version: 1 as const,
+    generated_at: "2026-07-24T00:00:00.000Z",
+    data: {
+      run_id: "run-large",
+      mode: "paged" as const,
+      overview: { request_count: 1, artifact_count: 0, event_count: 1, event_file_bytes: 1024, input_tokens: 0, cached_input_tokens: 0, uncached_input_tokens: 0, output_tokens: 0 },
+      request_page: { items: [] }
+    },
+    caveats: []
+  };
 }
 
 function directCodexSession(runId: string, label: string): DashboardSession {

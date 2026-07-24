@@ -18,6 +18,13 @@ type DashboardApiClient = {
     runId: string,
     artifactId: string
   ): Promise<ArtifactDetailResponse>;
+  getLargeRun?(runId: string, cursor?: string): Promise<ApiEnvelope<LargeRunResponse>>;
+  getLargeRunRequests?(runId: string, cursor?: string): Promise<ApiEnvelope<LargeRunPage>>;
+  getLargeRunArtifacts?(
+    runId: string,
+    requestId: string,
+    cursor?: string
+  ): Promise<ApiEnvelope<LargeRunArtifactPage>>;
 };
 
 function getConfiguredApiBaseUrl(): string;
@@ -68,6 +75,9 @@ Import from `dashboard/src/api/types.ts`.
 - Shared support types: `DashboardCaveat`, `DashboardPrivacyState`,
   `AvailabilityState`, `RequestUsageAvailability`, and
   `ProviderRequestUsage`.
+- Large-run types: `LargeRunResponse`, `LargeRunPage`, `LargeRunRequest`,
+  `LargeRunArtifactPage`, and `LargeRunArtifact`. They mirror the bounded
+  dashboard API pages and are not analyzer or store types.
 
 Artifact rows expose `unique_exposure`, `total_exposure`, `repeated_exposure`,
 and `inclusion_count`. `unique_exposure` is the local token exposure from the
@@ -92,3 +102,10 @@ content-hash appearance in the run.
   not infer new domain facts.
 - Frontend code must not import root `src/` modules, local JSONL data, or
   adapter/analyzer internals.
+- A session carrying the API-provided `large_run_paged` caveat must render the
+  large-run explorer without issuing the normal full-run request. The client
+  forwards a returned large-run cursor unchanged and never decodes, constructs,
+  persists, or reuses it across run/request boundaries.
+- The large-run explorer may render only declared large-run page fields. Its
+  `preview_state` is availability information; it must not retrieve, infer, or
+  render preview/raw content.

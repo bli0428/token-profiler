@@ -17,13 +17,27 @@ export type LargeRunRequest = {
   usage?: ProviderRequestUsage;
 };
 
-export type LargeRunPage = { items: LargeRunRequest[]; next_cursor?: string };
+export type LargeRunPage = {
+  items: LargeRunRequest[];
+  next_cursor?: string;
+};
+
 export type LargeRunResponse = {
   run_id: string;
   mode: "paged";
-  overview: { request_count: number; artifact_count: number; event_count: number; event_file_bytes: number; input_tokens: number; cached_input_tokens: number; uncached_input_tokens: number; output_tokens: number };
+  overview: {
+    request_count: number;
+    artifact_count: number;
+    event_count: number;
+    event_file_bytes: number;
+    input_tokens: number;
+    cached_input_tokens: number;
+    uncached_input_tokens: number;
+    output_tokens: number;
+  };
   request_page: LargeRunPage;
 };
+
 export type LargeRunArtifact = {
   artifact_id: string;
   artifact_type: string;
@@ -32,7 +46,12 @@ export type LargeRunArtifact = {
   request_order: number;
   preview_state: PrivacyState;
 };
-export type LargeRunArtifactPage = { request_id: string; items: LargeRunArtifact[]; next_cursor?: string };
+
+export type LargeRunArtifactPage = {
+  request_id: string;
+  items: LargeRunArtifact[];
+  next_cursor?: string;
+};
 
 export type DashboardCaveat = {
   code: string;

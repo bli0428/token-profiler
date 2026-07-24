@@ -37,3 +37,34 @@
   cursor: pointer;
   font-weight: 700;
 }
+
+.large-run-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.large-run-table th,
+.large-run-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.large-run-table th {
+  color: var(--color-muted);
+  background: var(--color-surface-muted);
+  font-size: 0.82rem;
+}
+
+.large-run-table button,
+.large-run-next {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-accent-strong);
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 700;
+}

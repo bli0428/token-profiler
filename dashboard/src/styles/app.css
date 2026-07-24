@@ -22,3 +22,47 @@ input,
 select {
   font: inherit;
 }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.large-run-header,
+.large-run-artifacts {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.large-run-header h2,
+.large-run-artifacts h3,
+.large-run-artifacts ul,
+.large-run-header p {
+  margin: 0;
+}
+
+.large-run-header p,
+.large-run-artifacts li,
+.large-run-loading,
+.large-run-error {
+  color: var(--color-muted);
+}
+
+.large-run-note {
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+.large-run-next {
+  margin-top: var(--space-3);
+}
+
+.large-run-artifacts {
+  margin-top: var(--space-5);
+}
