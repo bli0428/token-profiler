@@ -6,6 +6,9 @@ import { readEventsFromRunDir } from "../../core/store/index.ts";
 import type { ArtifactEvent } from "../../core/events/types.ts";
 import type { DashboardViewSession, DashboardViewSessionIndex } from "./view-model-types.ts";
 import type { SessionIdentityMapping } from "../../analysis/types.ts";
+import { readLargeRunSummary } from "./large-runs.ts";
+
+const LARGE_RUN_BYTES = 64 * 1024 * 1024;
 
 export type DashboardSessionTitleLookup = (
   sessions: Array<{ run_id: string; updated_at: Date }>
@@ -30,6 +33,19 @@ export async function createDashboardSessionIndex(
     if (!stat) continue;
 
     try {
+      if (stat.size > LARGE_RUN_BYTES) {
+        const summary = await readLargeRunSummary(runDir, { size: stat.size, mtimeMs: stat.mtimeMs });
+        sessions.push({
+          run_id: entry.name, run_dir: runDir, label: entry.name,
+          identity: sessionIdentity({ routeRunId: entry.name, canonicalRunId: entry.name, label: entry.name }),
+          updated_at: stat.mtime.toISOString(), request_count: summary.requests.length, artifact_count: summary.artifact_count,
+          input_tokens: summary.input_tokens, cached_input_tokens: summary.cached_input_tokens,
+          uncached_input_tokens: summary.uncached_input_tokens, output_tokens: summary.output_tokens,
+          availability: { status: "partial", reason: "Large run: request pages are available; full artifact aggregation is deferred." },
+          caveats: [{ code: "large_run_paged", severity: "info", message: "This large run is available through paginated request drilldown." }]
+        });
+        continue;
+      }
       const events = await readEventsFromRunDir(runDir);
       const summary = analyzeEvents(events);
       const runId = summary.run_id ?? entry.name;

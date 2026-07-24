@@ -7,6 +7,25 @@ export type ApiEnvelope<T> = {
   caveats: DashboardCaveat[];
 };
 
+export type LargeRunRequest = {
+  request_id: string;
+  timestamp?: string;
+  turn_id?: string;
+  chronology_index: number;
+  artifact_count: number;
+  total_local_artifact_tokens: number;
+  usage?: ProviderRequestUsage;
+};
+
+export type LargeRunPage = { items: LargeRunRequest[]; next_cursor?: string };
+export type LargeRunResponse = {
+  run_id: string;
+  mode: "paged";
+  overview: { request_count: number; artifact_count: number; event_count: number; event_file_bytes: number; input_tokens: number; cached_input_tokens: number; uncached_input_tokens: number; output_tokens: number };
+  request_page: LargeRunPage;
+};
+export type LargeRunArtifactPage = { request_id: string; items: Array<{ artifact_id: string; artifact_type: string; display_name: string; local_token_count: number; request_order: number; preview_state: PrivacyState }>; next_cursor?: string };
+
 export type DashboardCaveat = {
   code: string;
   message: string;

@@ -10,6 +10,7 @@ import { useSelectedRun } from "../hooks/useSelectedRun";
 import { useSessions } from "../hooks/useSessions";
 import { useUrlState } from "../hooks/useUrlState";
 import { RunExplorer } from "../run-explorer/RunExplorer";
+import { LargeRunExplorer } from "../run-explorer/LargeRunExplorer";
 import { SessionList } from "../sessions/SessionList";
 import { reconcileRun, reconcileSessions, type RefreshResult } from "../state/reconcile";
 import { withSelectedRun } from "../state/view-state";
@@ -90,9 +91,10 @@ export function DashboardController() {
           )}
           <main className="content-pane">
             {!viewState.selectedRunId ? <EmptyState title="Select a session" message="Choose a recent run to inspect context artifacts." /> : null}
-            {selectedRun.loading ? <EmptyState title="Loading run" message="Fetching run overview and artifact rows." /> : null}
-            {selectedRun.error ? <ErrorState title={selectedRun.error.kind === "not-found" ? "Run not found" : "Unable to load run"} message={selectedRun.error.message} /> : null}
-            {selectedRun.data ? (
+            {viewState.selectedRunId && selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") ? <LargeRunExplorer client={client} runId={viewState.selectedRunId} /> : null}
+            {!selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") && selectedRun.loading ? <EmptyState title="Loading run" message="Fetching run overview and artifact rows." /> : null}
+            {!selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") && selectedRun.error ? <ErrorState title={selectedRun.error.kind === "not-found" ? "Run not found" : "Unable to load run"} message={selectedRun.error.message} /> : null}
+            {!selectedSession?.caveats.some((caveat) => caveat.code === "large_run_paged") && selectedRun.data ? (
               <RunExplorer
                 run={selectedRun.data.data}
                 details={artifactDetails.data}

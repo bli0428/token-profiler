@@ -10,6 +10,7 @@ import {
 } from "./responses.ts";
 import type { DashboardApiResponse } from "./types.ts";
 import type { DashboardSessionTitleLookup } from "./sessions.ts";
+import { createLargeRunArtifactPage, createLargeRunResponse, decodeCursor } from "./large-runs.ts";
 
 export type DashboardApiRouteOptions = {
   rootDir: string;
@@ -61,6 +62,25 @@ export async function handleDashboardApiRequest(
         })),
         headers
       };
+    }
+
+    if (parts.length === 4 && parts[0] === "api" && parts[1] === "runs" && parts[3] === "large") {
+      const runDir = dashboardRunDir(options.rootDir, parts[2] ?? "");
+      const source = await stat(join(runDir, "events.jsonl"));
+      const page = await createLargeRunResponse(runDir, parts[2] ?? "", { size: source.size, mtimeMs: source.mtimeMs }, decodeCursor(url.searchParams.get("cursor")), parseLimit(url.searchParams.get("limit")) ?? 50);
+      return { status: 200, body: envelope(page), headers };
+    }
+
+    if (parts.length === 5 && parts[0] === "api" && parts[1] === "runs" && parts[3] === "large" && parts[4] === "requests") {
+      const runDir = dashboardRunDir(options.rootDir, parts[2] ?? "");
+      const source = await stat(join(runDir, "events.jsonl"));
+      const page = await createLargeRunResponse(runDir, parts[2] ?? "", { size: source.size, mtimeMs: source.mtimeMs }, decodeCursor(url.searchParams.get("cursor")), parseLimit(url.searchParams.get("limit")) ?? 50);
+      return { status: 200, body: envelope(page.request_page), headers };
+    }
+
+    if (parts.length === 7 && parts[0] === "api" && parts[1] === "runs" && parts[3] === "large" && parts[4] === "requests" && parts[6] === "artifacts") {
+      const page = await createLargeRunArtifactPage(dashboardRunDir(options.rootDir, parts[2] ?? ""), parts[5] ?? "", decodeCursor(url.searchParams.get("cursor")), parseLimit(url.searchParams.get("limit")) ?? 50);
+      return { status: 200, body: envelope(page), headers };
     }
 
     if (parts.length === 3 && parts[0] === "api" && parts[1] === "runs") {
@@ -198,6 +218,13 @@ function parseLimit(value: string | null): number | undefined {
     throw new DashboardApiRouteError("invalid_request", 400, "Invalid sessions limit.");
   }
   return limit;
+}
+
+function dashboardRunDir(rootDir: string, runId: string): string {
+  const root = resolve(rootDir, "runs");
+  const runDir = resolve(root, runId);
+  if (!runId || (!runDir.startsWith(`${root}${sep}`) && runDir !== root)) throw new DashboardApiRouteError("not_found", 404, "Run not found.");
+  return runDir;
 }
 
 function responseHeaders(origin: string | undefined): Record<string, string> {
