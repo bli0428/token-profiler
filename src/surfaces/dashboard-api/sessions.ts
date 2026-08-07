@@ -7,6 +7,7 @@ import type { ArtifactEvent } from "../../core/events/types.ts";
 import type { DashboardViewSession, DashboardViewSessionIndex } from "./view-model-types.ts";
 import type { SessionIdentityMapping } from "../../analysis/types.ts";
 import { readLargeRunSummary } from "./large-runs.ts";
+import { readCurrentSessionCatalog, writeSessionCatalog, type SessionCatalogEntry } from "../../core/store/session-catalog.ts";
 
 const LARGE_RUN_BYTES = 64 * 1024 * 1024;
 
@@ -16,13 +17,24 @@ export type DashboardSessionTitleLookup = (
 
 export async function createDashboardSessionIndex(
   rootDir: string,
-  { limit = 20, sessionTitleLookup }: { limit?: number; sessionTitleLookup?: DashboardSessionTitleLookup | undefined } = {}
+  { limit = 20, offset = 0, sessionTitleLookup, rebuild = false, lazy = false }: { limit?: number; offset?: number; sessionTitleLookup?: DashboardSessionTitleLookup | undefined; rebuild?: boolean; lazy?: boolean | "force" } = {}
 ): Promise<DashboardViewSessionIndex> {
   const runsDir = join(rootDir, "runs");
   const entries = await readdir(runsDir, { withFileTypes: true }).catch((error) => {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
     throw error;
   });
+  const sources = new Map(entries.filter((entry) => entry.isDirectory()).map((entry) => {
+    const eventStat = statSync(join(runsDir, entry.name, "events.jsonl"), { throwIfNoEntry: false });
+    return [entry.name, eventStat ? { size: eventStat.size, mtimeMs: eventStat.mtimeMs, updatedAt: eventStat.mtime.toISOString() } : undefined] as const;
+  }).filter((entry): entry is readonly [string, { size: number; mtimeMs: number; updatedAt: string }] => entry[1] !== undefined));
+  const deferEventReads = lazy === "force" || (lazy && [...sources.values()].some((source) => source.size > LARGE_RUN_BYTES));
+  if (!rebuild && deferEventReads) {
+    const catalog = await readCurrentSessionCatalog(rootDir, new Map([...sources.entries()].map(([id, source]) => [id, source])));
+    if (catalog) return catalogIndex(catalog, limit, offset);
+    void rebuildSessionCatalog(rootDir, sessionTitleLookup);
+    return statOnlyIndex(sources, limit, offset, sessionTitleLookup);
+  }
   const sessions: DashboardViewSession[] = [];
   const labelOverrides = new Map<string, string>();
 
@@ -104,12 +116,53 @@ export async function createDashboardSessionIndex(
     || a.run_id.localeCompare(b.run_id)
   );
 
-  return {
-    schema_version: 1,
+  const index = {
+    schema_version: 1 as const,
     generated_at: new Date().toISOString(),
-    sessions: sessions.slice(0, limit),
+    sessions: sessions.slice(offset, offset + limit),
     caveats: []
   };
+  await writeSessionCatalog(rootDir, sessions.map(toCatalogEntry)).catch(() => undefined);
+  return index;
+}
+
+const rebuildingRoots = new Set<string>();
+async function rebuildSessionCatalog(
+  rootDir: string,
+  sessionTitleLookup: DashboardSessionTitleLookup | undefined
+): Promise<void> {
+  if (rebuildingRoots.has(rootDir)) return;
+  rebuildingRoots.add(rootDir);
+  try {
+    await createDashboardSessionIndex(rootDir, {
+      limit: Number.MAX_SAFE_INTEGER,
+      rebuild: true,
+      sessionTitleLookup
+    });
+  } finally {
+    rebuildingRoots.delete(rootDir);
+  }
+}
+
+async function statOnlyIndex(
+  sources: Map<string, { size: number; mtimeMs: number; updatedAt: string }>,
+  limit: number,
+  offset: number,
+  sessionTitleLookup: DashboardSessionTitleLookup | undefined
+): Promise<DashboardViewSessionIndex> {
+  const sessions = [...sources.entries()].sort(([, left], [, right]) => right.mtimeMs - left.mtimeMs).slice(offset, offset + limit).map(([run_id, source]) => ({ run_id, run_dir: run_id, label: run_id, identity: sessionIdentity({ routeRunId: run_id, canonicalRunId: run_id, label: run_id }), updated_at: source.updatedAt, availability: { status: "partial" as const, reason: "Session catalog is being built." }, caveats: [{ code: "session_catalog_pending", severity: "info" as const, message: "Session metrics will appear after local indexing." }] }));
+  await applySessionTitles(sessions, sessionTitleLookup);
+  return { schema_version: 1 as const, generated_at: new Date().toISOString(), sessions, caveats: [] };
+}
+
+function catalogIndex(entries: SessionCatalogEntry[], limit: number, offset: number): DashboardViewSessionIndex {
+  const sessions = entries.sort((left, right) => right.source_mtime_ms - left.source_mtime_ms).slice(offset, offset + limit).map((entry) => ({ run_id: entry.run_id, run_dir: entry.run_id, label: entry.label, identity: sessionIdentity({ routeRunId: entry.run_id, canonicalRunId: entry.run_id, label: entry.label }), updated_at: entry.updated_at, ...(entry.request_count === undefined ? {} : { request_count: entry.request_count }), ...(entry.artifact_count === undefined ? {} : { artifact_count: entry.artifact_count }), ...(entry.input_tokens === undefined ? {} : { input_tokens: entry.input_tokens }), ...(entry.cached_input_tokens === undefined ? {} : { cached_input_tokens: entry.cached_input_tokens }), ...(entry.uncached_input_tokens === undefined ? {} : { uncached_input_tokens: entry.uncached_input_tokens }), ...(entry.output_tokens === undefined ? {} : { output_tokens: entry.output_tokens }), availability: { status: entry.availability_status }, caveats: [] }));
+  return { schema_version: 1, generated_at: new Date().toISOString(), sessions, caveats: [] };
+}
+
+function toCatalogEntry(session: DashboardViewSession): SessionCatalogEntry {
+  const source = statSync(join(session.run_dir, "events.jsonl"));
+  return { run_id: basename(session.run_dir), label: session.label ?? session.run_id, updated_at: String(session.updated_at), source_bytes: source.size, source_mtime_ms: source.mtimeMs, ...(session.request_count === undefined ? {} : { request_count: session.request_count }), ...(session.artifact_count === undefined ? {} : { artifact_count: session.artifact_count }), ...(session.input_tokens === undefined ? {} : { input_tokens: session.input_tokens }), ...(session.cached_input_tokens === undefined ? {} : { cached_input_tokens: session.cached_input_tokens }), ...(session.uncached_input_tokens === undefined ? {} : { uncached_input_tokens: session.uncached_input_tokens }), ...(session.output_tokens === undefined ? {} : { output_tokens: session.output_tokens }), availability_status: session.availability.status === "not_applicable" ? "partial" : session.availability.status };
 }
 
 function numberValue(value: unknown): number | undefined {

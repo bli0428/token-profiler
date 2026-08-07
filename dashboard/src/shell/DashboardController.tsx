@@ -90,6 +90,9 @@ export function DashboardController() {
               sessions={sessionList}
               selectedRunId={viewState.selectedRunId}
               onSelect={(selectedRunId) => setViewState((current) => withSelectedRun(current, selectedRunId))}
+              hasMore={Boolean(sessions.data?.data.next_cursor)}
+              loadingMore={sessions.loading}
+              onLoadMore={() => void sessions.loadMore()}
             />
           )}
           <main className="content-pane">

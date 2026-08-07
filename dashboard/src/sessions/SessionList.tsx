@@ -5,9 +5,12 @@ type Props = {
   sessions: DashboardSession[];
   selectedRunId?: string;
   onSelect: (runId: string) => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
 };
 
-export function SessionList({ sessions, selectedRunId, onSelect }: Props) {
+export function SessionList({ sessions, selectedRunId, onSelect, hasMore = false, loadingMore = false, onLoadMore }: Props) {
   return (
     <section className="sessions-pane" aria-label="Sessions">
       <h2>Sessions</h2>
@@ -55,6 +58,7 @@ export function SessionList({ sessions, selectedRunId, onSelect }: Props) {
           );
         })}
       </div>
+      {hasMore ? <button type="button" onClick={onLoadMore} disabled={loadingMore}>{loadingMore ? "Loading sessions…" : "Load more sessions"}</button> : null}
     </section>
   );
 }

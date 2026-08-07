@@ -85,11 +85,19 @@ class JsonlEventStore {
 
 function readEventsFromRunDir(runDir: string): Promise<unknown[]>;
 function streamEventsFromRunDir(runDir: string): AsyncGenerator<unknown>;
+function streamEventsFromRunDir(runDir: string): AsyncGenerator<unknown>;
 ```
 
 `JsonlEventStore` writes to `<rootDir>/runs/<runId>/events.jsonl`.
 `readEventsFromRunDir` reads `events.jsonl` from an already resolved run
 directory and throws if the file is missing or invalid JSONL.
+`streamEventsFromRunDir` parses complete JSONL lines incrementally and is the
+supported reader for large-run processing.
+
+`src/core/store/session-catalog.ts` owns the private local session-catalog
+record. Its entries contain the dashboard session label, run summary metrics,
+and event-file fingerprints; it must not store provider payloads or artifact
+content.
 
 `streamEventsFromRunDir` incrementally parses complete newline-terminated JSONL
 records without allocating the full file. It ignores an unterminated trailing

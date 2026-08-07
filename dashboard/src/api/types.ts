@@ -268,6 +268,7 @@ export type DashboardTurnGroup = {
 
 export type DashboardSessionsData = {
   sessions: DashboardSession[];
+  next_cursor?: string;
 };
 
 export type DashboardRunOverview = {

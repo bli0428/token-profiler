@@ -88,11 +88,15 @@ function isProcessRunning(pid: unknown): boolean {
 
 export async function createSessionsResponse(
   rootDir: string,
-  options: { limit?: number; sessionTitleLookup?: DashboardSessionTitleLookup | undefined } = {}
-): Promise<{ sessions: DashboardApiSession[] }> {
-  const index = await createDashboardSessionIndex(rootDir, options);
+  options: { limit?: number; offset?: number; sessionTitleLookup?: DashboardSessionTitleLookup | undefined } = {}
+): Promise<{ sessions: DashboardApiSession[]; next_cursor?: string }> {
+  const limit = options.limit ?? 20;
+  const offset = options.offset ?? 0;
+  const index = await createDashboardSessionIndex(rootDir, { ...options, limit: limit + 1, offset, lazy: true });
+  const sessions = index.sessions.slice(0, limit).map(toApiSession);
   return {
-    sessions: index.sessions.map(toApiSession)
+    sessions,
+    ...(index.sessions.length > limit ? { next_cursor: Buffer.from(JSON.stringify({ offset: offset + limit })).toString("base64url") } : {})
   };
 }
 

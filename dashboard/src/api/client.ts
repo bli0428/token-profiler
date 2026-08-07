@@ -17,7 +17,7 @@ const DEFAULT_API_BASE_URL = "";
 export type DashboardApiClient = {
   baseUrl: string;
   getStatus(): Promise<StatusResponse>;
-  getSessions(limit?: number): Promise<SessionsResponse>;
+  getSessions(limit?: number, cursor?: string): Promise<SessionsResponse>;
   getRun(runId: string): Promise<RunResponse>;
   getArtifactDetail(runId: string, artifactId: string): Promise<ArtifactDetailResponse>;
   getLargeRun?(runId: string, cursor?: string): Promise<ApiEnvelope<LargeRunResponse>>;
@@ -73,7 +73,7 @@ export function createDashboardApiClient(baseUrl = getConfiguredApiBaseUrl()): D
   return {
     baseUrl: normalizedBaseUrl,
     getStatus: () => request("/api/status"),
-    getSessions: (limit = 20) => request(`/api/sessions?limit=${encodeURIComponent(String(limit))}`),
+    getSessions: (limit = 20, cursor) => request(`/api/sessions?limit=${encodeURIComponent(String(limit))}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`),
     getRun: (runId) => request(`/api/runs/${encodeURIComponent(runId)}`),
     getArtifactDetail: (runId, artifactId) =>
       request(`/api/runs/${encodeURIComponent(runId)}/artifacts/${encodeURIComponent(artifactId)}`),

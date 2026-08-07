@@ -227,3 +227,5 @@ Dashboard clients should depend on HTTP-facing types, not view-model internals.
   fixtures.
 - The dashboard frontend must not reconstruct analyzer behavior or depend on
   undocumented response fields.
+- `GET /api/sessions` may return a stat-only page while its local session
+  catalog rebuilds; it must not synchronously parse event logs for that page.

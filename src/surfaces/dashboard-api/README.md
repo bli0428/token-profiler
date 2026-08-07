@@ -5,6 +5,10 @@ This surface owns the local dashboard HTTP API contract.
 Use this layer to map analyzer output into dashboard-friendly response shapes
 that the React app can consume.
 
+The session-list route serves a local persisted catalog. If that catalog is
+missing or stale, it returns a stat-only page immediately while rebuilding the
+catalog locally; it does not synchronously parse historical event logs.
+
 For large runs, `GET /api/runs/{run_id}/large/requests` returns a bounded,
 newest-first request page. It maps only canonical request usage, turn identity,
 timestamps, and aggregate artifact counts. The API owns opaque continuation

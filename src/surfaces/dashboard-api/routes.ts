@@ -54,10 +54,12 @@ export async function handleDashboardApiRequest(
 
     if (parts.length === 2 && parts[0] === "api" && parts[1] === "sessions") {
       const limit = parseLimit(url.searchParams.get("limit"));
+      const offset = parseSessionCursor(url.searchParams.get("cursor"));
       return {
         status: 200,
         body: envelope(await createSessionsResponse(options.rootDir, {
           ...(limit === undefined ? {} : { limit }),
+          ...(offset === undefined ? {} : { offset }),
           ...(options.sessionTitleLookup === undefined ? {} : { sessionTitleLookup: options.sessionTitleLookup })
         })),
         headers
@@ -220,6 +222,12 @@ function parseLimit(value: string | null): number | undefined {
     throw new DashboardApiRouteError("invalid_request", 400, "Invalid page limit.");
   }
   return limit;
+}
+
+function parseSessionCursor(value: string | null): number | undefined {
+  if (!value) return undefined;
+  try { const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8")); if (!Number.isInteger(parsed.offset) || parsed.offset < 0) throw new Error(); return parsed.offset; }
+  catch { throw new DashboardApiRouteError("invalid_request", 400, "Invalid sessions cursor."); }
 }
 
 function dashboardRunDir(rootDir: string, runId: string): string {
