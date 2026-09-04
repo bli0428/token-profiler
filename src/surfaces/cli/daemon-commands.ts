@@ -3,6 +3,7 @@ import { closeSync, openSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
+import { resolveCodexAuthMode } from "./codex-auth.ts";
 import { optionString, parseOptions } from "./utils.ts";
 import { runCodexConfig, runProxy } from "./proxy-commands.ts";
 
@@ -40,7 +41,7 @@ export async function runDaemon(args: string[]): Promise<void> {
   }
 
   const options = parseOptions(optionArgs);
-  const daemonOptions = parseDaemonOptions(options);
+  const daemonOptions = await parseDaemonOptions(options);
   const statePath = join(daemonOptions.rootDir, "daemon-state.json");
 
   if (action === "start") {
@@ -203,9 +204,8 @@ async function printDaemonStatus(rootDir: string, statePath: string): Promise<vo
   await runProxy(["status", "--data-dir", rootDir]);
 }
 
-function parseDaemonOptions(options: Record<string, string | boolean>): DaemonOptions {
-  const authMode = optionString(options.auth, "chatgpt");
-  if (!["chatgpt", "api"].includes(authMode)) throw new Error("--auth must be chatgpt or api.");
+async function parseDaemonOptions(options: Record<string, string | boolean>): Promise<DaemonOptions> {
+  const authMode = await resolveCodexAuthMode(options.auth);
 
   const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
   const host = optionString(options.host, "127.0.0.1");
@@ -267,7 +267,7 @@ ${daemonUsage()}
 
 Options:
   --auth chatgpt|api
-    Select the upstream auth mode. Defaults to chatgpt.
+    Select the upstream auth mode. Defaults to the active Codex login mode.
 
   --data-dir <path>
     Store daemon state, logs, and captured runs under this root.

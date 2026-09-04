@@ -63,6 +63,13 @@ function createProfilerProxy(options: {
   close(): Promise<void>;
 };
 
+// The server reserves GET /_token_profiler/health and responds with:
+// { ok: true, pid: number }
+
+// CLI consumers select the upstream from an explicit --auth value or from
+// Codex auth.json's auth_mode field. API key material is never read by the
+// adapter; authorization headers pass through the proxy transport unchanged.
+
 function buildUpstreamUrl(upstream: string | URL, incomingPath: string): URL;
 
 function enableCodexProxyConfig(

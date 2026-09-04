@@ -35,6 +35,15 @@ The Codex adapter currently owns live proxy capture, Codex config helpers,
 session routing, and rollout/log import. A future Claude Code adapter should be
 a sibling folder, not a change inside the Codex adapter.
 
+The live proxy exposes `GET /_token_profiler/health` for local lifecycle
+checks. Successful responses identify the serving process so CLI daemon state
+can be distinguished from a stale or reused PID.
+
+When `--auth` is omitted, CLI launch and daemon commands inspect only Codex's
+non-secret `auth_mode` metadata. API-key logins route to the OpenAI API `/v1`
+endpoint; ChatGPT logins route to the ChatGPT Codex endpoint. An explicit
+`--auth chatgpt|api` value overrides detection.
+
 ## Adding Another Coding Agent
 
 Start with a new folder:

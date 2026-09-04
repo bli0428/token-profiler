@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { createSessionId, sanitizeSessionId } from "../../adapters/codex/live-proxy/session-router.ts";
+import { resolveCodexAuthMode } from "./codex-auth.ts";
 import { runDaemon } from "./daemon-commands.ts";
 import { optionString, parseOptions, positionalArgs } from "./utils.ts";
 
@@ -27,7 +28,7 @@ export async function runCodexLauncher(args: string[]): Promise<void> {
   const separatorIndex = args.indexOf("--");
   const launcherArgs = separatorIndex === -1 ? args : args.slice(0, separatorIndex);
   const codexPassthroughArgs = separatorIndex === -1 ? [] : args.slice(separatorIndex + 1);
-  const options = parseRunCodexOptions(launcherArgs);
+  const options = await parseRunCodexOptions(launcherArgs);
 
   await runDaemon([
     "ensure",
@@ -119,7 +120,7 @@ profiler.
 
 Options:
   --auth chatgpt|api
-    Select the upstream auth mode. Defaults to chatgpt.
+    Select the upstream auth mode. Defaults to the active Codex login mode.
 
   --data-dir <path>
     Store daemon state, logs, and captured runs under this root.
@@ -144,12 +145,9 @@ Options:
 `);
 }
 
-function parseRunCodexOptions(args: string[]): RunCodexOptions {
+async function parseRunCodexOptions(args: string[]): Promise<RunCodexOptions> {
   const options = parseOptions(args);
-  const authMode = optionString(options.auth, "chatgpt");
-  if (!["chatgpt", "api"].includes(authMode)) {
-    throw new Error("--auth must be chatgpt or api.");
-  }
+  const authMode = await resolveCodexAuthMode(options.auth);
 
   const cwdArg = positionalArgs(args).find((arg) => arg !== "codex");
   const dataDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));

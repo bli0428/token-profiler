@@ -45,7 +45,7 @@ export function createProfilerProxy({
   const server = http.createServer(async (request, response) => {
     if (request.method === "GET" && request.url === "/_token_profiler/health") {
       response.writeHead(200, { "content-type": "application/json" });
-      response.end(JSON.stringify({ ok: true }));
+      response.end(JSON.stringify({ ok: true, pid: process.pid }));
       return;
     }
 

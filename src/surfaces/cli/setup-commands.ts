@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
+import { resolveCodexAuthMode } from "./codex-auth.ts";
 import { runDaemon } from "./daemon-commands.ts";
 import { runCodexConfig } from "./proxy-commands.ts";
 import { optionString, parseOptions, positionalArgs } from "./utils.ts";
@@ -12,8 +13,7 @@ export async function runSetup(args: string[]): Promise<void> {
   }
 
   const options = parseOptions(args);
-  const authMode = optionString(options.auth, "chatgpt");
-  if (!["chatgpt", "api"].includes(authMode)) throw new Error("--auth must be chatgpt or api.");
+  const authMode = await resolveCodexAuthMode(options.auth);
 
   const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
   const proxyPort = optionString(options["proxy-port"] ?? options.port, "8787");

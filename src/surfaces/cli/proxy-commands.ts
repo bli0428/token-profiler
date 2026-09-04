@@ -8,6 +8,7 @@ import { disableCodexProxyConfig, enableCodexProxyConfig } from "../../adapters/
 import { createProfilerProxy } from "../../adapters/codex/live-proxy/index.ts";
 import { createSessionId, SessionRouter, sanitizeSessionId } from "../../adapters/codex/live-proxy/session-router.ts";
 
+import { resolveCodexAuthMode } from "./codex-auth.ts";
 import { optionString, parseOptions } from "./utils.ts";
 
 type ProxyState = {
@@ -36,10 +37,7 @@ type StartProxyDaemonOptions = {
 export async function runProxy(args: string[]): Promise<void> {
   const [action = "start", ...optionArgs] = args;
   const options = parseOptions(optionArgs);
-  const authMode = optionString(options.auth, "chatgpt");
-  if (!["chatgpt", "api"].includes(authMode)) {
-    throw new Error("--auth must be chatgpt or api.");
-  }
+  const authMode = await resolveCodexAuthMode(options.auth);
   const runId = typeof options.run === "string" ? sanitizeSessionId(options.run) : null;
   const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
   const upstream = optionString(options.upstream, authMode === "chatgpt"
@@ -63,7 +61,7 @@ export async function runProxy(args: string[]): Promise<void> {
   if (action === "stop") {
     const state = await readProxyState(statePath);
     if (!state) throw new Error("Token profiler proxy is not running.");
-    if (!isProcessRunning(state.pid)) {
+    if (!await isProxyHealthy(state)) {
       await rm(statePath, { force: true });
       console.log("Token profiler proxy is not running.");
       return;
@@ -78,7 +76,7 @@ export async function runProxy(args: string[]): Promise<void> {
 
   if (action === "status") {
     const state = await readProxyState(statePath, false);
-    if (!state || !isProcessRunning(state.pid)) {
+    if (!state || !await isProxyHealthy(state)) {
       console.log("Token profiler proxy is not running.");
       return;
     }
@@ -135,8 +133,14 @@ async function startProxyDaemon({
   captureMode
 }: StartProxyDaemonOptions): Promise<void> {
   const existing = await readProxyState(statePath, false);
-  if (existing && isProcessRunning(existing.pid)) {
-    throw new Error(`Token profiler proxy is already running (pid ${existing.pid}).`);
+  if (existing) {
+    if (await isProxyHealthy(existing)) {
+      if (existing.upstream !== upstream || existing.host !== host || Number(existing.port) !== port) {
+        throw new Error("Token profiler proxy is already running with different settings. Stop it first.");
+      }
+      throw new Error(`Token profiler proxy is already running (pid ${existing.pid}).`);
+    }
+    await rm(statePath, { force: true });
   }
 
   await mkdir(rootDir, { recursive: true });
@@ -213,6 +217,24 @@ function isProcessRunning(pid: unknown): boolean {
   }
 }
 
+async function isProxyHealthy(state: ProxyState): Promise<boolean> {
+  if (!isProcessRunning(state.pid)) return false;
+
+  try {
+    const response = await fetch(`http://${state.host}:${state.port}/_token_profiler/health`);
+    if (!response.ok) return false;
+
+    const health = await response.json() as { ok?: unknown; pid?: unknown };
+    if (health.ok !== true) return false;
+
+    // Older profiler versions did not report their PID. Accept those health
+    // responses for compatibility; new versions must match the saved process.
+    return health.pid === undefined || health.pid === state.pid;
+  } catch {
+    return false;
+  }
+}
+
 async function waitFor(predicate: () => boolean | Promise<boolean>, timeoutMs: number): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
   do {
@@ -236,10 +258,7 @@ export async function runCodexConfig(args: string[]): Promise<void> {
   const statePath = `${configPath}.token-profiler-state.json`;
 
   if (action === "enable") {
-    const authMode = optionString(options.auth, "chatgpt");
-    if (!["chatgpt", "api"].includes(authMode)) {
-      throw new Error("--auth must be chatgpt or api.");
-    }
+    const authMode = await resolveCodexAuthMode(options.auth);
     const proxyUrl = optionString(options.url, authMode === "chatgpt"
       ? "http://127.0.0.1:8787"
       : "http://127.0.0.1:8787/v1");
@@ -292,10 +311,7 @@ async function runCodexThroughProxy(args: string[]): Promise<void> {
 
   const options = parseOptions(args.slice(0, separatorIndex));
   const promptArgs = args.slice(separatorIndex + 1);
-  const authMode = optionString(options.auth, "chatgpt");
-  if (!["chatgpt", "api"].includes(authMode)) {
-    throw new Error("--auth must be chatgpt or api.");
-  }
+  const authMode = await resolveCodexAuthMode(options.auth);
 
   const runId = sanitizeSessionId(optionString(options.run, createSessionId()));
   const rootDir = resolve(optionString(options["data-dir"], join(homedir(), ".token-profiler")));
